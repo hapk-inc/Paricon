@@ -343,20 +343,16 @@ class CloseRoomPopUp extends StatelessWidget {
             .map(
               (title) => TextButton(
                 onPressed: () async {
-                  if (title.contains("Y")) {
+                  /*if (title.contains("Y")) {
                     await context
                         .read(leavingRoomProvider.future)
                         .then((value) {
                       if (!value) {
-                        Navigator.popUntil(context, (route) {
-                          return route.isFirst;
-                        });
+                        Navigator.popUntil(context, (route) => route.isFirst);
                       } else
-                        Navigator.popUntil(context, (route) {
-                          return route.isFirst;
-                        });
-                    });
-                  }
+                        Navigator.popUntil(context, (route) => route.isFirst);
+                    },);
+                  }*/
                 },
                 child: Text(
                   title,

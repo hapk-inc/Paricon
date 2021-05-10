@@ -39,40 +39,9 @@ class GameBoard extends StatelessWidget {
                 .map(
                   (title) => TextButton(
                     onPressed: () async {
-                      if (title.contains("YES"))
-                        await context.read(leavingBoardProvider.future);
-
+                      /*if (title.contains("YES"))
+                        await context.read(leavingBoardProvider.future);*/
                       Navigator.pop(ctx, title.contains("YES"));
-                      /* if (title.contains("YES")) {
-                bool lastPlayer =
-                await context.read(lastPlayerProvider.future);
-                print("Is lastPlayer? $lastPlayer");
-                if (lastPlayer)
-                  await context.read(removeAllDataProvider.future);
-                else {
-                  String currentID =
-                  await context.read(currentIDProvider.last);
-                  print("-47 $currentID");
-                  final User firebaseUser =
-                  context.read(currentUserProvider);
-                  if (currentID == firebaseUser.uid) {
-                    final boardDB = context.read(boardDatabaseProvider);
-                    List players = await boardDB.localPlayers(false);
-                    int currentIndez =
-                    players.indexOf(firebaseUser.uid);
-                    currentIndez++;
-                    if (currentIndez == players.length)
-                      currentIndez = 0;
-                    if (players[currentIndez] != firebaseUser.uid) {
-                      await boardDB.setPlayer(players[currentIndez]);
-                    }
-                  }
-
-                  await context.read(leaveGameProvider.future);
-                }
-                Navigator.pop(ctx */ /*, title.contains("YES")*/ /*);
-                context.read(pageProvider).toDashboard;
-              }*/
                     },
                     child: Text(
                       title,

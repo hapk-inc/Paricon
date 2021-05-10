@@ -343,6 +343,7 @@ class CloseRoomPopUp extends StatelessWidget {
             .map(
               (title) => TextButton(
                 onPressed: () async {
+                  Navigator.pop(context, title.contains("YES"));
                   /*if (title.contains("Y")) {
                     await context
                         .read(leavingRoomProvider.future)

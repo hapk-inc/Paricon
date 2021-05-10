@@ -59,8 +59,8 @@ class GameRoom extends StatelessWidget {
           child: SafeArea(
             child: Column(
               children: [
-                RoomDetailsWdgt(),
-                PlayersWdgt(),
+                RoomDetailsWidget(),
+                PlayersWidget(),
               ],
             ),
           ),
@@ -70,8 +70,8 @@ class GameRoom extends StatelessWidget {
   }
 }
 
-class RoomDetailsWdgt extends StatelessWidget {
-  const RoomDetailsWdgt({Key key}) : super(key: key);
+class RoomDetailsWidget extends StatelessWidget {
+  const RoomDetailsWidget({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +97,7 @@ class RoomDetailsWdgt extends StatelessWidget {
               data: (value) {
                 final _room = value.details;
                 final firebaseUser = watch(currentUserProvider);
-                bool _isCreatorisYou = firebaseUser.uid == _room.creatorID;
+                bool _isCreatorIsYou = firebaseUser.uid == _room.creatorID;
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,7 +109,7 @@ class RoomDetailsWdgt extends StatelessWidget {
                         children: [
                           RoomCodeWidget(roomCode: _room.roomCode),
                           StartRoomButtonWidget(
-                              isCreatorIsYou: _isCreatorisYou),
+                              isCreatorIsYou: _isCreatorIsYou),
                         ],
                       ),
                     ),
@@ -119,7 +119,7 @@ class RoomDetailsWdgt extends StatelessWidget {
                         children: [
                           _room.level.toUpperCase(),
                           "MAX PLAYERS: ${_room.maxCount}"
-                        ].map((e) => RoomDetailsTxtWdgt(e)).toList(),
+                        ].map((e) => RoomDetailsTxtWidget(e)).toList(),
                       ),
                     )
                   ],
@@ -152,12 +152,12 @@ class CreatorTitleWidget extends ConsumerWidget {
       child: Center(
         child: FittedBox(
           child: firebaseUser.uid == _room.creatorID
-              ? SetCreatorNameWidgt(name: "You")
+              ? SetCreatorNameWidget(name: "You")
               : watch(creatorNameProvider(_room.creatorID)).when(
-                  data: (value) => SetCreatorNameWidgt(name: value),
-                  loading: () => SetCreatorNameWidgt(name: "SomeOne"),
+                  data: (value) => SetCreatorNameWidget(name: value),
+                  loading: () => SetCreatorNameWidget(name: "SomeOne"),
                   error: (error, stackTrace) =>
-                      SetCreatorNameWidgt(name: "NoOne"),
+                      SetCreatorNameWidget(name: "NoOne"),
                 ),
         ),
       ),
@@ -165,10 +165,10 @@ class CreatorTitleWidget extends ConsumerWidget {
   }
 }
 
-class SetCreatorNameWidgt extends StatelessWidget {
+class SetCreatorNameWidget extends StatelessWidget {
   final String name;
 
-  const SetCreatorNameWidgt({Key key, this.name}) : super(key: key);
+  const SetCreatorNameWidget({Key key, this.name}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
@@ -218,9 +218,9 @@ class RoomCodeWidget extends StatelessWidget {
   }
 }
 
-class RoomDetailsTxtWdgt extends StatelessWidget {
+class RoomDetailsTxtWidget extends StatelessWidget {
   final String details;
-  const RoomDetailsTxtWdgt(this.details, {Key key}) : super(key: key);
+  const RoomDetailsTxtWidget(this.details, {Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Flexible(
@@ -369,8 +369,8 @@ class CloseRoomPopUp extends StatelessWidget {
       );
 }
 
-class PlayersWdgt extends StatelessWidget {
-  const PlayersWdgt({Key key}) : super(key: key);
+class PlayersWidget extends StatelessWidget {
+  const PlayersWidget({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -379,7 +379,7 @@ class PlayersWdgt extends StatelessWidget {
       child: Consumer(
         builder: (ctx, watch, _) => FirebaseAnimatedList(
           query: watch(playersQueryProvider),
-          itemBuilder: (ctxt, snapshot, animation, _) {
+          itemBuilder: (_context, snapshot, animation, _) {
             final Room room = watch(roomProvider).data?.value;
             if (room == null) return Center(child: CircularProgressIndicator());
             final String roomLevel = room.details.level;
@@ -481,27 +481,30 @@ class PlayerTile extends StatelessWidget {
           Flexible(
               flex: 4,
               child: Center(
-                child: profile.stats[levels.indexOf(level.toLowerCase())]
-                            .played ==
-                        0
-                    ? FittedBox(
-                        child: Text(
-                          "Never Played".toUpperCase(),
-                          style: TextStyle(
-                              fontFamily: "Poppins",
-                              fontSize: 16,
-                              letterSpacing: 10),
-                        ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          StatsWdgt(
-                              title: "GAMES", value: profile.stats[0].played),
-                          StatsWdgt(title: "WIN", value: profile.stats[0].win),
-                          StatsWdgt(title: "AVG.", value: profile.stats[0].avg),
-                        ],
-                      ),
+                child:
+                    profile.stats[levels.indexOf(level.toLowerCase())].played ==
+                            0
+                        ? FittedBox(
+                            child: Text(
+                              "Never Played".toUpperCase(),
+                              style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  fontSize: 16,
+                                  letterSpacing: 10),
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              StatsWidget(
+                                  title: "GAMES",
+                                  value: profile.stats[0].played),
+                              StatsWidget(
+                                  title: "WIN", value: profile.stats[0].win),
+                              StatsWidget(
+                                  title: "AVG.", value: profile.stats[0].avg),
+                            ],
+                          ),
               ))
         ],
       ),
@@ -509,10 +512,10 @@ class PlayerTile extends StatelessWidget {
   }
 }
 
-class StatsWdgt extends StatelessWidget {
+class StatsWidget extends StatelessWidget {
   final String title;
   final num value;
-  const StatsWdgt({Key key, this.title, this.value}) : super(key: key);
+  const StatsWidget({Key key, this.title, this.value}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Flexible(

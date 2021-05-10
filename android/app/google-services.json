@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "294396273385",
+    "project_id": "paricon-85795",
+    "storage_bucket": "paricon-85795.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:294396273385:android:72f4d71bb17ce3ea0c8678",
+        "android_client_info": {
+          "package_name": "com.hapk.paricon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "294396273385-kr2o7e3050oofo2u8c6totkb2m9b1afn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8M9hXNbqe3OkDAZpb-LPyZiVF0VJ40Vw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "294396273385-kr2o7e3050oofo2u8c6totkb2m9b1afn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

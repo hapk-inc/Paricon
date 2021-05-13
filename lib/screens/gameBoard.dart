@@ -26,11 +26,11 @@ class GameBoard extends StatelessWidget {
             backgroundColor: Colors.indigo[800],
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16.0)),
-            actionsPadding: EdgeInsets.all(4.0),
+            actionsPadding: const EdgeInsets.all(4.0),
             titleTextStyle: Theme.of(context).textTheme.bodyText1,
             contentTextStyle:
                 Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 20),
-            title: Text('Really..'),
+            title: const Text('Really..'),
             content: FittedBox(
               child: Text(
                 'Leaving at middle of the game?',
@@ -51,7 +51,6 @@ class GameBoard extends StatelessWidget {
                         color: Colors.white54,
                         fontSize: 16,
                         letterSpacing: 5,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -320,16 +319,18 @@ class ShowIconWdgt extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ScopedReader watch) {
     final double paddingValue = watch(roomProvider).maybeWhen(
-        orElse: () => 12.0,
-        data: (value) => isFound
-            ? 4.0
-            : value.details.level.toLowerCase() == "hard"
-                ? 6.0
-                : 8.0);
+      orElse: () => 12.0,
+      data: (value) => isFound
+          ? 4.0
+          : value.details.level.toLowerCase() == "hard"
+              ? 6.0
+              : 8.0,
+    );
     return Center(
-      child: AnimatedPadding(
+      child: AnimatedContainer(
         padding: EdgeInsets.all(paddingValue),
         duration: const Duration(milliseconds: 500),
+        color: isFound ? Colors.white10 : Colors.indigo,
         child: FittedBox(
           child: Icon(
             IconData(iconCode, fontFamily: 'MaterialIcons'),

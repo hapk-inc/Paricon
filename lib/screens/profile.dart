@@ -60,7 +60,6 @@ class ProfileScreen extends StatelessWidget {
                         labelStyle: TextStyle(
                             fontSize: 20,
                             color: Colors.pink,
-                            fontWeight: FontWeight.w500,
                             fontFamily: 'Poppins'),
                         tabs: const ['Easy', 'Medium', 'Hard']
                             .map(

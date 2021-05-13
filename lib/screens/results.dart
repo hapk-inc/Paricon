@@ -36,7 +36,6 @@ class GameResults extends StatelessWidget {
                             "RESULTS",
                             style: TextStyle(
                                 fontSize: 32,
-                                fontWeight: FontWeight.w500,
                                 letterSpacing: 20,
                                 color: Colors.blue[300]),
                           ),
@@ -64,7 +63,6 @@ class GameResults extends StatelessWidget {
                                   .bodyText1
                                   .copyWith(
                                     letterSpacing: 5,
-                                    fontWeight: FontWeight.w500,
                                   ),
                               dataTextStyle:
                                   Theme.of(context).textTheme.bodyText1,
@@ -106,9 +104,7 @@ class GameResults extends StatelessWidget {
                           child: Text(
                             "YOUR SCORE",
                             style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 10,
-                                color: Colors.blue[300]),
+                                letterSpacing: 10, color: Colors.blue[300]),
                           ),
                         ),
                       ),
@@ -157,54 +153,49 @@ class ShadedLine extends StatelessWidget {
 class YourResults extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ScopedReader watch) {
-    //final firebaseUser = watch(currentUserProvider);
     final prevStats = watch(prevStatsProvider);
     return Flexible(
-        fit: FlexFit.tight,
-        flex: 5,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              if (prevStats.isWinner ?? true)
-                Flexible(
-                  child: FittedBox(
-                    child: Text(
-                      "Congratulations",
-                      textScaleFactor: 1.25,
-                      textAlign: TextAlign.center,
-                      style:
-                          TextStyle(color: Colors.blue[100], letterSpacing: 2),
-                    ),
-                  ),
-                ),
-              Spacer(),
+      fit: FlexFit.tight,
+      flex: 5,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            if (prevStats.isWinner ?? true)
               Flexible(
-                flex: 3,
-                child: Center(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      YourStatsWidget(
-                          title: "LEVEL", value: prevStats.level ?? "Easy"),
-                      YourStatsWidget(
-                          title: "POINTS", value: prevStats.pts ?? "14"),
-                      YourStatsWidget(
-                          title: "AVG SCORE", value: prevStats.avg ?? "14.25"),
-                      //YourStatsWidget(title: "RANK", value: "4"),
-                    ],
+                child: FittedBox(
+                  child: Text(
+                    "Congratulations",
+                    textScaleFactor: 1.25,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.blue[100], letterSpacing: 2),
                   ),
                 ),
-              )
-            ],
-          ),
-        ) /*AnimatedSwitcher(
-        duration: const Duration(milliseconds: 500),
-        child: Container(),
-      ),*/
-        );
+              ),
+            Spacer(),
+            Flexible(
+              flex: 3,
+              child: Center(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    YourStatsWidget(
+                        title: "LEVEL", value: prevStats.level ?? "Easy"),
+                    YourStatsWidget(
+                        title: "POINTS", value: prevStats.pts ?? "0"),
+                    YourStatsWidget(
+                        title: "AVG SCORE", value: prevStats.avg ?? "0"),
+                    //YourStatsWidget(title: "RANK", value: "4"),
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -214,32 +205,30 @@ class YourStatsWidget extends StatelessWidget {
   const YourStatsWidget({Key key, this.title, this.value}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Flexible(
-      child: Container(
-        margin: EdgeInsets.only(top: title.contains("POINTS") ? 12 : 0),
-        child: Column(
-          children: [
-            FittedBox(
-              child: Text(
-                value.toString(),
-                textScaleFactor: 1.5,
-                style: TextStyle(color: Colors.blue[200]),
+  Widget build(BuildContext context) => Flexible(
+        child: Container(
+          margin: EdgeInsets.only(top: title.contains("POINTS") ? 12 : 0),
+          child: Column(
+            children: [
+              FittedBox(
+                child: Text(
+                  value.toString(),
+                  textScaleFactor: 1.5,
+                  style: TextStyle(color: Colors.blue[200]),
+                ),
               ),
-            ),
-            SizedBox(height: 10),
-            FittedBox(
-              child: Text(
-                title,
-                textScaleFactor: 0.75,
-                style: TextStyle(color: Colors.blue[200]),
-              ),
-            )
-          ],
+              SizedBox(height: 10),
+              FittedBox(
+                child: Text(
+                  title,
+                  textScaleFactor: 0.75,
+                  style: TextStyle(color: Colors.blue[200]),
+                ),
+              )
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class BottomButtons extends StatelessWidget {
@@ -259,7 +248,7 @@ class BottomButtons extends StatelessWidget {
                     builder: (context, watch, child) => ElevatedButton(
                       style: ButtonStyle(
                         padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                          EdgeInsets.all(8.0),
+                          const EdgeInsets.all(8.0),
                         ),
                         shape: MaterialStateProperty.all<OutlinedBorder>(
                           RoundedRectangleBorder(
@@ -268,7 +257,7 @@ class BottomButtons extends StatelessWidget {
                         ),
                         backgroundColor:
                             MaterialStateProperty.all<Color>(Colors.blue[200]),
-                        elevation: MaterialStateProperty.all<double>(16),
+                        elevation: MaterialStateProperty.all<double>(16.0),
                       ),
                       onPressed: () async {
                         context.read(idNotifier.notifier).empty();

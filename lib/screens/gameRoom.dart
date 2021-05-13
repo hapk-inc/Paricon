@@ -452,7 +452,7 @@ class CloseRoomPopUp extends StatelessWidget {
         backgroundColor: Colors.brown[400],
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-        actionsPadding: EdgeInsets.all(4.0),
+        actionsPadding: const EdgeInsets.all(4.0),
         title: Text(
           'Really..',
           style: Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 24),
@@ -477,7 +477,6 @@ class CloseRoomPopUp extends StatelessWidget {
                         color: Colors.white54,
                         fontSize: 16,
                         letterSpacing: 5,
-                        fontWeight: FontWeight.w500,
                       ),
                 ),
               ),

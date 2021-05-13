@@ -37,7 +37,6 @@ class SetGame extends StatelessWidget {
                           fontSize: 20,
                           fontFamily: 'Poppins',
                           color: Colors.indigo[200],
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -67,13 +66,13 @@ class SetGame extends StatelessWidget {
                                 child: Text(
                                   level,
                                   style: TextStyle(
-                                      color: setGame.level != level
-                                          ? Colors.indigo[900]
-                                          : Colors.white70,
-                                      fontSize: 16,
-                                      fontFamily: 'Poppins',
-                                      letterSpacing: 5,
-                                      fontWeight: FontWeight.w500),
+                                    color: setGame.level != level
+                                        ? Colors.indigo[900]
+                                        : Colors.white70,
+                                    fontSize: 16,
+                                    fontFamily: 'Poppins',
+                                    letterSpacing: 5,
+                                  ),
                                 ),
                               ),
                             ),
@@ -91,7 +90,6 @@ class SetGame extends StatelessWidget {
                           fontSize: 20,
                           fontFamily: 'Poppins',
                           color: Colors.indigo[200],
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -117,12 +115,12 @@ class SetGame extends StatelessWidget {
                         ),
                         Flexible(
                           flex: 4,
-                          child: AnimatedSwitcher(
-                            duration: const Duration(seconds: 5),
-                            key: ValueKey("${setGame.playerCount}"),
-                            child: Center(
+                          child: Center(
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
                               child: Text(
                                 "${setGame.playerCount}",
+                                key: ValueKey(setGame.playerCount),
                                 style: TextStyle(
                                   fontSize: 48,
                                   color: Colors.indigo[200],
@@ -197,30 +195,28 @@ class SetGameButton extends StatelessWidget {
                   ),
                 ),
               ),
-              onPressed: 1 == 1
-                  ? () async {
-                      context.read(roomNotifierProvider).loading = true;
-                      await context.read(createRoomProvider.future).then(
-                        (value) async {
-                          if (value != null) {
-                            await context.read(joinRoomProvider.future);
-                            context
-                                .read(pageProvider)
-                                .addNext(GameRoom.toMaterialPage(id: value));
-                          }
-                        },
-                      ).whenComplete(() =>
-                          context.read(roomNotifierProvider).loading = false);
+              onPressed: () async {
+                context.read(roomNotifierProvider).loading = true;
+                await context.read(createRoomProvider.future).then(
+                  (value) async {
+                    if (value != null) {
+                      await context.read(joinRoomProvider.future);
+                      context
+                          .read(pageProvider)
+                          .addNext(GameRoom.toMaterialPage(id: value));
                     }
-                  : null,
+                  },
+                ).whenComplete(
+                    () => context.read(roomNotifierProvider).loading = false);
+              },
               child: Text(
                 "SET GAME",
                 style: TextStyle(
-                    color: Colors.indigo[900],
-                    fontFamily: 'Poppins',
-                    fontSize: 16,
-                    letterSpacing: 5,
-                    fontWeight: FontWeight.w500),
+                  color: Colors.indigo[900],
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                  letterSpacing: 5,
+                ),
               ),
             ),
           ),

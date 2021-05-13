@@ -25,23 +25,13 @@ class SelectAuth extends StatelessWidget {
                           text: TextSpan(
                             text: "Hi ",
                             style: TextStyle(
-                              fontFamily: 'MeriendaOne',
+                              fontFamily: 'LuckiestGuy',
                               color: Colors.white60,
                               fontSize: 36,
                             ),
-                            /* style: Theme.of(context)
-                                .textTheme
-                                .bodyText1
-                                .copyWith(
-                                    fontSize: 32, fontWeight: FontWeight.w300),*/
                             children: [
                               TextSpan(
                                 text: context.read(newNameNotifier),
-                                /* style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.bold,
-                                ),*/
                               ),
                             ],
                           ),
@@ -54,7 +44,7 @@ class SelectAuth extends StatelessWidget {
                         child: Text(
                           "How would you like to login?",
                           style: TextStyle(
-                            fontFamily: 'MeriendaOne',
+                            fontFamily: 'LuckiestGuy',
                             color: Colors.white60,
                             fontSize: 24,
                           ),

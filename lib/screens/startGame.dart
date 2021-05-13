@@ -15,10 +15,7 @@ class StartGame extends StatelessWidget {
           backgroundColor: Colors.indigo[800],
           //toolbarHeight: 100,
           bottom: TabBar(
-            labelStyle: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Poppins'),
+            labelStyle: TextStyle(fontSize: 20, fontFamily: 'Poppins'),
             tabs: [
               Tab(text: "Create Game"),
               Tab(text: "Join Game"),

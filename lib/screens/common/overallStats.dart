@@ -11,7 +11,10 @@ class OverallStatsWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        ProfileStats(stats: "GAMES", value: stats.played.toDouble()),
+        ProfileStats(
+          stats: "GAMES",
+          value: stats.played.toDouble(),
+        ),
         ProfileStats(
           stats: "WINS",
           value: stats.win.toDouble(),

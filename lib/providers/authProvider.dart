@@ -58,7 +58,9 @@ final currentUserProvider = Provider.autoDispose<User>(
   },
 );
 
-final signOutProvider = FutureProvider.autoDispose((ref) async {
-  final auth = ref.read(authProvider);
-  auth.signOut;
-});
+final signOutProvider = FutureProvider.autoDispose(
+  (ref) async {
+    final auth = ref.read(authProvider);
+    auth.signOut;
+  },
+);

@@ -91,7 +91,7 @@ final createBoardProvider = FutureProvider.autoDispose(
       ...{"iconsFound": 0},
     };
 
-    print("81-" + map.toString());
+    print(map.toString());
     await boardDatabase.createBoard(map);
   },
 );
@@ -143,5 +143,12 @@ final leavingRoomProvider = FutureProvider.autoDispose<bool>(
     }
     ref.read(idNotifier.notifier).empty();
     return room.details.creatorID == firebaseUser.uid;
+  },
+);
+
+final creatorIDProvider = StreamProvider.autoDispose<String>(
+  (ref) {
+    final roomDatabase = ref.read(roomDatabaseProvider);
+    return roomDatabase.sCreatorID;
   },
 );

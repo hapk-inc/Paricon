@@ -13,114 +13,121 @@ class GameResults extends StatelessWidget {
       );
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blue[800],
-      body: SafeArea(
-        child: Column(
-          //mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Flexible(
-              flex: 2,
-              child: Column(
-                children: [
-                  Spacer(),
-                  Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.cover,
-                      child: Text(
-                        "RESULTS",
-                        style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 20,
-                            color: Colors.blue[300]),
+  Widget build(BuildContext context) => WillPopScope(
+        onWillPop: () async {
+          context.read(idNotifier.notifier).empty();
+          return true;
+        },
+        child: Scaffold(
+          backgroundColor: Colors.blue[800],
+          body: SafeArea(
+            child: Column(
+              //mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
+                  flex: 2,
+                  child: Column(
+                    children: [
+                      Spacer(),
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.cover,
+                          child: Text(
+                            "RESULTS",
+                            style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 20,
+                                color: Colors.blue[300]),
+                          ),
+                        ),
                       ),
-                    ),
+                      ShadedLine()
+                    ],
                   ),
-                  ShadedLine()
-                ],
-              ),
-            ),
-            Flexible(
-              flex: 5,
-              fit: FlexFit.tight,
-              child: Container(
-                alignment: Alignment.topCenter,
-                child: Consumer(
-                  builder: (BuildContext context,
-                      T Function<T>(ProviderBase<Object, T>) watch,
-                      Widget child) {
-                    return AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 500),
-                      child: watch(allBoardPlayersProvider).when(
-                        data: (_allPlayers) => DataTable(
-                          headingTextStyle:
-                              Theme.of(context).textTheme.bodyText1.copyWith(
+                ),
+                Flexible(
+                  flex: 5,
+                  fit: FlexFit.tight,
+                  child: Container(
+                    alignment: Alignment.topCenter,
+                    child: Consumer(
+                      builder: (BuildContext context,
+                          T Function<T>(ProviderBase<Object, T>) watch,
+                          Widget child) {
+                        return AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 500),
+                          child: watch(allBoardPlayersProvider).when(
+                            data: (_allPlayers) => DataTable(
+                              headingTextStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  .copyWith(
                                     letterSpacing: 5,
                                     fontWeight: FontWeight.w500,
                                   ),
-                          dataTextStyle: Theme.of(context).textTheme.bodyText1,
-                          columns: <DataColumn>[
-                            //DataColumn(label: const Text('No')),
-                            DataColumn(
-                              label: const Text('Name'),
+                              dataTextStyle:
+                                  Theme.of(context).textTheme.bodyText1,
+                              columns: <DataColumn>[
+                                //DataColumn(label: const Text('No')),
+                                DataColumn(
+                                  label: const Text('Name'),
+                                ),
+                                DataColumn(
+                                  label: const Text('Points'),
+                                  numeric: true,
+                                ),
+                              ],
+                              rows: List.from(
+                                _allPlayers.map(
+                                  (e) {
+                                    LocalPlayer player = e;
+                                    return DataRow(
+                                      cells: <DataCell>[
+                                        //DataCell(Text('${player.playerNo}')),
+                                        DataCell(Text(player.name)),
+                                        DataCell(Text('${player.pts}')),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
-                            DataColumn(
-                              label: const Text('Points'),
-                              numeric: true,
-                            ),
-                          ],
-                          rows: List.from(
-                            _allPlayers.map(
-                              (e) {
-                                LocalPlayer player = e;
-                                return DataRow(
-                                  cells: <DataCell>[
-                                    //DataCell(Text('${player.playerNo}')),
-                                    DataCell(Text(player.name)),
-                                    DataCell(Text('${player.pts}')),
-                                  ],
-                                );
-                              },
-                            ),
+                            loading: () => Container(),
                           ),
-                        ),
-                        loading: () => Container(),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            Flexible(
-              flex: 2,
-              child: Column(
-                children: [
-                  Flexible(
-                    child: FittedBox(
-                      child: Text(
-                        "YOUR SCORE",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 10,
-                            color: Colors.blue[300]),
-                      ),
+                        );
+                      },
                     ),
                   ),
-                  ShadedLine(),
-                ],
-              ),
+                ),
+                Flexible(
+                  flex: 2,
+                  child: Column(
+                    children: [
+                      Flexible(
+                        child: FittedBox(
+                          child: Text(
+                            "YOUR SCORE",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 10,
+                                color: Colors.blue[300]),
+                          ),
+                        ),
+                      ),
+                      ShadedLine(),
+                    ],
+                  ),
+                ),
+                YourResults(),
+                BottomButtons(),
+                Spacer(),
+              ],
             ),
-            YourResults(),
-            BottomButtons(),
-            Spacer(),
-          ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class ShadedLine extends StatelessWidget {
@@ -166,11 +173,14 @@ class YourResults extends ConsumerWidget {
             children: [
               if (prevStats.isWinner ?? true)
                 Flexible(
-                  child: Text(
-                    "Congratulations",
-                    textScaleFactor: 1.5,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.blue[100], letterSpacing: 2),
+                  child: FittedBox(
+                    child: Text(
+                      "Congratulations",
+                      textScaleFactor: 1.25,
+                      textAlign: TextAlign.center,
+                      style:
+                          TextStyle(color: Colors.blue[100], letterSpacing: 2),
+                    ),
                   ),
                 ),
               Spacer(),
@@ -214,16 +224,20 @@ class YourStatsWidget extends StatelessWidget {
         margin: EdgeInsets.only(top: title.contains("POINTS") ? 12 : 0),
         child: Column(
           children: [
-            Text(
-              value.toString(),
-              textScaleFactor: 1.5,
-              style: TextStyle(color: Colors.blue[200]),
+            FittedBox(
+              child: Text(
+                value.toString(),
+                textScaleFactor: 1.5,
+                style: TextStyle(color: Colors.blue[200]),
+              ),
             ),
             SizedBox(height: 10),
-            Text(
-              title,
-              textScaleFactor: 0.75,
-              style: TextStyle(color: Colors.blue[200]),
+            FittedBox(
+              child: Text(
+                title,
+                textScaleFactor: 0.75,
+                style: TextStyle(color: Colors.blue[200]),
+              ),
             )
           ],
         ),
@@ -262,23 +276,7 @@ class BottomButtons extends StatelessWidget {
                       ),
                       onPressed: () async {
                         context.read(idNotifier.notifier).empty();
-                        //Navigator.pop(context);
                         Navigator.popUntil(context, (route) => route.isFirst);
-                        /* if (title == "EXIT GAME") {
-                        bool lastPlayer =
-                            await watch(lastPlayerProvider.future);
-                        print("Is lastPlayer? $lastPlayer"s);
-                        if (lastPlayer)
-                          await context.read(removeAllDataProvider.future);
-                        else
-                          context
-                            ..read(gameStartFalseProvider)
-                            ..read(leaveGameProvider);
-
-                        watch(pageProvider).toDashboard;
-                      } else {
-                        Navigator.pop(context);
-                      }*/
                       },
                       child: Center(
                         child: FittedBox(

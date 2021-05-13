@@ -73,6 +73,7 @@ final btnClickProvider = AutoDisposeFutureProviderFamily<void, IconInfo>(
     final firebaseUser = ref.read(currentUserProvider);
 
     //iconNotifier.setLoading(true);
+
     await boardDatabase.setIconCheck(iconInfo.icon, true);
     bool check = iconNotifier.validateIcons(iconInfo);
     if (check == null) {
@@ -100,12 +101,15 @@ final btnClickProvider = AutoDisposeFutureProviderFamily<void, IconInfo>(
       await Future.delayed(
         const Duration(milliseconds: 200),
         () => Future.wait(
-          [id, id2].map(
-            (e) => boardDatabase.setIconCheck(e, false),
-          ),
+          [
+            ...[id, id2].map(
+              (e) => boardDatabase.setIconCheck(e, false),
+            ),
+            ...[ref.read(checkNextPlayerProvider.future)],
+          ],
         ),
       );
-      ref.read(checkNextPlayerProvider);
+      //await ref.read(checkNextPlayerProvider.future);
     }
   },
 );

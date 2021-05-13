@@ -2,8 +2,6 @@ import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/profile.dart';
-import 'package:paricon/models/room.dart';
-import 'package:paricon/models/roomDetails.dart';
 import 'package:paricon/providers/authProvider.dart';
 import 'package:paricon/providers/pageProvider.dart';
 import 'package:paricon/providers/playerProvider.dart';
@@ -20,6 +18,8 @@ class GameRoom extends StatelessWidget {
         arguments: id,
       );
 
+  const GameRoom({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     Future<bool> _onBackPressed() async => await showDialog(
@@ -30,39 +30,12 @@ class GameRoom extends StatelessWidget {
     return Scaffold(
       body: WillPopScope(
         onWillPop: _onBackPressed,
-        child: ProviderListener<AsyncValue<bool>>(
-          provider: sGameStartProvider,
-          onChange: (context, stream) {
-            stream.when(
-              data: (value) {
-                print(value);
-                if (value)
-                  context
-                      .read(pageProvider)
-                      .replace(GameBoard.toMaterialPage());
-              },
-              error: (error, stackTrace) async {
-                print("Error coming");
-                print(error);
-                context.read(idNotifier.notifier).empty();
-                Future.delayed(const Duration(seconds: 2), () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => GameDeletedPopUp(),
-                  );
-                  //Navigator.pop(context);
-                  Navigator.popUntil(context, (route) => route.isFirst);
-                });
-              },
-            );
-          },
-          child: SafeArea(
-            child: Column(
-              children: [
-                RoomDetailsWidget(),
-                PlayersWidget(),
-              ],
-            ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              RoomDetailsWidget(),
+              PlayersWidget(),
+            ],
           ),
         ),
       ),
@@ -96,20 +69,17 @@ class RoomDetailsWidget extends StatelessWidget {
               ),
               data: (value) {
                 final _room = value.details;
-                final firebaseUser = watch(currentUserProvider);
-                bool _isCreatorIsYou = firebaseUser.uid == _room.creatorID;
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CreatorTitleWidget(room: _room),
+                    CreatorWidget(),
                     Flexible(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           RoomCodeWidget(roomCode: _room.roomCode),
-                          StartRoomButtonWidget(
-                              isCreatorIsYou: _isCreatorIsYou),
+                          CreatorButton(),
                         ],
                       ),
                     ),
@@ -125,11 +95,6 @@ class RoomDetailsWidget extends StatelessWidget {
                   ],
                 );
               },
-              error: (Object error, StackTrace stackTrace) {
-                print(error);
-                print(stackTrace);
-                throw UnimplementedError();
-              },
             ),
           ),
         ),
@@ -138,60 +103,55 @@ class RoomDetailsWidget extends StatelessWidget {
   }
 }
 
-class CreatorTitleWidget extends ConsumerWidget {
-  const CreatorTitleWidget({Key key, @required RoomDetails room})
-      : _room = room,
-        super(key: key);
-
-  final RoomDetails _room;
+class CreatorWidget extends ConsumerWidget {
+  const CreatorWidget({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader watch) {
-    final firebaseUser = watch(firebaseUserProvider);
-    return Flexible(
-      child: Center(
+  Widget build(BuildContext context, ScopedReader watch) => Flexible(
         child: FittedBox(
-          child: firebaseUser.uid == _room.creatorID
-              ? SetCreatorNameWidget(name: "You")
-              : watch(creatorNameProvider(_room.creatorID)).when(
-                  data: (value) => SetCreatorNameWidget(name: value),
-                  loading: () => SetCreatorNameWidget(name: "SomeOne"),
-                  error: (error, stackTrace) =>
-                      SetCreatorNameWidget(name: "NoOne"),
-                ),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            child: watch(creatorIDProvider).maybeWhen(
+              orElse: () => CreatorTitleWidget(name: "_"),
+              data: (value) {
+                final firebaseUser = watch(firebaseUserProvider);
+                return firebaseUser.uid == value
+                    ? CreatorTitleWidget(name: "You")
+                    : watch(creatorNameProvider(value)).maybeWhen(
+                        orElse: () => CreatorTitleWidget(name: "Someone"),
+                        data: (_name) => CreatorTitleWidget(name: _name),
+                      );
+              },
+            ),
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
-class SetCreatorNameWidget extends StatelessWidget {
+class CreatorTitleWidget extends StatelessWidget {
   final String name;
+  const CreatorTitleWidget({Key key, this.name}) : super(key: key);
 
-  const SetCreatorNameWidget({Key key, this.name}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
+    return RichText(
       key: ValueKey(name),
-      duration: const Duration(milliseconds: 500),
-      child: RichText(
-        text: TextSpan(
-          text: name,
-          style: Theme.of(context)
-              .textTheme
-              .bodyText2
-              .copyWith(fontSize: 32, letterSpacing: 2, color: Colors.white70),
-          children: [
-            TextSpan(
-              text: " created this Room",
-              style: Theme.of(context).textTheme.bodyText2.copyWith(
-                  fontWeight: FontWeight.w300,
-                  letterSpacing: 1,
-                  fontSize: 24,
-                  color: Colors.white70),
-            ),
-          ],
-        ),
+      text: TextSpan(
+        text: name,
+        style: Theme.of(context)
+            .textTheme
+            .bodyText2
+            .copyWith(fontSize: 32, letterSpacing: 2, color: Colors.white70),
+        children: [
+          TextSpan(
+            text: " created this Room",
+            style: Theme.of(context).textTheme.bodyText2.copyWith(
+                fontWeight: FontWeight.w300,
+                letterSpacing: 1,
+                fontSize: 24,
+                color: Colors.white70),
+          ),
+        ],
       ),
     );
   }
@@ -218,158 +178,6 @@ class RoomCodeWidget extends StatelessWidget {
   }
 }
 
-class RoomDetailsTxtWidget extends StatelessWidget {
-  final String details;
-  const RoomDetailsTxtWidget(this.details, {Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) => Flexible(
-        child: FractionallySizedBox(
-          widthFactor: 0.8,
-          heightFactor: 0.7,
-          child: Card(
-            elevation: 8,
-            color: Colors.white70,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-            ),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: FittedBox(
-                  child: Text(
-                    details,
-                    style: Theme.of(context).textTheme.bodyText1.copyWith(
-                          color: Colors.brown,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-}
-
-class StartRoomButtonWidget extends StatelessWidget {
-  const StartRoomButtonWidget({
-    Key key,
-    @required bool isCreatorIsYou,
-  })  : _isCreatorIsYou = isCreatorIsYou,
-        super(key: key);
-
-  final bool _isCreatorIsYou;
-
-  @override
-  Widget build(BuildContext context) {
-    SnackBar addOnePlayer() => SnackBar(
-          content: FittedBox(
-            child: Text(
-              'Add one more player to start Game',
-              style: Theme.of(context).textTheme.bodyText1,
-            ),
-          ),
-        );
-    return Flexible(
-      child: ElevatedButton(
-        onPressed: _isCreatorIsYou
-            ? () => context.read(createBoardProvider.future).whenComplete(
-                  () => context.read(gameStartProvider),
-                )
-            : null,
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(Colors.brown),
-          elevation:
-              MaterialStateProperty.all<double>(_isCreatorIsYou ? 16 : 4),
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(8.0),
-          child: FittedBox(
-            child: Text(
-              "START",
-              style: Theme.of(context).textTheme.bodyText1.copyWith(
-                    color: _isCreatorIsYou ? Colors.white70 : Colors.white30,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
-                  ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class GameDeletedPopUp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Colors.indigo[800],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-      actionsPadding: EdgeInsets.all(4.0),
-      title: Text(
-        'Sorry!',
-        style: Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 24),
-      ),
-      content: Text(
-        'Creator deleted the room',
-        style: Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 20),
-      ),
-    );
-  }
-}
-
-class CloseRoomPopUp extends StatelessWidget {
-  const CloseRoomPopUp({Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-        backgroundColor: Colors.brown[400],
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-        actionsPadding: EdgeInsets.all(4.0),
-        title: Text(
-          'Really..',
-          style: Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 24),
-        ),
-        content: Text(
-          'Do you wish to leave now?',
-          style: Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 20),
-        ),
-        actions: const ["YES", "NO"]
-            .map(
-              (title) => TextButton(
-                onPressed: () async {
-                  Navigator.pop(context, title.contains("YES"));
-                  /*if (title.contains("Y")) {
-                    await context
-                        .read(leavingRoomProvider.future)
-                        .then((value) {
-                      if (!value) {
-                        Navigator.popUntil(context, (route) => route.isFirst);
-                      } else
-                        Navigator.popUntil(context, (route) => route.isFirst);
-                    },);
-                  }*/
-                },
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.bodyText1.copyWith(
-                        color: Colors.white54,
-                        fontSize: 16,
-                        letterSpacing: 5,
-                        fontWeight: FontWeight.w500,
-                      ),
-                ),
-              ),
-            )
-            .toList(),
-      );
-}
-
 class PlayersWidget extends StatelessWidget {
   const PlayersWidget({Key key}) : super(key: key);
 
@@ -381,7 +189,7 @@ class PlayersWidget extends StatelessWidget {
         builder: (ctx, watch, _) => FirebaseAnimatedList(
           query: watch(playersQueryProvider),
           itemBuilder: (_context, snapshot, animation, _) {
-            final Room room = watch(roomProvider).data?.value;
+            final room = watch(roomProvider).data?.value;
             if (room == null) return Center(child: CircularProgressIndicator());
             final String roomLevel = room.details.level;
             final int maxCount =
@@ -424,19 +232,39 @@ class PlayersWidget extends StatelessWidget {
   }
 }
 
-class LoadingPlayerWidget extends StatelessWidget {
-  final String name;
+class RoomDetailsTxtWidget extends StatelessWidget {
+  final String details;
+  const RoomDetailsTxtWidget(this.details, {Key key}) : super(key: key);
 
-  const LoadingPlayerWidget({Key key, this.name}) : super(key: key);
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        name + " entered the room",
-        style: TextStyle(fontFamily: "Poppins"),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Flexible(
+        child: FractionallySizedBox(
+          widthFactor: 0.8,
+          heightFactor: 0.7,
+          child: Card(
+            elevation: 8,
+            color: Colors.white70,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+            ),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: FittedBox(
+                  child: Text(
+                    details,
+                    style: Theme.of(context).textTheme.bodyText1.copyWith(
+                          color: Colors.brown,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
 }
 
 class PlayerTile extends StatelessWidget {
@@ -513,6 +341,21 @@ class PlayerTile extends StatelessWidget {
   }
 }
 
+class LoadingPlayerWidget extends StatelessWidget {
+  final String name;
+
+  const LoadingPlayerWidget({Key key, this.name}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        name + " entered the room",
+        style: TextStyle(fontFamily: "Poppins"),
+      ),
+    );
+  }
+}
+
 class StatsWidget extends StatelessWidget {
   final String title;
   final num value;
@@ -544,5 +387,101 @@ class StatsWidget extends StatelessWidget {
             ),
           ],
         ),
+      );
+}
+
+class CreatorButton extends ConsumerWidget {
+  const CreatorButton({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, ScopedReader watch) {
+    final firebaseUser = watch(currentUserProvider);
+    final bool _isCreatorIsYou = watch(creatorIDProvider).maybeWhen(
+      orElse: () => false,
+      data: (value) {
+        return firebaseUser.uid == value;
+      },
+    );
+    return Flexible(
+      child: ProviderListener(
+        provider: sGameStartProvider,
+        onChange: (BuildContext context, AsyncValue<bool> asyncValue) {
+          asyncValue.whenData(
+            (_check) {
+              if (_check)
+                watch(pageProvider).replace(GameBoard.toMaterialPage());
+            },
+          );
+        },
+        child: ElevatedButton(
+          onPressed: _isCreatorIsYou
+              ? () => context.read(createBoardProvider.future).whenComplete(
+                    () => context.read(gameStartProvider),
+                  )
+              : null,
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.brown),
+            elevation:
+                MaterialStateProperty.all<double>(_isCreatorIsYou ? 16 : 4),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            child: FittedBox(
+              child: Text(
+                "START",
+                style: TextStyle(
+                  color: _isCreatorIsYou ? Colors.white70 : Colors.white30,
+                  fontSize: 32,
+                  //fontWeight: FontWeight.bold,
+                  letterSpacing: 5,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CloseRoomPopUp extends StatelessWidget {
+  const CloseRoomPopUp({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        backgroundColor: Colors.brown[400],
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+        actionsPadding: EdgeInsets.all(4.0),
+        title: Text(
+          'Really..',
+          style: Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 24),
+        ),
+        content: FittedBox(
+          child: Text(
+            'Do you wish to leave now?',
+            style: Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 20),
+          ),
+        ),
+        actions: const ["YES", "NO"]
+            .map(
+              (title) => TextButton(
+                onPressed: () async {
+                  if (title.contains("YES"))
+                    context.read(idNotifier.notifier).empty();
+                  Navigator.pop(context, title.contains("YES"));
+                },
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.bodyText1.copyWith(
+                        color: Colors.white54,
+                        fontSize: 16,
+                        letterSpacing: 5,
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+              ),
+            )
+            .toList(),
       );
 }

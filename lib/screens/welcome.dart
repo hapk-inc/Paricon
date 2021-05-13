@@ -13,7 +13,7 @@ class Welcome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.red[700],
+      backgroundColor: Colors.red[600],
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -46,30 +46,28 @@ class WelcomeStartBtn extends StatelessWidget {
           child: FractionallySizedBox(
             widthFactor: 0.5,
             child: ElevatedButton(
-                style: ButtonStyle(
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    const EdgeInsets.all(8),
-                  ),
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.red[200]),
-                  shape: MaterialStateProperty.all<OutlinedBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                  const EdgeInsets.all(8),
+                ),
+                elevation: MaterialStateProperty.all<double>(12.0),
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(Colors.red[700]),
+                shape: MaterialStateProperty.all<OutlinedBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                child: FittedBox(
-                  child: Text(
-                    "Start",
-                    style: const TextStyle(
-                      fontFamily: 'LuckiestGuy',
-                      color: Colors.black87,
-                    ),
-                  ),
+              ),
+              child: FittedBox(
+                child: Text(
+                  "START",
+                  style: TextStyle(fontSize: 24, color: Colors.white60),
                 ),
-                onPressed: () => context
-                    .read(pageProvider)
-                    .addNext(EnterName.toMaterialPage)),
+              ),
+              onPressed: () =>
+                  context.read(pageProvider).addNext(EnterName.toMaterialPage),
+            ),
           ),
         ),
       );

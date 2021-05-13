@@ -8,6 +8,7 @@ import 'package:paricon/providers/authProvider.dart';
 import 'package:paricon/providers/boardProvider.dart';
 import 'package:paricon/providers/pageProvider.dart';
 import 'package:paricon/providers/roomNotifierProvider.dart';
+import 'package:paricon/providers/roomProvider.dart';
 
 import 'results.dart';
 
@@ -71,8 +72,9 @@ class GameBoard extends StatelessWidget {
                 (value) async {
                   print("Icon Found - $value");
                   final board = await watch(boardProvider.future);
-                  print(board.icons.length);
-                  if (value % 2 == 0 && value > 8) {
+                  final num iconCount = board.icons.length;
+                  //if (value % 2 == 0 && value > 8) {
+                  if (value == iconCount) {
                     print("Game Over");
                     final isUpdated = await watch(updateStatsProvider.future);
                     if (isUpdated ?? false)
@@ -302,11 +304,9 @@ class ShowIconBtnWdgt extends ConsumerWidget {
       onTap: _yourTurn && !roomNotifier.loading
           ? () async {
               IconInfo info = IconInfo(id, iconCode);
+              roomNotifier.loading = true;
               await watch(btnClickProvider(info).future).whenComplete(
-                () {
-                  print("Click completed");
-                  roomNotifier.loading = false;
-                },
+                () => roomNotifier.loading = false,
               );
             }
           : null,
@@ -314,25 +314,35 @@ class ShowIconBtnWdgt extends ConsumerWidget {
   }
 }
 
-class ShowIconWdgt extends StatelessWidget {
+class ShowIconWdgt extends ConsumerWidget {
   final int iconCode;
 
   final bool isFound;
   const ShowIconWdgt(this.iconCode, this.isFound, {Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: FittedBox(
-            child: Icon(
-              IconData(iconCode, fontFamily: 'MaterialIcons'),
-              color: isFound ? Colors.indigo : Colors.white70,
-              size: 64,
-            ),
+  Widget build(BuildContext context, ScopedReader watch) {
+    final double paddingValue = watch(roomProvider).maybeWhen(
+        orElse: () => 12.0,
+        data: (value) => isFound
+            ? 4.0
+            : value.details.level.toLowerCase() == "hard"
+                ? 6.0
+                : 8.0);
+    return Center(
+      child: AnimatedPadding(
+        padding: EdgeInsets.all(paddingValue),
+        duration: const Duration(milliseconds: 500),
+        child: FittedBox(
+          child: Icon(
+            IconData(iconCode, fontFamily: 'MaterialIcons'),
+            color: isFound ? Colors.indigo : Colors.white70,
+            size: 64,
           ),
         ),
-      );
+      ),
+    );
+  }
 }
 
 class PlayerName extends StatelessWidget {

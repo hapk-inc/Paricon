@@ -18,6 +18,8 @@ class RoomDatabase extends MyDatabase {
 
   DatabaseReference get roomPlayersRef => roomRef.child('players');
 
+  DatabaseReference get roomDetailsRef => roomRef.child('details');
+
   DatabaseReference get gameStartRef => roomRef.child('isGameStarted');
 
   Future<String> creatorName(String uid) async => await roomPlayersRef
@@ -77,15 +79,21 @@ class RoomDatabase extends MyDatabase {
     controller = StreamController<bool>(
       onListen: () => gameStartRef.onValue.listen(
         (event) {
-          var value = event.snapshot.value;
-          if (value != null) {
-            final bool check = value;
-            controller.add(check);
-            if (check) controller.close();
-          } else {
-            controller.addError("Room deleted");
-            controller.close();
-          }
+          var check = event.snapshot.value;
+          if (check is bool) controller.add(check);
+        },
+      ),
+    );
+    return controller.stream;
+  }
+
+  Stream<String> get sCreatorID {
+    StreamController<String> controller;
+    controller = StreamController<String>(
+      onListen: () => roomDetailsRef.child("creatorID").onValue.listen(
+        (event) {
+          var id = event.snapshot.value;
+          if (id is String) controller.add(id);
         },
       ),
     );
@@ -102,11 +110,11 @@ class RoomDatabase extends MyDatabase {
         .once()
         .then(
       (snapshot) {
-        if (snapshot.value == null) return Future.error("Room Does not Exists");
+        if (snapshot.value == null) return Future.error("Room Does not Exist");
         Map map = snapshot.value;
         print("-115");
         print(map);
-        if (map.length != 1) return Future.error("Already Room Exists");
+        if (map.length != 1) return Future.error("Already Room Exist");
         Room room = Room.fromMap(map.values.first);
         if (room.details.maxCount > room.players.length) {
           final String id = map.keys.first;

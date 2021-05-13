@@ -9,7 +9,6 @@ import 'package:paricon/providers/prevStatsNotifier.dart';
 
 import 'authProvider.dart';
 import 'databaseProvider.dart';
-import 'roomIDProvider.dart';
 import 'roomNotifierProvider.dart';
 import 'roomProvider.dart';
 
@@ -71,8 +70,6 @@ final btnClickProvider = AutoDisposeFutureProviderFamily<void, IconInfo>(
     final boardDatabase = ref.read(boardDatabaseProvider);
     final iconNotifier = ref.read(roomNotifierProvider);
     final firebaseUser = ref.read(currentUserProvider);
-
-    //iconNotifier.setLoading(true);
 
     await boardDatabase.setIconCheck(iconInfo.icon, true);
     bool check = iconNotifier.validateIcons(iconInfo);
@@ -153,12 +150,10 @@ final updateStatsProvider = FutureProvider.autoDispose<bool>(
     final room = await ref.read(roomProvider.future);
     final Map fromSnapshot = await boardDatabase.boardPlayers;
     final Map<String, dynamic> map = Map<String, dynamic>.from(fromSnapshot);
-    print("152->$map");
     final sortMap = SplayTreeMap.from(
       map,
       (a, b) => map[b]["pts"].compareTo(map[a]["pts"]),
     );
-    print("157->$sortMap");
     final int yourPts = sortMap[firebaseUser.uid]['pts'];
     final bool isWinner = sortMap.keys.first == firebaseUser.uid ||
         sortMap.values.first['pts'] == sortMap[firebaseUser.uid]['pts'];
@@ -172,17 +167,14 @@ final updateStatsProvider = FutureProvider.autoDispose<bool>(
     final double avg = double.parse(_avg.toStringAsFixed(2));
 
     final Stats stats = Stats(played: 1, win: isWinner ? 1 : 0, avg: avg);
-    //ref.read(prevStatsProvider).prevStats = stats;
     ref.read(prevStatsProvider).setStats(level, yourPts, avg, isWinner, isDraw);
-
-    print("->stats update" + stats.toString() + level);
     final bool isUpdated =
         await playerDatabase.updateStats(level.toLowerCase(), stats);
     return isUpdated;
   },
 );
 
-final leavingBoardProvider = FutureProvider.autoDispose(
+/*final leavingBoardProvider = FutureProvider.autoDispose(
   (ref) async {
     final boardDatabase = ref.read(boardDatabaseProvider);
     final roomDatabase = ref.read(roomDatabaseProvider);
@@ -201,9 +193,9 @@ final leavingBoardProvider = FutureProvider.autoDispose(
       //boardDatabase.leaveGame(firebaseUser.uid);
     }
   },
-);
+);*/
 
-final allBoardPlayersProvider = FutureProvider<List>(
+final allBoardPlayersProvider = FutureProvider.autoDispose<List<LocalPlayer>>(
   (ref) async {
     final boardDatabase = ref.read(boardDatabaseProvider);
     final Map fromSnapshot = await boardDatabase.allBoardPlayers;

@@ -44,19 +44,14 @@ class PlayerDatabase extends MyDatabase {
   Future<bool> updateStats(String level, Stats stats) async {
     final DatabaseReference _ref =
         playerRef.child('profile').child("stats").child(level);
-    print(_ref.path);
     final TransactionResult transactionResult = await _ref.runTransaction(
       (MutableData mutableData) async {
         try {
-          print("updating...");
           Map map = mutableData?.value ?? null;
           Stats oldStats = Stats.fromMap(map);
           Stats newStats = oldStats + stats;
-          print(newStats.toString());
           mutableData.value = newStats.toMap();
-        } catch (e) {
-          print(e);
-        }
+        } catch (e) {}
 
         return mutableData;
       },

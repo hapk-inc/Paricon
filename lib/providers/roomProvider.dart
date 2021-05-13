@@ -16,24 +16,25 @@ final createRoomProvider = FutureProvider.autoDispose<String>(
     final User user = ref.read(currentUserProvider);
 
     final room = Room.createRoom(setGame.level, setGame.playerCount, user.uid);
-    print("19-" + room.toJson());
     String key = await roomDatabase.createRoom(room);
     ref.watch(idNotifier.notifier).state = key;
     return key;
   },
 );
 
-final joinRoomProvider = FutureProvider.autoDispose((ref) async {
-  final roomDatabase = ref.read(roomDatabaseProvider);
+final joinRoomProvider = FutureProvider.autoDispose(
+  (ref) async {
+    final roomDatabase = ref.read(roomDatabaseProvider);
 
-  final user = ref.read(currentUserProvider);
-  await roomDatabase.joinRoom(user);
-});
+    final user = ref.read(currentUserProvider);
+    await roomDatabase.joinRoom(user);
+  },
+);
 
 final roomProvider = FutureProvider.autoDispose<Room>(
   (ref) async {
     final roomDatabase = ref.watch(roomDatabaseProvider);
-    final Room room = await roomDatabase.room;
+    final room = await roomDatabase.room;
     return room;
   },
   name: 'roomProvider',
@@ -42,8 +43,6 @@ final roomProvider = FutureProvider.autoDispose<Room>(
 final roomCheckProvider = FutureProvider.family.autoDispose<String, String>(
   (ref, roomCode) async {
     final roomDatabase = ref.read(roomDatabaseProvider);
-    //final roomNotifier = ref.watch(roomNotifierProvider);
-    //roomNotifier.loading = true;
     return await roomDatabase.checkRoom(roomCode).then(
       (id) {
         ref.watch(idNotifier.notifier).state = id;
@@ -80,7 +79,10 @@ final createBoardProvider = FutureProvider.autoDispose(
     final Map icons = xIcons
         .generateIcons(room.details.level)
         .map((e) => e.toMap(xIcons.generateRandomID))
-        .fold({}, (previousValue, element) => {...previousValue, ...element});
+        .fold(
+      {},
+      (previousValue, element) => {...previousValue, ...element},
+    );
 
     final Map currentPlayer = {"currentID": room.details.creatorID};
 
@@ -90,22 +92,22 @@ final createBoardProvider = FutureProvider.autoDispose(
       ...currentPlayer,
       ...{"iconsFound": 0},
     };
-
-    print(map.toString());
     await boardDatabase.createBoard(map);
   },
 );
 
 Map convertToBoard(Map<dynamic, dynamic> map) {
   int i = 0;
-  map.updateAll((key, value) {
-    i++;
-    Map<dynamic, dynamic> localPlayer = value;
-    localPlayer.remove("timestamp");
-    localPlayer["playerNo"] = i;
-    localPlayer["pts"] = 0;
-    return localPlayer;
-  });
+  map.updateAll(
+    (key, value) {
+      i++;
+      Map<dynamic, dynamic> localPlayer = value;
+      localPlayer.remove("timestamp");
+      localPlayer["playerNo"] = i;
+      localPlayer["pts"] = 0;
+      return localPlayer;
+    },
+  );
   return map;
 }
 
@@ -130,7 +132,7 @@ final gameStartProvider = FutureProvider.autoDispose(
   },
 );
 
-final leavingRoomProvider = FutureProvider.autoDispose<bool>(
+/*final leavingRoomProvider = FutureProvider.autoDispose<bool>(
   (ref) async {
     final roomDatabase = ref.read(roomDatabaseProvider);
     final firebaseUser = ref.read(currentUserProvider);
@@ -144,7 +146,7 @@ final leavingRoomProvider = FutureProvider.autoDispose<bool>(
     ref.read(idNotifier.notifier).empty();
     return room.details.creatorID == firebaseUser.uid;
   },
-);
+);*/
 
 final creatorIDProvider = StreamProvider.autoDispose<String>(
   (ref) {

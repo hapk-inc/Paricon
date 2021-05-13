@@ -203,7 +203,6 @@ class SetGameButton extends StatelessWidget {
                       await context.read(createRoomProvider.future).then(
                         (value) async {
                           if (value != null) {
-                            print("Room created $value");
                             await context.read(joinRoomProvider.future);
                             context
                                 .read(pageProvider)

@@ -23,8 +23,7 @@ class Auth {
       await PlayerDatabase(app).createPlayer(_auth.currentUser);
 
       //return _auth.currentUser;
-    } on FirebaseAuthException catch (e) {
-      //print(e);
+    } on FirebaseAuthException {
       return null;
     }
   }

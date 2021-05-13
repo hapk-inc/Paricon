@@ -32,7 +32,6 @@ class EnterRoomCode extends StatelessWidget {
         await context.read(roomCheckProvider(_controller.text).future).then(
           (value) async {
             if (value != null) {
-              print("Room created $value");
               await context.read(joinRoomProvider.future);
               context
                   .read(pageProvider)
@@ -42,7 +41,6 @@ class EnterRoomCode extends StatelessWidget {
           onError: (err) {
             //context.read(loadingNotifierProvider.notifier).state = false;
             ScaffoldMessenger.of(context).showSnackBar(showErrorSnack(err));
-            print("Error coming $err");
           },
         );
         /*.whenComplete(

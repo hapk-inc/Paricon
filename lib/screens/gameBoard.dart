@@ -70,7 +70,6 @@ class GameBoard extends StatelessWidget {
             onChange: (context, stream) {
               stream.whenData(
                 (value) async {
-                  print("Icon Found - $value");
                   final board = await watch(boardProvider.future);
                   final num iconCount = board.icons.length;
                   //if (value % 2 == 0 && value > 8) {
@@ -81,8 +80,6 @@ class GameBoard extends StatelessWidget {
                       context
                           .read(pageProvider)
                           .replace(GameResults.toMaterialPage());
-                    else
-                      print("Stats not updating");
                   }
                 },
               );

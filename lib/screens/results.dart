@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/models/localPlayer.dart';
 import 'package:paricon/providers/boardProvider.dart';
 import 'package:paricon/providers/prevStatsNotifier.dart';
 import 'package:paricon/providers/roomIDProvider.dart';
@@ -81,16 +80,13 @@ class GameResults extends StatelessWidget {
                               ],
                               rows: List.from(
                                 _allPlayers.map(
-                                  (e) {
-                                    LocalPlayer player = e;
-                                    return DataRow(
-                                      cells: <DataCell>[
-                                        //DataCell(Text('${player.playerNo}')),
-                                        DataCell(Text(player.name)),
-                                        DataCell(Text('${player.pts}')),
-                                      ],
-                                    );
-                                  },
+                                  (player) => DataRow(
+                                    cells: <DataCell>[
+                                      //DataCell(Text('${player.playerNo}')),
+                                      DataCell(Text(player.name)),
+                                      DataCell(Text('${player.pts}')),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

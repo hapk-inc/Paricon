@@ -13,18 +13,19 @@ class StartGame extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.indigo[800],
-          //toolbarHeight: 100,
+          //toolbarHeight: MediaQuery.of(context).size,
           bottom: TabBar(
-            labelStyle: TextStyle(fontSize: 20, fontFamily: 'Poppins'),
+            labelStyle: TextStyle(fontSize: 24, fontFamily: 'Poppins'),
             tabs: [
               Tab(text: "Create Game"),
               Tab(text: "Join Game"),
             ],
             indicator: UnderlineTabIndicator(
-                borderSide: BorderSide(
-              color: Colors.yellow,
-              width: 4,
-            )),
+              borderSide: BorderSide(
+                color: Colors.yellow,
+                width: 4,
+              ),
+            ),
             onTap: (value) => FocusScope.of(context).unfocus(),
           ),
         ),

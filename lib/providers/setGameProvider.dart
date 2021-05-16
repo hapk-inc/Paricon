@@ -5,7 +5,7 @@ final setGameProvider = ChangeNotifierProvider((_) => SetGameNotifier());
 
 class SetGameNotifier extends ChangeNotifier {
   String _level = "Easy";
-  int _playerCount = 1;
+  int _playerCount = 2;
 
   String get level => _level;
 

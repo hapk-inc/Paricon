@@ -108,20 +108,24 @@ class CreatorWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ScopedReader watch) => Flexible(
-        child: FittedBox(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 500),
-            child: watch(creatorIDProvider).maybeWhen(
-              orElse: () => CreatorTitleWidget(name: "_"),
-              data: (value) {
-                final firebaseUser = watch(firebaseUserProvider);
-                return firebaseUser.uid == value
-                    ? CreatorTitleWidget(name: "You")
-                    : watch(creatorNameProvider(value)).maybeWhen(
-                        orElse: () => CreatorTitleWidget(name: "Someone"),
-                        data: (_name) => CreatorTitleWidget(name: _name),
-                      );
-              },
+        child: FractionallySizedBox(
+          heightFactor: 0.6,
+          //padding: const EdgeInsets.all(32.0),
+          child: FittedBox(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              child: watch(creatorIDProvider).maybeWhen(
+                orElse: () => CreatorTitleWidget(name: "_"),
+                data: (value) {
+                  final firebaseUser = watch(firebaseUserProvider);
+                  return firebaseUser.uid == value
+                      ? CreatorTitleWidget(name: "You")
+                      : watch(creatorNameProvider(value)).maybeWhen(
+                          orElse: () => CreatorTitleWidget(name: "Someone"),
+                          data: (_name) => CreatorTitleWidget(name: _name),
+                        );
+                },
+              ),
             ),
           ),
         ),
@@ -141,14 +145,14 @@ class CreatorTitleWidget extends StatelessWidget {
         style: Theme.of(context)
             .textTheme
             .bodyText2
-            .copyWith(fontSize: 32, letterSpacing: 2, color: Colors.white70),
+            .copyWith(fontSize: 128, letterSpacing: 2, color: Colors.white70),
         children: [
           TextSpan(
             text: " created this Room",
             style: Theme.of(context).textTheme.bodyText2.copyWith(
                 fontWeight: FontWeight.w300,
                 letterSpacing: 1,
-                fontSize: 24,
+                fontSize: 96,
                 color: Colors.white70),
           ),
         ],
@@ -161,21 +165,23 @@ class RoomCodeWidget extends StatelessWidget {
   final int roomCode;
   const RoomCodeWidget({Key key, this.roomCode}) : super(key: key);
   @override
-  Widget build(BuildContext context) {
-    return Flexible(
-      flex: 2,
-      child: FittedBox(
-        child: Text(
-          "$roomCode",
-          style: Theme.of(context).textTheme.bodyText1.copyWith(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 10,
-              ),
+  Widget build(BuildContext context) => Flexible(
+        flex: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: FittedBox(
+            child: Text(
+              "$roomCode",
+              style: Theme.of(context).textTheme.caption.copyWith(
+                    fontSize: 128,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.brown[100],
+                    letterSpacing: 10,
+                  ),
+            ),
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class PlayersWidget extends StatelessWidget {
@@ -247,18 +253,17 @@ class RoomDetailsTxtWidget extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(16)),
             ),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: FittedBox(
-                  child: Text(
-                    details,
-                    style: Theme.of(context).textTheme.bodyText1.copyWith(
-                          color: Colors.brown,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FittedBox(
+                child: Text(
+                  details,
+                  style: Theme.of(context).textTheme.caption.copyWith(
+                        color: Colors.brown,
+                        fontSize: 96,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
                 ),
               ),
             ),
@@ -278,7 +283,7 @@ class PlayerTile extends StatelessWidget {
     const List levels = ['easy', 'medium', 'hard'];
     return Container(
       alignment: Alignment.center,
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -291,7 +296,7 @@ class PlayerTile extends StatelessWidget {
                 Flexible(
                   child: FittedBox(
                     child: Text(profile.userID.toString(),
-                        style: TextStyle(fontSize: 20, fontFamily: "Poppins")),
+                        style: TextStyle(fontSize: 96, fontFamily: "Poppins")),
                   ),
                   flex: 2,
                 ),
@@ -299,13 +304,14 @@ class PlayerTile extends StatelessWidget {
                   child: FittedBox(
                     child: Text(
                       "${profile.name}",
-                      style: TextStyle(fontFamily: "Poppins"),
+                      style: TextStyle(fontFamily: "Poppins", fontSize: 72),
                     ),
                   ),
                 ),
               ],
             ),
           ),
+          Spacer(),
           // if (player.playerStats == null)
           Flexible(
               flex: 4,
@@ -318,7 +324,7 @@ class PlayerTile extends StatelessWidget {
                               "Never Played".toUpperCase(),
                               style: TextStyle(
                                   fontFamily: "Poppins",
-                                  fontSize: 16,
+                                  fontSize: 96,
                                   letterSpacing: 10),
                             ),
                           )
@@ -395,6 +401,14 @@ class CreatorButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
+    SnackBar addOnePlayer() => const SnackBar(
+          content: FittedBox(
+            child: Text(
+              'Add one more player to start Game',
+              //style: Theme.of(context).textTheme.bodyText1,
+            ),
+          ),
+        );
     final firebaseUser = watch(currentUserProvider);
     final bool _isCreatorIsYou = watch(creatorIDProvider).maybeWhen(
       orElse: () => false,
@@ -413,27 +427,45 @@ class CreatorButton extends ConsumerWidget {
             },
           );
         },
-        child: ElevatedButton(
-          onPressed: _isCreatorIsYou
-              ? () => context.read(createBoardProvider.future).whenComplete(
-                    () => context.read(gameStartProvider),
-                  )
-              : null,
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.brown),
-            elevation:
-                MaterialStateProperty.all<double>(_isCreatorIsYou ? 16 : 4),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(8.0),
-            child: FittedBox(
-              child: Text(
-                "START",
-                style: TextStyle(
-                  color: _isCreatorIsYou ? Colors.white70 : Colors.white30,
-                  fontSize: 32,
-                  //fontWeight: FontWeight.bold,
-                  letterSpacing: 5,
+        child: FractionallySizedBox(
+          heightFactor: 0.8,
+          widthFactor: 0.8,
+          child: ElevatedButton(
+            onPressed: _isCreatorIsYou
+                ? () => context
+                        .read(createBoardProvider.future)
+                        .then(
+                          (_) => context.read(gameStartProvider),
+                        )
+                        .catchError(
+                      (err, stackTrace) {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(addOnePlayer());
+                      },
+                    )
+                : null,
+            style: ButtonStyle(
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(Colors.brown[600]),
+                elevation:
+                    MaterialStateProperty.all<double>(_isCreatorIsYou ? 16 : 4),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                shadowColor: MaterialStateProperty.all(Colors.brown[200])),
+            child: FractionallySizedBox(
+              heightFactor: 0.5,
+              child: FittedBox(
+                child: Text(
+                  "START",
+                  style: TextStyle(
+                    color: _isCreatorIsYou ? Colors.white70 : Colors.white30,
+                    fontSize: 96,
+                    //fontWeight: FontWeight.bold,
+                    letterSpacing: 5,
+                  ),
                 ),
               ),
             ),

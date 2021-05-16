@@ -7,6 +7,7 @@ import 'package:paricon/models/localPlayer.dart';
 import 'package:paricon/providers/authProvider.dart';
 import 'package:paricon/providers/boardProvider.dart';
 import 'package:paricon/providers/pageProvider.dart';
+import 'package:paricon/providers/roomIDProvider.dart';
 import 'package:paricon/providers/roomNotifierProvider.dart';
 import 'package:paricon/providers/roomProvider.dart';
 
@@ -31,9 +32,13 @@ class GameBoard extends StatelessWidget {
             contentTextStyle:
                 Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 20),
             title: const Text('Really..'),
-            content: FittedBox(
-              child: Text(
-                'Leaving at middle of the game?',
+            content: FractionallySizedBox(
+              heightFactor: 0.2,
+              //widthFactor: 10,
+              child: FittedBox(
+                child: Text(
+                  'Leaving at middle of the game?',
+                ),
               ),
             ),
             actions: const ["YES", "NO"]
@@ -42,6 +47,8 @@ class GameBoard extends StatelessWidget {
                     onPressed: () async {
                       /*if (title.contains("YES"))
                         await context.read(leavingBoardProvider.future);*/
+                      if (title.contains("YES"))
+                        context.read(idNotifier.notifier).empty();
                       Navigator.pop(ctx, title.contains("YES"));
                     },
                     child: Text(
@@ -177,26 +184,31 @@ class PlayerBox extends StatelessWidget {
                 children: [
                   Flexible(
                     flex: 2,
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      child: Text(
-                        "${player.pts}",
-                        key: ValueKey(player.pts),
-                        style: TextStyle(
-                          fontFamily: "Poppins",
-                          fontSize: 48,
-                          color: yourTurn ? Colors.indigo[200] : Colors.indigo,
+                    child: FittedBox(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        child: Text(
+                          "${player.pts}",
+                          key: ValueKey(player.pts),
+                          style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontSize: 128,
+                            color:
+                                yourTurn ? Colors.indigo[200] : Colors.indigo,
+                          ),
                         ),
                       ),
                     ),
                   ),
                   Flexible(
-                    child: Text(
-                      player.name,
-                      style: TextStyle(
-                        fontFamily: "Poppins",
-                        fontSize: 24,
-                        color: yourTurn ? Colors.indigo[200] : Colors.indigo,
+                    child: FittedBox(
+                      child: Text(
+                        player.name,
+                        style: TextStyle(
+                          fontFamily: "Poppins",
+                          fontSize: 96,
+                          color: yourTurn ? Colors.indigo[200] : Colors.indigo,
+                        ),
                       ),
                     ),
                   ),
@@ -254,14 +266,11 @@ class IconWdgt extends ConsumerWidget {
           return AnimatedContainer(
             duration: const Duration(milliseconds: 500),
             transform: Matrix4.translationValues(-5, 5, 0)
-              ..rotateZ((!checkFound
-                      ? (Random.secure().nextBool() ? -pi : pi)
-                      : -pi) /
-                  (checkFound ? 60 : 15)),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4.0),
-              //color: _icon.isFound ? Colors.white60 : Colors.indigo,
-            ),
+              ..rotateZ(
+                (!checkFound ? (Random.secure().nextBool() ? -pi : pi) : -pi) /
+                    (checkFound ? 60 : 15),
+              ),
+            //margin: const EdgeInsets.all(4.0),
             child: ClipRRect(
               child: Card(
                 elevation: 12,
@@ -326,17 +335,15 @@ class ShowIconWdgt extends ConsumerWidget {
               ? 6.0
               : 8.0,
     );
-    return Center(
-      child: AnimatedContainer(
-        padding: EdgeInsets.all(paddingValue),
-        duration: const Duration(milliseconds: 500),
-        color: isFound ? Colors.white10 : Colors.indigo,
-        child: FittedBox(
-          child: Icon(
-            IconData(iconCode, fontFamily: 'MaterialIcons'),
-            color: isFound ? Colors.indigo : Colors.white70,
-            size: 64,
-          ),
+    return AnimatedContainer(
+      padding: EdgeInsets.all(paddingValue),
+      duration: const Duration(milliseconds: 500),
+      color: isFound ? Colors.white10 : Colors.indigo,
+      child: FittedBox(
+        child: Icon(
+          IconData(iconCode, fontFamily: 'MaterialIcons'),
+          color: isFound ? Colors.indigo : Colors.white70,
+          size: 512,
         ),
       ),
     );
@@ -380,13 +387,15 @@ class PlayerNameWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      value,
+    return FittedBox(
       key: ValueKey(value),
-      style: Theme.of(context)
-          .textTheme
-          .bodyText1
-          .copyWith(fontSize: 32, color: Colors.indigo),
+      child: Text(
+        value,
+        style: Theme.of(context)
+            .textTheme
+            .bodyText1
+            .copyWith(fontSize: 96, color: Colors.indigo),
+      ),
     );
   }
 }

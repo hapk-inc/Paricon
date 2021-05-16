@@ -45,13 +45,16 @@ class RoomDatabase extends MyDatabase {
     await roomPlayersRef.child(user.uid).set(map);
   }
 
-  Future<Room> get room => roomRef.once().then(
-        (snapshot) {
-          Room _room = Room.fromMap(snapshot.value);
-          return _room;
-        },
-        //onError: (e) => print(e),
-      );
+  Future<Room> get room {
+    print(roomRef.path);
+    return roomRef.once().then(
+      (snapshot) {
+        Room _room = Room.fromMap(snapshot.value);
+        return _room;
+      },
+      //onError: (e) => print(e),
+    );
+  }
 
   Query get playersQuery =>
       roomPlayersRef.orderByChild("isActive").equalTo(true);

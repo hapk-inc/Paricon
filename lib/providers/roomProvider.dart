@@ -66,11 +66,12 @@ final playersQueryProvider = Provider.autoDispose<Query>(
   },
 );
 
-final createBoardProvider = FutureProvider.autoDispose(
+final createBoardProvider = FutureProvider.autoDispose<void>(
   (ref) async {
     final room = ref.read(roomProvider).data.value;
     final Map playersProvider = await ref.watch(roomPlayersProvider.future);
-
+    if (playersProvider.length == 1)
+      return Future.error("Wait for Other Players");
     final boardDatabase = ref.read(boardDatabaseProvider);
 
     final players = convertToBoard(playersProvider);

@@ -44,6 +44,7 @@ class WelcomeStartBtn extends StatelessWidget {
         child: Container(
           alignment: Alignment.bottomRight,
           child: FractionallySizedBox(
+            heightFactor: 0.3,
             widthFactor: 0.5,
             child: ElevatedButton(
               style: ButtonStyle(
@@ -59,10 +60,13 @@ class WelcomeStartBtn extends StatelessWidget {
                   ),
                 ),
               ),
-              child: FittedBox(
-                child: Text(
-                  "START",
-                  style: TextStyle(fontSize: 24, color: Colors.white60),
+              child: FractionallySizedBox(
+                heightFactor: 0.6,
+                child: FittedBox(
+                  child: Text(
+                    "START",
+                    style: TextStyle(fontSize: 128, color: Colors.white60),
+                  ),
                 ),
               ),
               onPressed: () =>

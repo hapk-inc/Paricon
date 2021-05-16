@@ -55,10 +55,8 @@ class EnterRoomCode extends StatelessWidget {
           children: [
             Flexible(
               flex: 4,
-              child: Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.all(32.0),
-                child: TextFormField(
+              child: Center(
+                child: TextField(
                   controller: _controller,
                   cursorHeight: 40,
                   cursorColor: Colors.white70,

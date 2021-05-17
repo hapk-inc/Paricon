@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/providers/pageProvider.dart';
 
 import 'enterName.dart';
+import 'providers/pageProvider.dart';
 
 class Welcome extends StatelessWidget {
   const Welcome({Key key}) : super(key: key);

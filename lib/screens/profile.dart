@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/providers/authProvider.dart';
-import 'package:paricon/providers/packagInfoProvider.dart';
-import 'package:paricon/providers/playerProvider.dart';
 
 import 'common/notStarted.dart';
 import 'common/overallStats.dart';
 import 'common/playerNameID.dart';
+import 'providers/authProvider.dart';
+import 'providers/packagInfoProvider.dart';
+import 'providers/playerProvider.dart';
 
 class ProfileScreen extends StatelessWidget {
   static MaterialPage get toMaterialPage => MaterialPage(

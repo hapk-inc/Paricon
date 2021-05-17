@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "118238046593",
+    "firebase_url": "https://flutter-paricon.firebaseio.com",
+    "project_id": "flutter-paricon",
+    "storage_bucket": "flutter-paricon.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:118238046593:android:ad8bd797b73273c8d0a080",
+        "android_client_info": {
+          "package_name": "com.hapk.pariconDemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "118238046593-kvp54d513sjkd1lai0o51rs9kdakci50.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDi9QHjkVIecwza1Af1AtBUO4C3JVl0ylw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "118238046593-kvp54d513sjkd1lai0o51rs9kdakci50.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

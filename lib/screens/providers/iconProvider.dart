@@ -66,6 +66,9 @@ class Icons {
 
   List<int> getIcons(String level) {
     final int count = iconCount(level) ~/ 2;
+    _actionIcons.forEach((element) {
+      print("IconCode is " + element.toString());
+    });
     List<int> icons = List.from(_actionIcons)..shuffle();
     List<int> setIcons = icons.take(count).toList();
     return (setIcons + setIcons)..shuffle();

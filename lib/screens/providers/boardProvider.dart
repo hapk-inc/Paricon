@@ -5,10 +5,10 @@ import 'package:paricon/models/board.dart';
 import 'package:paricon/models/localIcon.dart';
 import 'package:paricon/models/localPlayer.dart';
 import 'package:paricon/models/stats.dart';
-import 'package:paricon/providers/prevStatsNotifier.dart';
 
 import 'authProvider.dart';
 import 'databaseProvider.dart';
+import 'prevStatsNotifier.dart';
 import 'roomNotifierProvider.dart';
 import 'roomProvider.dart';
 

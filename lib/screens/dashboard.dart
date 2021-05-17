@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/providers/pageProvider.dart';
 
 import 'profile.dart';
+import 'providers/pageProvider.dart';
 import 'startGame.dart';
 
 class Dashboard extends StatelessWidget {

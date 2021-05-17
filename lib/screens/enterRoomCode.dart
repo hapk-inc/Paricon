@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/providers/pageProvider.dart';
-import 'package:paricon/providers/roomNotifierProvider.dart';
-import 'package:paricon/providers/roomProvider.dart';
 
 import 'gameRoom.dart';
+import 'providers/pageProvider.dart';
+import 'providers/roomNotifierProvider.dart';
+import 'providers/roomProvider.dart';
 
 class EnterRoomCode extends StatelessWidget {
   final _controller = TextEditingController();

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/profile.dart';
-import 'package:paricon/providers/authProvider.dart';
 
+import 'authProvider.dart';
 import 'databaseProvider.dart';
 
 final profileProvider = FutureProvider.autoDispose<Profile>(

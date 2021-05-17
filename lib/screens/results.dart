@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/providers/boardProvider.dart';
-import 'package:paricon/providers/prevStatsNotifier.dart';
-import 'package:paricon/providers/roomIDProvider.dart';
+
+import 'providers/boardProvider.dart';
+import 'providers/prevStatsNotifier.dart';
+import 'providers/roomIDProvider.dart';
 
 class GameResults extends StatelessWidget {
   static MaterialPage toMaterialPage() => MaterialPage(

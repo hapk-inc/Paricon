@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/providers/authProvider.dart';
-import 'package:paricon/providers/newNameProvider.dart';
+
+import 'providers/authProvider.dart';
+import 'providers/newNameProvider.dart';
 
 class SelectAuth extends StatelessWidget {
   static MaterialPage get toMaterialPage => MaterialPage(

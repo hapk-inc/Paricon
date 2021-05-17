@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/providers/newNameProvider.dart';
-import 'package:paricon/providers/pageProvider.dart';
 
+import 'providers/newNameProvider.dart';
+import 'providers/pageProvider.dart';
 import 'selectAuth.dart';
 
 class EnterName extends StatelessWidget {

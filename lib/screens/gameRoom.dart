@@ -2,13 +2,13 @@ import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/profile.dart';
-import 'package:paricon/providers/authProvider.dart';
-import 'package:paricon/providers/pageProvider.dart';
-import 'package:paricon/providers/playerProvider.dart';
-import 'package:paricon/providers/roomIDProvider.dart';
-import 'package:paricon/providers/roomProvider.dart';
 
 import 'gameBoard.dart';
+import 'providers/authProvider.dart';
+import 'providers/pageProvider.dart';
+import 'providers/playerProvider.dart';
+import 'providers/roomIDProvider.dart';
+import 'providers/roomProvider.dart';
 
 class GameRoom extends StatelessWidget {
   static MaterialPage toMaterialPage({String id}) => MaterialPage(

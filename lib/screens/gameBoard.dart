@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/localIcon.dart';
 import 'package:paricon/models/localPlayer.dart';
-import 'package:paricon/providers/authProvider.dart';
-import 'package:paricon/providers/boardProvider.dart';
-import 'package:paricon/providers/pageProvider.dart';
-import 'package:paricon/providers/roomIDProvider.dart';
-import 'package:paricon/providers/roomNotifierProvider.dart';
-import 'package:paricon/providers/roomProvider.dart';
 
+import 'providers/authProvider.dart';
+import 'providers/boardProvider.dart';
+import 'providers/pageProvider.dart';
+import 'providers/roomIDProvider.dart';
+import 'providers/roomNotifierProvider.dart';
+import 'providers/roomProvider.dart';
 import 'results.dart';
 
 class GameBoard extends StatelessWidget {
@@ -262,7 +262,6 @@ class IconWdgt extends ConsumerWidget {
         ),
         data: (_icon) {
           final bool checkFound = _icon.isCheck || _icon.isFound;
-
           return AnimatedContainer(
             duration: const Duration(milliseconds: 500),
             transform: Matrix4.translationValues(-5, 5, 0)
@@ -341,6 +340,7 @@ class ShowIconWdgt extends ConsumerWidget {
       color: isFound ? Colors.white10 : Colors.indigo,
       child: FittedBox(
         child: Icon(
+          //Icons.height,
           IconData(iconCode, fontFamily: 'MaterialIcons'),
           color: isFound ? Colors.indigo : Colors.white70,
           size: 512,

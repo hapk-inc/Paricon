@@ -6,6 +6,7 @@ import 'package:paricon/models/room.dart';
 import 'authProvider.dart';
 import 'databaseProvider.dart';
 import 'iconProvider.dart';
+import 'packagInfoProvider.dart';
 import 'roomIDProvider.dart';
 import 'setGameProvider.dart';
 
@@ -70,8 +71,13 @@ final createBoardProvider = FutureProvider.autoDispose<void>(
   (ref) async {
     final room = ref.read(roomProvider).data.value;
     final Map playersProvider = await ref.watch(roomPlayersProvider.future);
-    if (playersProvider.length == 1)
-      return Future.error("Wait for Other Players");
+    final packageProvider = await ref.watch(packageInfoProvider.future);
+
+    if (!packageProvider.version.contains("dev")) {
+      if (playersProvider.length == 1)
+        return Future.error("Wait for Other Players");
+    }
+
     final boardDatabase = ref.read(boardDatabaseProvider);
 
     final players = convertToBoard(playersProvider);

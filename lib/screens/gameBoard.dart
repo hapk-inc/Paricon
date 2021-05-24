@@ -5,81 +5,48 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/localIcon.dart';
 import 'package:paricon/models/localPlayer.dart';
 
+import 'common/durationCount.dart';
+import 'common/paddingTheme.dart';
+import 'common/popup.dart';
+import 'common/textTheme.dart';
 import 'providers/authProvider.dart';
 import 'providers/boardProvider.dart';
+import 'providers/gameIconProvider.dart';
 import 'providers/pageProvider.dart';
-import 'providers/roomIDProvider.dart';
 import 'providers/roomNotifierProvider.dart';
-import 'providers/roomProvider.dart';
 import 'results.dart';
 
-class GameBoard extends StatelessWidget {
+class GameBoard extends ConsumerWidget {
+  const GameBoard({Key key}) : super(key: key);
+
   static MaterialPage toMaterialPage() => MaterialPage(
         child: GameBoard(),
         name: '/gameBoard',
         key: ValueKey('gameBoard'),
       );
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ScopedReader watch) {
+    //final firebaseUser = watch(currentUserProvider);
+
     Future<bool> _onBackPressed() async => await showDialog(
           context: context,
-          builder: (ctx) => AlertDialog(
-            backgroundColor: Colors.indigo[800],
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.0)),
-            actionsPadding: const EdgeInsets.all(4.0),
-            titleTextStyle: Theme.of(context).textTheme.bodyText1,
-            contentTextStyle:
-                Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 20),
-            title: const Text('Really..'),
-            content: FractionallySizedBox(
-              heightFactor: 0.2,
-              //widthFactor: 10,
-              child: FittedBox(
-                child: Text(
-                  'Leaving at middle of the game?',
-                ),
-              ),
-            ),
-            actions: const ["YES", "NO"]
-                .map(
-                  (title) => TextButton(
-                    onPressed: () async {
-                      /*if (title.contains("YES"))
-                        await context.read(leavingBoardProvider.future);*/
-                      if (title.contains("YES"))
-                        context.read(idNotifier.notifier).empty();
-                      Navigator.pop(ctx, title.contains("YES"));
-                    },
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        fontFamily: "Poppins",
-                        color: Colors.white54,
-                        fontSize: 16,
-                        letterSpacing: 5,
-                      ),
-                    ),
-                  ),
-                )
-                .toList(growable: false),
-          ),
+          builder: (context) => ExitPopup(),
         );
 
     return Scaffold(
-      backgroundColor: Colors.white70,
+      backgroundColor: Colors.brown[200],
       body: WillPopScope(
         onWillPop: _onBackPressed,
-        child: Consumer(
-          builder: (ctx, watch, _) => ProviderListener<AsyncValue<int>>(
-            provider: iconsFoundProvider,
-            onChange: (context, stream) {
-              stream.whenData(
-                (value) async {
+        child: SafeArea(
+          child: ProviderListener(
+            provider: allIconsFoundProvider,
+            onChange: (BuildContext context, AsyncValue<int> iconsFound) {
+              iconsFound.whenData(
+                (_value) async {
                   final board = await watch(boardProvider.future);
                   final num iconCount = board.icons.length;
                   //if (value % 2 == 0 && value > 8) {
-                  if (value == iconCount) {
+                  if (_value == iconCount) {
                     print("Game Over");
                     final isUpdated = await watch(updateStatsProvider.future);
                     if (isUpdated ?? false)
@@ -90,312 +57,376 @@ class GameBoard extends StatelessWidget {
                 },
               );
             },
-            child: SafeArea(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 500),
-                child: watch(boardProvider).when(
-                  data: (value) => Column(
-                    children: [
-                      PlayerName(),
-                      GridIcons(value.icons),
-                      ListPlayers(value.players),
-                    ],
-                  ),
-                  loading: () => Center(child: CircularProgressIndicator()),
-                  error: (error, stackTrace) => Center(
-                    child: Text("Something happened \n $error \n $stackTrace"),
+            child: AnimatedSwitcher(
+              duration: DurationCount.m500,
+              child: watch(boardProvider).when(
+                data: (value) => MediaQuery.of(context).orientation ==
+                        Orientation.portrait
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Flexible(
+                            child: CurrentPlayerName(),
+                          ),
+                          Flexible(
+                            flex: 7,
+                            child: GridIcons(icons: value.icons),
+                          ),
+                          Flexible(
+                            flex: 2,
+                            child: GamePlayers(players: value.players),
+                          )
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          Flexible(
+                            flex: 7,
+                            child: GridIcons(icons: value.icons),
+                          ),
+                          Flexible(
+                            flex: 3,
+                            child: Column(
+                              children: [
+                                Flexible(child: CurrentPlayerName()),
+                                Flexible(
+                                  child: GamePlayers(players: value.players),
+                                  flex: 3,
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                loading: () => Container(),
+                error: (error, stackTrace) => Container(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+List<Widget> playerWidgets(LocalPlayer localPlayer, double newHeight) => [
+      Flexible(
+        flex: 2,
+        child: FittedBox(
+          child: AnimatedSwitcher(
+            duration: DurationCount.m500,
+            child: Text(
+              localPlayer.pts.toString(),
+              key: ValueKey(localPlayer.pts),
+              style: TextStyleFontTheme.luckiestGuy.copyWith(
+                  fontSize: newHeight * 0.75, color: Colors.indigo[100]),
+            ),
+          ),
+        ),
+      ),
+      Flexible(
+        child: FractionallySizedBox(
+          widthFactor: 0.25,
+          heightFactor: 0.25,
+        ),
+      ),
+      Flexible(
+        child: FittedBox(
+          child: Text(
+            localPlayer.name,
+            style: TextStyleFontTheme.reggaeOne.copyWith(
+              fontSize: newHeight * 0.5,
+              color: Colors.indigo[300],
+            ),
+          ),
+        ),
+      )
+    ];
+
+class GamePlayers extends ConsumerWidget {
+  final List players;
+  const GamePlayers({Key key, this.players}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, ScopedReader watch) {
+    final int maxCount = players.length > 4 ? players.length : 4;
+    final Orientation orientation = MediaQuery.of(context).orientation;
+    final double newH = (MediaQuery.of(context).size.height * 0.75) / maxCount;
+
+    if (orientation == Orientation.portrait)
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: players.map(
+          (e) {
+            final bool _yourTurn = watch(currentIDProvider).maybeWhen(
+              orElse: () => false,
+              data: (value) {
+                return e == value;
+              },
+            );
+            return Flexible(
+              child: FractionallySizedBox(
+                widthFactor: 0.75,
+                child: AnimatedSwitcher(
+                  duration: DurationCount.m500,
+                  child: watch(localPlayerProvider(e)).when(
+                    data: (player) => AnimatedContainer(
+                      duration: DurationCount.m500,
+                      transform:
+                          Matrix4.rotationZ(player.isActive ? -0.025 : 0),
+                      //padding: ,
+                      decoration: BoxDecoration(
+                        color: Colors.indigo.withOpacity(_yourTurn ? 1 : 0.25),
+                        borderRadius: BorderRadius.circular(4.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey,
+                            offset: Offset(0.0, 1.0), //(x,y)
+                            blurRadius: 6.0,
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: MediaQuery.of(context).size.longestSide !=
+                                MediaQuery.of(context).size.width
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: playerWidgets(player, newH),
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: playerWidgets(player, newH),
+                              ),
+                      ),
+                    ),
+                    loading: () => Container(),
+                    error: (error, stackTrace) => Container(),
                   ),
                 ),
               ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ListPlayers extends StatelessWidget {
-  final List players;
-  const ListPlayers(this.players, {Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) => Flexible(
-        flex: 2,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: players.map((player) => PlayerWdgt(player)).toList(),
-        ),
+            );
+          },
+        ).toList(),
       );
-}
-
-class PlayerWdgt extends StatelessWidget {
-  final String playerID;
-  const PlayerWdgt(this.playerID, {Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Flexible(
-      child: FractionallySizedBox(
-        widthFactor: 0.9,
-        heightFactor: 0.8,
-        child: Consumer(
-          builder: (context, watch, child) => AnimatedSwitcher(
-            duration: const Duration(milliseconds: 500),
-            child: watch(localPlayerProvider(playerID)).when(
-              data: (_player) {
-                bool _yourTurn = watch(currentIDProvider).maybeWhen(
-                  orElse: () => false,
-                  data: (value) => playerID == value,
-                );
-                return PlayerBox(yourTurn: _yourTurn, player: _player);
-              },
-              loading: () => Container(),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class PlayerBox extends StatelessWidget {
-  const PlayerBox({Key key, @required this.yourTurn, @required this.player})
-      : super(key: key);
-
-  final bool yourTurn;
-  final LocalPlayer player;
-
-  @override
-  Widget build(BuildContext context) => Card(
-        elevation: yourTurn ? 8 : 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        child: ClipPath(
-          child: AnimatedContainer(
-            decoration: BoxDecoration(
-                color: yourTurn ? Colors.indigo : Colors.indigo[200],
-                borderRadius: BorderRadius.circular(16.0)),
-            duration: const Duration(milliseconds: 500),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    flex: 2,
-                    child: FittedBox(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
-                        child: Text(
-                          "${player.pts}",
-                          key: ValueKey(player.pts),
-                          style: TextStyle(
-                            fontFamily: "Poppins",
-                            fontSize: 128,
-                            color:
-                                yourTurn ? Colors.indigo[200] : Colors.indigo,
-                          ),
+    else
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: players
+            .map(
+              (e) => Flexible(
+                child: FractionallySizedBox(
+                  widthFactor: 0.75,
+                  heightFactor: 0.9,
+                  child: AnimatedSwitcher(
+                    duration: DurationCount.m500,
+                    child: watch(localPlayerProvider(e)).when(
+                      data: (player) => AnimatedContainer(
+                        duration: DurationCount.m500,
+                        transform:
+                            Matrix4.rotationZ(player.isActive ? -0.025 : 0),
+                        //padding: ,
+                        decoration: BoxDecoration(
+                          color: Colors.indigo.withOpacity(1),
+                          borderRadius: BorderRadius.circular(4.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey,
+                              offset: Offset(0.0, 1.0), //(x,y)
+                              blurRadius: 6.0,
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: MediaQuery.of(context).size.longestSide ==
+                                  MediaQuery.of(context).size.width
+                              ? Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: playerWidgets(player, newH),
+                                )
+                              : Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: playerWidgets(player, newH),
+                                  ),
+                                ),
                         ),
                       ),
+                      loading: () => Container(),
+                      error: (error, stackTrace) => Container(),
                     ),
                   ),
-                  Flexible(
-                    child: FittedBox(
-                      child: Text(
-                        player.name,
-                        style: TextStyle(
-                          fontFamily: "Poppins",
-                          fontSize: 96,
-                          color: yourTurn ? Colors.indigo[200] : Colors.indigo,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ),
+            )
+            .toList(),
       );
+  }
 }
 
 class GridIcons extends StatelessWidget {
   final List icons;
-  const GridIcons(this.icons, {Key key}) : super(key: key);
+  const GridIcons({Key key, this.icons}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => Flexible(
-        flex: 6,
-        child: GridView.count(
-          crossAxisCount: _crossAxisIconCount(icons.length),
-          padding: const EdgeInsets.all(12.0),
-          children: List.from(icons.map((icon) => IconWdgt(icon))),
-        ),
-      );
-
-  int _crossAxisIconCount(int count) => count == 42
-      ? 6
-      : count == 72
-          ? 8
-          : 4;
-}
-
-class IconWdgt extends ConsumerWidget {
-  final String id;
-  const IconWdgt(this.id, {Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, ScopedReader watch) {
-    final localIcon = watch(iconProvider(id));
-
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 500),
-      child: localIcon.maybeWhen(
-        orElse: () => Card(
-          elevation: 12,
-          color: Colors.indigo,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Container(),
-        ),
-        data: (_icon) {
-          final bool checkFound = _icon.isCheck || _icon.isFound;
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
-            transform: Matrix4.translationValues(-5, 5, 0)
-              ..rotateZ(
-                (!checkFound ? (Random.secure().nextBool() ? -pi : pi) : -pi) /
-                    (checkFound ? 60 : 15),
-              ),
-            //margin: const EdgeInsets.all(4.0),
-            child: ClipRRect(
-              child: Card(
-                elevation: 12,
-                color: _icon.isFound ? Colors.white60 : Colors.indigo,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 500),
-                  child: checkFound
-                      ? ShowIconWdgt(_icon.iconCode, _icon.isFound)
-                      : ShowIconBtnWdgt(id, _icon.iconCode),
-                ),
-              ),
+  Widget build(BuildContext context) {
+    double newRatio =
+        MediaQuery.of(context).orientation == Orientation.landscape
+            ? (MediaQuery.of(context).size.longestSide * 0.75) /
+                MediaQuery.of(context).size.shortestSide
+            : 1;
+    return GridView.count(
+      padding: PaddingTheme.all8,
+      crossAxisCount:
+          context.read(gameIconProvider).crossAxisCount(icons.length),
+      shrinkWrap: true,
+      childAspectRatio: newRatio,
+      crossAxisSpacing: 2.0,
+      mainAxisSpacing: 2.0,
+      children: icons
+          .map(
+            (_id) => IconCard(
+              id: _id,
             ),
-          );
-        },
-      ),
+          )
+          .toList(),
     );
   }
 }
 
-class ShowIconBtnWdgt extends ConsumerWidget {
+class IconCard extends ConsumerWidget {
   final String id;
-  final int iconCode;
-  const ShowIconBtnWdgt(this.id, this.iconCode, {Key key}) : super(key: key);
+  const IconCard({Key key, this.id}) : super(key: key);
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
     final firebaseUser = watch(currentUserProvider);
     final roomNotifier = watch(roomNotifierProvider);
+    final gameIcnProvider = watch(gameIconProvider);
     bool _yourTurn = watch(currentIDProvider).maybeWhen(
       orElse: () => false,
       data: (value) {
         return firebaseUser.uid == value;
       },
     );
-    return InkWell(
-      onTap: _yourTurn && !roomNotifier.loading
-          ? () async {
-              IconInfo info = IconInfo(id, iconCode);
-              roomNotifier.loading = true;
-              await watch(btnClickProvider(info).future).whenComplete(
-                () => roomNotifier.loading = false,
-              );
-            }
-          : null,
+    return AnimatedSwitcher(
+      duration: DurationCount.m500,
+      child: watch(iconProvider(id)).when(
+        data: (_icon) {
+          final bool checkFound = _icon.isCheck || _icon.isFound;
+          final info = IconInfo(id, _icon.iconCode);
+          return AnimatedContainer(
+            duration: DurationCount.m500,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4.0),
+            ),
+            /*transform: Matrix4.translationValues(-5, 5, 0)
+              ..rotateZ(
+                (!checkFound ? (Random.secure().nextBool() ? -pi : pi) : -pi) /
+                    (checkFound ? 60 : 15),
+              ),*/
+            transform: Matrix4.rotationZ(
+                (!checkFound ? (Random.secure().nextBool() ? -pi : pi) : -pi) /
+                    (checkFound ? 60 : 15)),
+            child: ClipRect(
+              child: Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                child: AnimatedSwitcher(
+                  duration: DurationCount.m500,
+                  child: checkFound
+                      ? AnimatedContainer(
+                          duration: DurationCount.m500,
+                          alignment: Alignment.center,
+                          padding: PaddingTheme.all4,
+                          decoration: BoxDecoration(
+                            color: _icon.isFound
+                                ? Colors.purple[50]
+                                : Colors.purple,
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          child: FittedBox(
+                            child: Icon(
+                              gameIcnProvider.gameIcon(_icon.iconCode),
+                              color: _icon.isFound
+                                  ? Colors.purple
+                                  : Colors.white60,
+                              size: MediaQuery.of(context).size.height,
+                            ),
+                          ),
+                        )
+                      : InkWell(
+                          onTap: _yourTurn && !roomNotifier.loading
+                              ? () async {
+                                  roomNotifier.loading = true;
+                                  await context
+                                      .read(btnClickProvider(info).future)
+                                      .whenComplete(
+                                        () => roomNotifier.loading = false,
+                                      );
+                                }
+                              : null,
+                          child: Container(
+                            constraints: BoxConstraints.expand(),
+                            decoration: BoxDecoration(
+                                color: Colors.purple,
+                                borderRadius: BorderRadius.circular(4.0)),
+                          ),
+                        ),
+                ),
+              ),
+            ),
+          );
+        },
+        loading: () => Container(),
+        error: (error, stackTrace) => Container(),
+      ),
     );
   }
 }
 
-class ShowIconWdgt extends ConsumerWidget {
-  final int iconCode;
-
-  final bool isFound;
-  const ShowIconWdgt(this.iconCode, this.isFound, {Key key}) : super(key: key);
+class CurrentPlayerName extends ConsumerWidget {
+  const CurrentPlayerName({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
-    final double paddingValue = watch(roomProvider).maybeWhen(
-      orElse: () => 12.0,
-      data: (value) => isFound
-          ? 4.0
-          : value.details.level.toLowerCase() == "hard"
-              ? 6.0
-              : 8.0,
+    final firebaseUser = watch(firebaseUserProvider);
+    bool _yourTurn = watch(currentIDProvider).maybeWhen(
+      orElse: () => false,
+      data: (value) => firebaseUser.uid == value,
     );
-    return AnimatedContainer(
-      padding: EdgeInsets.all(paddingValue),
-      duration: const Duration(milliseconds: 500),
-      color: isFound ? Colors.white10 : Colors.indigo,
-      child: FittedBox(
-        child: Icon(
-          //Icons.height,
-          IconData(iconCode, fontFamily: 'MaterialIcons'),
-          color: isFound ? Colors.indigo : Colors.white70,
-          size: 512,
-        ),
+
+    return Container(
+      padding: PaddingTheme.all8,
+      alignment: Alignment.bottomLeft,
+      child: AnimatedSwitcher(
+        duration: DurationCount.m500,
+        child: _yourTurn
+            ? PlayerName(name: "Your turn")
+            : watch(nameProvider).when(
+                data: (value) => PlayerName(name: value),
+                error: (Object error, StackTrace stackTrace) => Container(),
+                loading: () => Container(),
+              ),
       ),
     );
   }
 }
 
 class PlayerName extends StatelessWidget {
-  const PlayerName({Key key}) : super(key: key);
+  final String name;
+  const PlayerName({Key key, this.name}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => Flexible(
-        child: Container(
-          padding: const EdgeInsets.all(8.0),
-          alignment: Alignment.bottomLeft,
-          child: Consumer(
-            builder: (_, watch, child) {
-              final firebaseUser = watch(firebaseUserProvider);
-              bool _yourTurn = watch(currentIDProvider).maybeWhen(
-                orElse: () => false,
-                data: (value) => firebaseUser.uid == value,
-              );
-              return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: _yourTurn
-                    ? PlayerNameWidget(
-                        value: "Your Turn",
-                      )
-                    : watch(nameProvider).when(
-                        data: (value) => PlayerNameWidget(value: value),
-                        loading: () => PlayerNameWidget(value: "loading")),
-              );
-            },
+  Widget build(BuildContext context) => FittedBox(
+        child: Text(
+          name,
+          key: ValueKey(name),
+          style: TextStyleFontTheme.luckiestGuy.copyWith(
+            color: Colors.indigo[400],
+            fontSize: MediaQuery.of(context).size.height * 0.1,
           ),
         ),
       );
-}
-
-class PlayerNameWidget extends StatelessWidget {
-  final String value;
-  const PlayerNameWidget({Key key, this.value}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FittedBox(
-      key: ValueKey(value),
-      child: Text(
-        value,
-        style: Theme.of(context)
-            .textTheme
-            .bodyText1
-            .copyWith(fontSize: 96, color: Colors.indigo),
-      ),
-    );
-  }
 }

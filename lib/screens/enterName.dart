@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:paricon/screens/common/textTheme.dart';
 
 import 'providers/newNameProvider.dart';
 import 'providers/pageProvider.dart';
@@ -16,7 +17,7 @@ class EnterName extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _onSubmitted() {
-      if (FocusScope.of(context).hasFocus) FocusScope.of(context).unfocus();
+      //if (FocusScope.of(context).hasFocus) FocusScope.of(context).unfocus();
       if (_controller.text.isNotEmpty)
         context
           ..read(newNameNotifier.notifier).state = capsFirst(_controller.text)
@@ -26,7 +27,7 @@ class EnterName extends StatelessWidget {
           SnackBar(
             content: Text(
               'Please Enter your Name',
-              style: Theme.of(context).textTheme.bodyText1,
+              style: TextStyleFontTheme.poppins,
             ),
           ),
         );
@@ -43,10 +44,11 @@ class EnterName extends StatelessWidget {
             controller: _controller,
             cursorHeight: 40,
             cursorColor: Colors.white70,
-            style: Theme.of(context)
-                .textTheme
-                .bodyText1
-                .copyWith(fontSize: 24, letterSpacing: 2),
+            style: TextStyleFontTheme.poppins.copyWith(
+              fontSize: 24,
+              letterSpacing: 2,
+              color: Colors.white70,
+            ),
             onEditingComplete: () => _onSubmitted(),
             decoration: InputDecoration(
               hintText: "Enter Name",
@@ -63,11 +65,11 @@ class EnterName extends StatelessWidget {
                 ),
                 onPressed: _onSubmitted,
               ),
-              hintStyle: Theme.of(context)
-                  .textTheme
-                  .bodyText1
-                  .copyWith(fontSize: 24, color: Colors.white24),
-              contentPadding: const EdgeInsets.all(20.0),
+              hintStyle: TextStyleFontTheme.poppins.copyWith(
+                fontSize: 24,
+                color: Colors.white24,
+              ),
+              contentPadding: const EdgeInsets.all(24.0),
             ),
           ),
         ),

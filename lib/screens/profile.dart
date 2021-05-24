@@ -1,134 +1,319 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:paricon/screens/common/paddingTheme.dart';
+import 'package:paricon/screens/providers/packageInfoProvider.dart';
+import 'package:paricon/screens/providers/playerProvider.dart';
 
-import 'common/notStarted.dart';
-import 'common/overallStats.dart';
-import 'common/playerNameID.dart';
+import 'common/durationCount.dart';
+import 'common/textTheme.dart';
+import 'gameRoom.dart';
 import 'providers/authProvider.dart';
-import 'providers/packagInfoProvider.dart';
-import 'providers/playerProvider.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   static MaterialPage get toMaterialPage => MaterialPage(
         child: ProfileScreen(),
         name: '/profile',
         key: ValueKey('profile'),
       );
 
-  Widget errorContainer(error, stackTrace) {
-    print("Error is " + error.toString());
-    print("Error is " + stackTrace.toString());
-    return Center(
-      child: Text(
-        "Something Wrong",
-        style: TextStyle(fontFamily: "Poppins", fontSize: 16),
-      ),
-    );
-  }
+  static List<Widget> profileNameIdList(
+          {String name, String id, bool fromLeft}) =>
+      <Widget>[
+        Flexible(
+          child: Container(
+            constraints: BoxConstraints.expand(),
+            child: FittedBox(
+              child: Icon(
+                Icons.person,
+                color: Colors.black54,
+              ),
+            ),
+          ),
+        ),
+        Flexible(
+          child: Padding(
+            padding: PaddingTheme.all8,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              /*crossAxisAlignment:
+                  fromLeft ? CrossAxisAlignment.start : CrossAxisAlignment.end,*/
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      name ?? "Takashi Sensei",
+                      style: TextStyleFontTheme.meriendaOne.copyWith(
+                        fontSize: 36,
+                        color: Colors.black87,
+                      ),
+                      textScaleFactor: 2.5,
+                    ),
+                  ),
+                  flex: 2,
+                ),
+                Flexible(
+                  child: FittedBox(
+                    child: Text(
+                      "ID: " + (id ?? "00000"),
+                      style: TextStyleFontTheme.meriendaOne.copyWith(
+                        fontSize: 24,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textScaleFactor: 1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
+      ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ScopedReader watch) {
     TabController _tabController;
+    final orientation = MediaQuery.of(context).orientation;
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         backgroundColor: Colors.pink[200],
         appBar: AppBar(
           backgroundColor: Colors.pink,
-          actions: [SignOutButton()],
+          actions: [
+            SignOutButton(),
+          ],
         ),
-        body: Consumer(
-          builder: (context, watch, child) => AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: watch(profileProvider).when(
-              data: (_player) => Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Flexible(
-                    flex: 2,
-                    child: Row(
-                      children: [
-                        PlayerIconWidget(),
-                        PlayerNameIdWidget(profile: _player),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    child: SizedBox(
-                      height: 60,
-                      child: TabBar(
-                        labelStyle: TextStyle(
-                            fontSize: 20,
-                            color: Colors.pink,
-                            fontFamily: 'Poppins'),
-                        tabs: const ['Easy', 'Medium', 'Hard']
-                            .map(
-                              (e) => Tab(
-                                child: Text(e),
+        body: Column(
+          children: [
+            Flexible(
+              fit: FlexFit.tight,
+              child: AnimatedSwitcher(
+                  duration: DurationCount.m500,
+                  child: watch(profileProvider).when(
+                    data: (value) => orientation == Orientation.portrait
+                        ? Column(
+                            children: [
+                              Flexible(
+                                flex: 3,
+                                child: Row(
+                                  children: profileNameIdList(
+                                    name: value.name,
+                                    id: value.userID.toString(),
+                                  ),
+                                ),
                               ),
-                            )
-                            .toList(growable: false),
-                      ),
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: TabBarView(
-                      children: _player.stats
-                          .map((stats) => stats.played == 0
-                              ? NotStartedWidget()
-                              : OverallStatsWidget(stats: stats))
-                          .toList(growable: false),
-                      physics: NeverScrollableScrollPhysics(),
-                      controller: _tabController,
-                    ),
-                  ),
-                  Flexible(
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 500),
-                        child: watch(packageInfoProvider).maybeWhen(
-                          orElse: () => CircularProgressIndicator(),
-                          data: (value) => Text(
-                            "Version : " + value.version,
-                            style: TextStyle(color: Colors.pink),
+                              LevelTabs(),
+                              Flexible(
+                                flex: 3,
+                                child: TabBarView(
+                                  children: value.stats
+                                      .map(
+                                        (e) => Card(
+                                          color: Colors.pink[100],
+                                          elevation: 4,
+                                          child: e.played == 0
+                                              ? NotYetPlayedWidget()
+                                              : Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    StatsValueWidget(
+                                                      value:
+                                                          e.played.toDouble(),
+                                                      header: "GAMES",
+                                                    ),
+                                                    Spacer(),
+                                                    StatsValueWidget(
+                                                      value: e.win.toDouble(),
+                                                      header: "WINS",
+                                                    ),
+                                                    Spacer(),
+                                                    StatsValueWidget(
+                                                      value: e.avg,
+                                                      header: "AVG. SCORE",
+                                                    ),
+                                                  ],
+                                                ),
+                                        ),
+                                      )
+                                      .toList(growable: false),
+                                  physics: NeverScrollableScrollPhysics(),
+                                  controller: _tabController,
+                                ),
+                              ),
+                              Spacer(),
+                              if (watch(firebaseUserProvider).isAnonymous)
+                                AnonymousUserWidget()
+                            ],
+                          )
+                        : Row(
+                            children: [
+                              Flexible(
+                                child: Column(
+                                  children: profileNameIdList(
+                                      name: value.name,
+                                      id: value.userID.toString()),
+                                ),
+                              ),
+                              Flexible(
+                                  child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  LevelTabs(),
+                                  Flexible(
+                                    flex: 3,
+                                    child: TabBarView(
+                                      children: value.stats
+                                          .map(
+                                            (e) => Card(
+                                              color: Colors.pink[100],
+                                              elevation: 8,
+                                              child: e.played == 0
+                                                  ? NotYetPlayedWidget()
+                                                  : Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        StatsValueWidget(
+                                                          value: e.played
+                                                              .toDouble(),
+                                                          header: "GAMES",
+                                                        ),
+                                                        StatsValueWidget(
+                                                          value:
+                                                              e.win.toDouble(),
+                                                          header: "WINS",
+                                                        ),
+                                                        StatsValueWidget(
+                                                          value: e.avg,
+                                                          header: "AVG. SCORE",
+                                                        ),
+                                                      ],
+                                                    ),
+                                            ),
+                                          )
+                                          .toList(growable: false),
+                                      physics: NeverScrollableScrollPhysics(),
+                                      controller: _tabController,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  if (watch(firebaseUserProvider).isAnonymous)
+                                    AnonymousUserWidget()
+                                ],
+                              ))
+                            ],
                           ),
+                    loading: () => Container(),
+                    error: (error, stackTrace) => Container(),
+                  )),
+              flex: 9,
+            ),
+            Flexible(
+              child: AnimatedSwitcher(
+                duration: DurationCount.m500,
+                child: watch(packageInfoProvider).when(
+                  data: (value) => Container(
+                    padding: PaddingTheme.all8,
+                    constraints: BoxConstraints.tightForFinite(),
+                    alignment: Alignment.centerRight,
+                    child: FittedBox(
+                      child: Text(
+                        "Version : " + value.version,
+                        style: TextStyleFontTheme.bangers.copyWith(
+                          color: Colors.black38,
                         ),
+                        textScaleFactor: 1.5,
                       ),
                     ),
                   ),
-                ],
+                  loading: () => Container(),
+                  error: (error, stackTrace) => Container(),
+                ),
               ),
-              loading: () => Center(child: CircularProgressIndicator()),
-              error: errorContainer,
-            ),
-          ),
+            )
+          ],
         ),
       ),
     );
   }
 }
 
-class PlayerIconWidget extends StatelessWidget {
-  const PlayerIconWidget({
-    Key key,
-  }) : super(key: key);
+class AnonymousUserWidget extends StatelessWidget {
+  const AnonymousUserWidget({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Flexible(
-      flex: 2,
-      child: Container(
-        child: Center(
-          child: FittedBox(
-            child: const Icon(
-              Icons.person_rounded,
-              size: 128,
-              color: Colors.pink,
-            ),
+      child: FittedBox(
+        child: Text(
+          "Anonymous User",
+          style: TextStyleFontTheme.poppins.copyWith(
+            color: Colors.black38,
           ),
+          textScaleFactor: 1.5,
         ),
       ),
+    );
+  }
+}
+
+class NotYetPlayedWidget extends StatelessWidget {
+  const NotYetPlayedWidget({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(4.0),
+      alignment: Alignment.center,
+      child: Text(
+        "Never played yet",
+        textScaleFactor: 2.5,
+        style: TextStyleFontTheme.bangers.copyWith(
+          color: Colors.brown,
+          letterSpacing: 1.5,
+        ),
+      ),
+    );
+  }
+}
+
+class LevelTabs extends StatelessWidget {
+  const LevelTabs({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: TabBar(
+        labelStyle: TextStyleFontTheme.poppins.copyWith(
+          fontSize: 20,
+          color: Colors.black54,
+        ),
+        tabs: const ['Easy', 'Medium', 'Hard']
+            .map(
+              (e) => Tab(
+                child: Container(
+                  padding: PaddingTheme.all4,
+                  constraints: BoxConstraints.expand(),
+                  child: FittedBox(
+                    child: Text(e),
+                  ),
+                ),
+              ),
+            )
+            .toList(growable: false),
+      ),
+      fit: FlexFit.tight,
     );
   }
 }
@@ -142,10 +327,8 @@ class SignOutButton extends StatelessWidget {
       onPressed: () => context.read(signOutProvider),
       child: Text(
         "SIGN OUT",
-        style: Theme.of(context)
-            .textTheme
-            .bodyText1
-            .copyWith(letterSpacing: 5, fontSize: 16),
+        style:
+            TextStyleFontTheme.poppins.copyWith(letterSpacing: 5, fontSize: 16),
       ),
     );
   }

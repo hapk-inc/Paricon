@@ -54,12 +54,43 @@ class SelectAuth extends StatelessWidget {
                     ),
                   ] +
                   const ["Google Sign In", "As Guest"]
-                      .map((btn) => AuthButtons(btn))
+                      .map(
+                        (_btn) => AuthTextButton(btn: _btn),
+                      )
                       .toList(),
             ),
           ),
         ),
       );
+}
+
+class AuthTextButton extends StatelessWidget {
+  final String btn;
+  const AuthTextButton({Key key, this.btn}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: FractionallySizedBox(
+        child: TextButton(
+          child: Text(
+            btn,
+            style: TextStyle(
+              fontFamily: 'LuckiestGuy',
+              color: Colors.white60,
+              fontSize: 24,
+            ),
+          ),
+          onPressed: () {
+            if (btn.contains("Guest"))
+              context.read(anonymousProvider);
+            else
+              context.read(googleSignInProvider);
+          },
+        ),
+      ),
+    );
+  }
 }
 
 class AuthButtons extends StatelessWidget {

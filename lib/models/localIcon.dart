@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:meta/meta.dart';
 
 class LocalIcon {
-  final int iconCode;
+  final String iconCode;
   final int iconNo;
   final bool isCheck;
   final bool isFound;
@@ -79,7 +79,7 @@ class LocalIcon {
 
 class IconInfo {
   final String icon;
-  final int iconCode;
+  final String iconCode;
 
   IconInfo(this.icon, this.iconCode);
 }

@@ -1,194 +1,175 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'common/buttonStyleTheme.dart';
+import 'common/snackBarTheme.dart';
+import 'common/textTheme.dart';
 import 'profile.dart';
 import 'providers/pageProvider.dart';
 import 'startGame.dart';
 
 class Dashboard extends StatelessWidget {
+  const Dashboard({Key key}) : super(key: key);
+
   static MaterialPage get toMaterialPage => MaterialPage(
         child: Dashboard(),
         key: ValueKey('dashBoard'),
         name: '/dashboard',
       );
 
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        backgroundColor: Colors.purple[100],
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                    Flexible(
-                      flex: 1,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          Flexible(
-                            flex: 5,
-                            child: FractionallySizedBox(
-                              widthFactor: 0.8,
-                              child: Image.asset(
-                                'assets/title_purple.png',
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          Flexible(
-                            child: FractionallySizedBox(
-                              widthFactor: 1,
-                              heightFactor: 0.4,
-                              child: ElevatedButton(
-                                onPressed: () => context
-                                    .read(pageProvider)
-                                    .addNext(ProfileScreen.toMaterialPage),
-                                style: ButtonStyle(
-                                  shape:
-                                      MaterialStateProperty.all<OutlinedBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(120.0),
-                                    ),
-                                  ),
-                                  elevation: MaterialStateProperty.all(8.0),
-                                  backgroundColor: MaterialStateProperty.all(
-                                    Colors.purple[100],
-                                  ),
-                                ),
-                                child: FittedBox(
-                                  child: Icon(
-                                    Icons.person,
-                                    size: 128,
-                                    color: Colors.purple[800],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ] +
-                  const ["Practice", "Game Online", "Friends and Strangers"]
-                      .asMap()
-                      .entries
-                      .map(
-                        (e) => DashboardButtons(e),
-                      )
-                      .toList(),
-            ),
-          ),
+  List<Widget> get buttonList => const [
+        DashButtons(
+          btnColor: Colors.red,
+          title: "Practice",
+          subtitle: "Play Local Game",
+          isLeftAligned: true,
         ),
-      );
-}
-
-class DashboardButtons extends StatelessWidget {
-  final MapEntry<int, String> btn;
-
-  DashboardButtons(this.btn);
+        Spacer(),
+        DashButtons(
+          btnColor: Colors.indigo,
+          title: "Play Online",
+          subtitle: "Play with your friends",
+          isLeftAligned: false,
+        ),
+        Spacer(),
+        DashButtons(
+          btnColor: Colors.green,
+          title: "Friends and Strangers",
+          subtitle: "Search for other Players",
+          isLeftAligned: true,
+        ),
+      ];
 
   @override
   Widget build(BuildContext context) {
-    SnackBar snackBar() => SnackBar(
-          backgroundColor: Colors.blue[900],
-          elevation: 8,
-          content: SizedBox(
-            height: 20,
-            child: FittedBox(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "COMING SOON..",
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyText1
-                    .copyWith(letterSpacing: 5),
-              ),
-            ),
-          ),
-        );
-    return Flexible(
-      child: Align(
-        alignment: btn.key.isOdd ? Alignment.centerLeft : Alignment.centerRight,
-        child: Card(
-          color: dashboardBtnColor(btn.value),
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          child: FractionallySizedBox(
-            widthFactor: 0.8,
-            heightFactor: 0.6,
-            child: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment:
-                  btn.key.isOdd ? Alignment.centerLeft : Alignment.centerRight,
-              child: OutlinedButton(
-                onPressed: () => btn.value.contains("Online")
-                    ? context
-                        .read(pageProvider)
-                        .addNext(StartGame.toMaterialPage)
-                    : ScaffoldMessenger.of(context).showSnackBar(snackBar()),
-                child: Column(
-                  crossAxisAlignment: btn.key.isOdd
-                      ? CrossAxisAlignment.start
-                      : CrossAxisAlignment.end,
-                  children: [
-                    Spacer(),
-                    Flexible(
-                      flex: 2,
-                      child: FittedBox(
-                        child: Text(
-                          btn.value,
-                          textDirection: btn.key.isOdd
-                              ? TextDirection.ltr
-                              : TextDirection.rtl,
-                          style: const TextStyle(
-                            fontSize: 120,
-                            fontFamily: 'Poppins',
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Spacer(),
-                    Flexible(
-                      flex: 3,
-                      child: FittedBox(
-                        child: Text(
-                          dashboardSubtitles(btn.value),
-                          textDirection: btn.key.isOdd
-                              ? TextDirection.ltr
-                              : TextDirection.rtl,
-                          style: const TextStyle(
-                            fontSize: 120,
-                            fontFamily: 'LuckiestGuy',
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Spacer(),
-                  ],
+    return Scaffold(
+      backgroundColor: Colors.purple[100],
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            DashboardHeader(),
+            Spacer(),
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: LayoutBuilder(
+                  builder: (context, constraints) =>
+                      MediaQuery.of(context).orientation == Orientation.portrait
+                          ? Column(children: buttonList)
+                          : Row(children: buttonList),
                 ),
               ),
+              flex: 7,
             ),
-          ),
+            Spacer()
+          ],
         ),
       ),
     );
   }
+}
 
-  String dashboardSubtitles(String btn) => btn == "Practice"
-      ? "Play Local Game"
-      : btn.contains("Online")
-          ? "Play with your friends"
-          : "Search for other Players";
+class DashButtons extends StatelessWidget {
+  final String title, subtitle;
+  final Color btnColor;
+  final bool isLeftAligned;
+  const DashButtons(
+      {Key key, this.title, this.subtitle, this.btnColor, this.isLeftAligned})
+      : super(key: key);
 
-  Color dashboardBtnColor(String btn) => btn == "Practice"
-      ? Colors.red[900]
-      : btn.contains("Online")
-          ? Colors.indigo
-          : Colors.brown;
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      flex: 6,
+      child: ElevatedButton(
+        style: ButtonStyleTheme.buildDashboardButtonStyle(btncolor: btnColor),
+        child: Container(
+          padding: const EdgeInsets.all(8.0),
+          alignment: Alignment.centerLeft,
+          child: Column(
+            //mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            textDirection: TextDirection.ltr,
+            children: [
+              Flexible(
+                child: FittedBox(
+                  child: Text(
+                    title,
+                    style: TextStyleFontTheme.poppins.copyWith(fontSize: 24),
+                    textScaleFactor: 1,
+                  ),
+                ),
+              ),
+              Flexible(
+                flex: 2,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    subtitle,
+                    style:
+                        TextStyleFontTheme.luckiestGuy.copyWith(fontSize: 36),
+                    maxLines: 3,
+                    //textScaleFactor: 3,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        onPressed: () => title.contains("Online")
+            ? context.read(pageProvider).addNext(StartGame.toMaterialPage)
+            : ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBarThemeStyle.comingSoon()),
+      ),
+    );
+  }
+}
+
+class DashboardHeader extends StatelessWidget {
+  const DashboardHeader({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      flex: 2,
+      child: Row(
+        //mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Flexible(
+            flex: 3,
+            child: ConstrainedBox(
+              constraints: BoxConstraints.expand(),
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: Image.asset(
+                  'assets/title_purple.png',
+                ),
+              ),
+            ),
+          ),
+          Flexible(
+            child: IconButton(
+              constraints: BoxConstraints.expand(),
+              color: Colors.purple[800],
+              splashRadius: 72,
+              iconSize: 128,
+              highlightColor: Colors.purple[200],
+              icon: FittedBox(
+                child: Icon(
+                  Icons.person,
+                  //size: 96,
+                ),
+              ),
+              alignment: Alignment.center,
+              onPressed: () => context
+                  .read(pageProvider)
+                  .addNext(ProfileScreen.toMaterialPage),
+            ),
+          )
+        ],
+      ),
+    );
+  }
 }

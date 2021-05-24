@@ -1,34 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'common/snackBarTheme.dart';
+import 'common/textTheme.dart';
 import 'gameRoom.dart';
 import 'providers/pageProvider.dart';
 import 'providers/roomNotifierProvider.dart';
 import 'providers/roomProvider.dart';
 
 class EnterRoomCode extends StatelessWidget {
-  final _controller = TextEditingController();
+  const EnterRoomCode({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    SnackBar showErrorSnack(dynamic error) => SnackBar(
-          content: FittedBox(
-            child: Text(
-              error,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText2
-                  .copyWith(color: Colors.white70),
-            ),
-          ),
-          backgroundColor: Colors.indigo[900],
-        );
-
-    void _onPressed() async {
-      if (FocusScope.of(context).hasFocus) FocusScope.of(context).unfocus();
-      if (_controller.text.isNotEmpty && _controller.text.length == 6) {
+    final TextEditingController _controller = TextEditingController();
+    void _onPressed(String text) async {
+      if (text.isNotEmpty && text.length == 6) {
         context.read(roomNotifierProvider).loading = true;
-        await context.read(roomCheckProvider(_controller.text).future).then(
+        await context.read(roomCheckProvider(text).future).then(
           (value) async {
             if (value != null) {
               await context.read(joinRoomProvider.future);
@@ -37,78 +26,57 @@ class EnterRoomCode extends StatelessWidget {
                   .addNext(GameRoom.toMaterialPage(id: value));
             }
           },
-          onError: (err) => ScaffoldMessenger.of(context).showSnackBar(
-            showErrorSnack(err),
-          ),
+          onError: (err, _) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBarThemeStyle.roomCodeError(err));
+          },
         );
       } else
         ScaffoldMessenger.of(context).showSnackBar(
-          showErrorSnack("Enter a Valid Room Code"),
+          SnackBarThemeStyle.roomCodeError("Enter valid roomCode"),
         );
       context.read(roomNotifierProvider).loading = false;
     }
 
-    return Scaffold(
-      backgroundColor: Colors.indigo,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Flexible(
-              flex: 4,
-              child: Center(
-                child: TextField(
-                  controller: _controller,
-                  cursorHeight: 40,
-                  cursorColor: Colors.white70,
-                  style: Theme.of(context).textTheme.bodyText1.copyWith(
-                        fontSize: 36,
-                        letterSpacing: 10,
-                      ),
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    focusedBorder: UnderlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: Colors.white54,
-                        width: 4,
-                      ),
-                    ),
-                    filled: true,
-                    fillColor: Colors.indigo[600],
-                    hintText: "Enter Room Code",
-                    hintStyle: TextStyle(
-                      fontSize: 20,
-                      letterSpacing: 1,
-                      color: Colors.white54,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        Icons.arrow_forward_rounded,
-                        color: Colors.white70,
-                        size: 32,
-                      ),
-                      splashRadius: 1000,
-                      splashColor: Colors.indigo[700],
-                      highlightColor: Colors.indigo,
-                      onPressed: _onPressed,
-                    ),
-                  ),
-                  onEditingComplete: _onPressed,
-                ),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: TextField(
+          controller: _controller,
+          style: TextStyleFontTheme.reggaeOne.copyWith(
+            color: Colors.white54,
+            fontSize: MediaQuery.of(context).size.height * 0.05,
+            letterSpacing: 5,
+          ),
+          enabled: true,
+          cursorColor: Colors.white54,
+          onEditingComplete: () => _onPressed(_controller.text),
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            alignLabelWithHint: true,
+            border: OutlineInputBorder(),
+            labelText: 'Enter Room Code',
+            labelStyle: TextStyleFontTheme.poppins.copyWith(
+              fontSize: 24,
+              letterSpacing: 0.5,
+              color: Colors.white60,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(4.0),
+              borderSide: BorderSide(
+                color: Colors.white38,
+                width: 4,
               ),
             ),
-            Flexible(
-              child: Consumer(
-                builder: (context, watch, child) => AnimatedOpacity(
-                  duration: const Duration(milliseconds: 500),
-                  opacity: watch(roomNotifierProvider).loading ? 1 : 0,
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
-                  ),
-                ),
+            suffixIcon: IconButton(
+              color: Colors.white70,
+              iconSize: 36,
+              onPressed: () => _onPressed(_controller.text),
+              icon: FittedBox(
+                child: Icon(Icons.chevron_right),
               ),
-            )
-          ],
+            ),
+          ),
         ),
       ),
     );

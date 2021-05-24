@@ -5,8 +5,8 @@ import 'package:paricon/models/room.dart';
 
 import 'authProvider.dart';
 import 'databaseProvider.dart';
-import 'iconProvider.dart';
-import 'packagInfoProvider.dart';
+import 'gameIconProvider.dart';
+import 'packageInfoProvider.dart';
 import 'roomIDProvider.dart';
 import 'setGameProvider.dart';
 
@@ -69,37 +69,43 @@ final playersQueryProvider = Provider.autoDispose<Query>(
 
 final createBoardProvider = FutureProvider.autoDispose<void>(
   (ref) async {
-    final room = ref.read(roomProvider).data.value;
-    final Map playersProvider = await ref.watch(roomPlayersProvider.future);
-    final packageProvider = await ref.watch(packageInfoProvider.future);
+    try {
+      final room = ref.read(roomProvider).data.value;
+      final Map playersProvider = await ref.read(roomPlayersProvider.future);
+      final packageProvider = await ref.read(packageInfoProvider.future);
 
-    if (!packageProvider.version.contains("dev")) {
-      if (playersProvider.length == 1)
-        return Future.error("Wait for Other Players");
+      if (!packageProvider.version.contains("dev")) {
+        if (playersProvider.length == 1)
+          return Future.error("Wait for Other Players");
+      }
+
+      final boardDatabase = ref.read(boardDatabaseProvider);
+
+      final players = convertToBoard(playersProvider);
+
+      final GameIconProvider xIcons = ref.read(gameIconProvider);
+      final Map icons = xIcons
+          .generateIcons(room.details.level)
+          .map((e) => e.toMap(xIcons.generateRandomID))
+          .fold(
+        {},
+        (previousValue, element) => {...previousValue, ...element},
+      );
+      print(icons);
+
+      final Map currentPlayer = {"currentID": room.details.creatorID};
+
+      final Map map = {
+        ...{"players": players},
+        ...{"icons": icons},
+        ...currentPlayer,
+        ...{"iconsFound": 0},
+      };
+      await boardDatabase.createBoard(map);
+    } catch (e) {
+      print("105-");
+      print(e);
     }
-
-    final boardDatabase = ref.read(boardDatabaseProvider);
-
-    final players = convertToBoard(playersProvider);
-
-    final Icons xIcons = ref.read(iconProvider);
-    final Map icons = xIcons
-        .generateIcons(room.details.level)
-        .map((e) => e.toMap(xIcons.generateRandomID))
-        .fold(
-      {},
-      (previousValue, element) => {...previousValue, ...element},
-    );
-
-    final Map currentPlayer = {"currentID": room.details.creatorID};
-
-    final Map map = {
-      ...{"players": players},
-      ...{"icons": icons},
-      ...currentPlayer,
-      ...{"iconsFound": 0},
-    };
-    await boardDatabase.createBoard(map);
   },
 );
 
@@ -134,8 +140,12 @@ final sGameStartProvider = StreamProvider.autoDispose<bool>(
 
 final gameStartProvider = FutureProvider.autoDispose(
   (ref) async {
-    final roomDatabase = ref.read(roomDatabaseProvider);
-    await roomDatabase.gameStart(true);
+    try {
+      final roomDatabase = ref.read(roomDatabaseProvider);
+      await roomDatabase.gameStart(true);
+    } catch (e) {
+      print(e);
+    }
   },
 );
 

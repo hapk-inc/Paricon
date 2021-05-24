@@ -112,8 +112,6 @@ class RoomDatabase extends MyDatabase {
       (snapshot) {
         if (snapshot.value == null) return Future.error("Room Does not Exist");
         Map map = snapshot.value;
-        print("-115");
-        print(map);
         if (map.length != 1) return Future.error("Already Room Exist");
         Room room = Room.fromMap(map.values.first);
         if (room.details.maxCount > room.players.length) {

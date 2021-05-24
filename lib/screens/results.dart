@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:paricon/screens/common/textTheme.dart';
 
 import 'providers/boardProvider.dart';
 import 'providers/prevStatsNotifier.dart';
@@ -35,7 +36,7 @@ class GameResults extends StatelessWidget {
                           fit: BoxFit.cover,
                           child: Text(
                             "RESULTS",
-                            style: TextStyle(
+                            style: TextStyleFontTheme.poppins.copyWith(
                                 fontSize: 32,
                                 letterSpacing: 20,
                                 color: Colors.blue[300]),
@@ -59,14 +60,11 @@ class GameResults extends StatelessWidget {
                           duration: const Duration(milliseconds: 500),
                           child: watch(allBoardPlayersProvider).when(
                             data: (_allPlayers) => DataTable(
-                              headingTextStyle: Theme.of(context)
-                                  .textTheme
-                                  .bodyText1
+                              headingTextStyle: TextStyleFontTheme.poppins
                                   .copyWith(
-                                    letterSpacing: 5,
-                                  ),
-                              dataTextStyle:
-                                  Theme.of(context).textTheme.bodyText1,
+                                      letterSpacing: 5,
+                                      color: Colors.blue[100]),
+                              dataTextStyle: TextStyleFontTheme.poppins,
                               columns: <DataColumn>[
                                 //DataColumn(label: const Text('No')),
                                 DataColumn(
@@ -104,7 +102,7 @@ class GameResults extends StatelessWidget {
                         child: FittedBox(
                           child: Text(
                             "YOUR SCORE",
-                            style: TextStyle(
+                            style: TextStyleFontTheme.poppins.copyWith(
                                 letterSpacing: 10, color: Colors.blue[300]),
                           ),
                         ),

@@ -73,9 +73,8 @@ final btnClickProvider = AutoDisposeFutureProviderFamily<void, IconInfo>(
 
     await boardDatabase.setIconCheck(iconInfo.icon, true);
     bool check = iconNotifier.validateIcons(iconInfo);
-    if (check == null) {
-      return;
-    }
+    if (check == null) return null;
+
     final id = iconInfo.icon;
     final id2 = iconNotifier.iconInfo.icon;
     iconNotifier.iconInfo = null;
@@ -108,6 +107,7 @@ final btnClickProvider = AutoDisposeFutureProviderFamily<void, IconInfo>(
       );
       //await ref.read(checkNextPlayerProvider.future);
     }
+    return;
   },
 );
 
@@ -134,7 +134,7 @@ final checkNextPlayerProvider = FutureProvider.autoDispose(
   },
 );
 
-final iconsFoundProvider = StreamProvider.autoDispose<int>(
+final allIconsFoundProvider = StreamProvider.autoDispose<int>(
   (ref) {
     final boardDatabase = ref.read(boardDatabaseProvider);
     return boardDatabase.sIconsFound;

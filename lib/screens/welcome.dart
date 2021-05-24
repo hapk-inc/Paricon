@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:paricon/screens/common/textTheme.dart';
 
 import 'enterName.dart';
 import 'providers/pageProvider.dart';
@@ -21,9 +22,12 @@ class Welcome extends StatelessWidget {
             children: [
               Spacer(),
               Flexible(
-                child: Image.asset(
-                  'assets/title_red.png',
-                  fit: BoxFit.contain,
+                child: FractionallySizedBox(
+                  widthFactor: 0.8,
+                  child: Image.asset(
+                    'assets/title_red.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               //WelcomeButtons(),
@@ -45,7 +49,7 @@ class WelcomeStartBtn extends StatelessWidget {
           alignment: Alignment.bottomRight,
           child: FractionallySizedBox(
             heightFactor: 0.3,
-            widthFactor: 0.5,
+            widthFactor: 0.4,
             child: ElevatedButton(
               style: ButtonStyle(
                 padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
@@ -65,7 +69,9 @@ class WelcomeStartBtn extends StatelessWidget {
                 child: FittedBox(
                   child: Text(
                     "START",
-                    style: TextStyle(fontSize: 128, color: Colors.white60),
+                    style: TextStyleFontTheme.luckiestGuy.copyWith(
+                      color: Colors.white70,
+                    ),
                   ),
                 ),
               ),

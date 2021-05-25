@@ -40,7 +40,7 @@ final anonymousProvider = FutureProvider.autoDispose(
 final googleSignInProvider = FutureProvider.autoDispose(
   (ref) async {
     final auth = ref.read(authProvider);
-    await auth.signInWithGoogle();
+    await auth.signInWithGoogle;
   },
 );
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:paricon/screens/common/paddingTheme.dart';
 
 import 'common/buttonStyleTheme.dart';
 import 'common/snackBarTheme.dart';
@@ -41,33 +42,33 @@ class Dashboard extends StatelessWidget {
       ];
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.purple[100],
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            DashboardHeader(),
-            Spacer(),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: LayoutBuilder(
-                  builder: (context, constraints) =>
-                      MediaQuery.of(context).orientation == Orientation.portrait
-                          ? Column(children: buttonList)
-                          : Row(children: buttonList),
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: Colors.purple[100],
+        body: SafeArea(
+          minimum: PaddingTheme.all8,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              DashboardHeader(),
+              Spacer(),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) =>
+                        MediaQuery.of(context).orientation ==
+                                Orientation.portrait
+                            ? Column(children: buttonList)
+                            : Row(children: buttonList),
+                  ),
                 ),
+                flex: 7,
               ),
-              flex: 7,
-            ),
-            Spacer()
-          ],
+              //Spacer()
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class DashButtons extends StatelessWidget {

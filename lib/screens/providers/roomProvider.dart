@@ -93,7 +93,7 @@ final createBoardProvider = FutureProvider.autoDispose<void>(
       );
       print(icons);
 
-      final Map currentPlayer = {"currentID": room.details.creatorID};
+      final Map currentPlayer = {"currentID": players.keys.first};
 
       final Map map = {
         ...{"players": players},
@@ -110,17 +110,21 @@ final createBoardProvider = FutureProvider.autoDispose<void>(
 );
 
 Map convertToBoard(Map<dynamic, dynamic> map) {
-  int i = 0;
+  List<int> playerOrder = List.generate(map.length, (index) => index + 1)
+    ..shuffle();
+
   map.updateAll(
     (key, value) {
-      i++;
+      int order = playerOrder.last;
+      playerOrder.removeLast();
       Map<dynamic, dynamic> localPlayer = value;
       localPlayer.remove("timestamp");
-      localPlayer["playerNo"] = i;
+      localPlayer["playerNo"] = order;
       localPlayer["pts"] = 0;
       return localPlayer;
     },
   );
+
   return map;
 }
 

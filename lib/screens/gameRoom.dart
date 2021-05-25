@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
@@ -242,161 +243,165 @@ class PlayersWidget extends ConsumerWidget {
   const PlayersWidget({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader watch) {
-    return Flexible(
-      flex: 7,
-      child: FirebaseAnimatedList(
-        query: watch(playersQueryProvider),
-        itemBuilder: (BuildContext context, DataSnapshot snapshot,
-            Animation<double> animation, int index) {
-          final room = watch(roomProvider).data?.value;
-          final List levels = ['easy', 'medium', 'hard'];
-          if (room == null) return Center(child: CircularProgressIndicator());
-          final String roomLevel = room.details.level;
-          final int maxCount =
-              room.details.maxCount > 4 ? room.details.maxCount : 4;
+  Widget build(BuildContext context, ScopedReader watch) => Flexible(
+        flex: 7,
+        child: FirebaseAnimatedList(
+          query: watch(playersQueryProvider),
+          itemBuilder: (BuildContext context, DataSnapshot snapshot,
+              Animation<double> animation, int index) {
+            final room = watch(roomProvider).data?.value;
+            final List levels = ['easy', 'medium', 'hard'];
+            if (room == null) return Center(child: CircularProgressIndicator());
+            final String roomLevel = room.details.level;
+            final int maxCount =
+                room.details.maxCount > 4 ? room.details.maxCount : 4;
 
-          Profile init = Profile.fromMap(snapshot.value);
-          AsyncValue<Profile> profile =
-              watch(otherProfileProvider(snapshot.key));
-          return FadeTransition(
-            opacity: animation,
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.7 / maxCount,
-              child: Card(
-                elevation: 4,
-                color: Colors.brown[200],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: AnimatedSwitcher(
-                  duration: DurationCount.m500,
-                  child: profile.when(
-                    data: (value) {
-                      final stats =
-                          value.stats[levels.indexOf(roomLevel.toLowerCase())];
-                      return Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Flexible(
-                              flex: 3,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Flexible(
-                                    flex: 2,
-                                    child: FittedBox(
-                                      child: Text(
-                                        value.name,
-                                        style: TextStyleFontTheme.luckiestGuy
-                                            .copyWith(
-                                                fontSize: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.7 *
-                                                    0.1,
-                                                color: Colors.brown),
+            Profile init = Profile.fromMap(snapshot.value);
+            AsyncValue<Profile> profile =
+                watch(otherProfileProvider(snapshot.key));
+            return FadeTransition(
+              opacity: animation,
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.7 / maxCount,
+                child: Card(
+                  elevation: 4,
+                  color: Colors.brown[200],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: AnimatedSwitcher(
+                    duration: DurationCount.m500,
+                    child: profile.when(
+                      data: (value) {
+                        final stats = value
+                            .stats[levels.indexOf(roomLevel.toLowerCase())];
+                        return Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Flexible(
+                                flex: 4,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Flexible(
+                                      flex: 2,
+                                      child: FittedBox(
+                                        child: Text(
+                                          value.name,
+                                          style: TextStyleFontTheme.luckiestGuy
+                                              .copyWith(
+                                                  fontSize:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .height *
+                                                          0.7 *
+                                                          0.1,
+                                                  color: Colors.brown),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Flexible(
-                                    child: FittedBox(
-                                      child: Text(
-                                        value.userID.toString(),
-                                        style: TextStyleFontTheme.poppins
-                                            .copyWith(
-                                                fontSize: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.7 *
-                                                    0.05,
-                                                color: Colors.brown[400]),
+                                    Flexible(
+                                      child: FittedBox(
+                                        child: Text(
+                                          value.userID.toString(),
+                                          style: TextStyleFontTheme.poppins
+                                              .copyWith(
+                                                  fontSize:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .height *
+                                                          0.7 *
+                                                          0.05,
+                                                  color: Colors.brown[400]),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            Flexible(
-                              flex: 6,
-                              child: stats.played == 0
-                                  ? NeverPlayedWidget()
-                                  : Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        StatsValueWidget(
-                                          value: stats.played.toDouble(),
-                                          header: "GAMES",
+                              Flexible(
+                                flex: 6,
+                                child: stats.played == 0
+                                    ? NeverPlayedWidget()
+                                    : Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            StatsValueWidget(
+                                              value: stats.played,
+                                              header: "GAMES",
+                                            ),
+                                            StatsValueWidget(
+                                              value: stats.win,
+                                              header: "WINS",
+                                            ),
+                                            StatsValueWidget(
+                                              value: stats.avg,
+                                              header: "AVG. SCORE",
+                                            ),
+                                          ],
                                         ),
-                                        StatsValueWidget(
-                                          value: stats.win.toDouble(),
-                                          header: "WINS",
-                                        ),
-                                        StatsValueWidget(
-                                          value: stats.avg,
-                                          header: "AVG. SCORE",
-                                        ),
-                                      ],
-                                    ),
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                    loading: () => ListTile(title: Text(init.name)),
-                    error: (error, stackTrace) {
-                      error.toString();
-                      stackTrace.toString();
-                      return Container();
-                    },
+                                      ),
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                      loading: () => ListTile(title: Text(init.name)),
+                      error: (error, stackTrace) {
+                        error.toString();
+                        stackTrace.toString();
+                        return Container();
+                      },
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
-      ),
-    );
-  }
+            );
+          },
+        ),
+      );
 }
 
 class StatsValueWidget extends StatelessWidget {
-  final double value;
+  final dynamic value;
   final String header;
   const StatsValueWidget({Key key, this.value, this.header}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Flexible(
-      flex: 3,
+      fit: FlexFit.tight,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Flexible(
-            flex: 3,
+            flex: 2,
             child: FittedBox(
-              child: Text(
+              child: AutoSizeText(
                 value.toString(),
-                style: TextStyleFontTheme.reggaeOne.copyWith(
-                    fontSize: MediaQuery.of(context).size.height * 0.7 * 0.1,
-                    color: Colors.brown[800]),
+                style: TextStyleFontTheme.luckiestGuy
+                    .copyWith(fontSize: 32, color: Colors.brown[800]),
+                maxLines: 1,
               ),
             ),
           ),
           Flexible(
-            child: FittedBox(
-              child: Text(
+            child: FractionallySizedBox(
+              widthFactor: 0.7,
+              child: AutoSizeText(
                 header,
-                style: TextStyleFontTheme.poppins.copyWith(
-                    fontSize: MediaQuery.of(context).size.height * 0.7 * 0.05,
-                    color: Colors.brown[400]),
+                style: TextStyleFontTheme.poppins
+                    .copyWith(fontSize: 24, color: Colors.brown[400]),
+                maxLines: 1,
               ),
             ),
           ),

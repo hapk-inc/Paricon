@@ -1,11 +1,199 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/screens/common/textTheme.dart';
+import 'package:paricon/screens/providers/boardProvider.dart';
 
-import 'providers/boardProvider.dart';
+import 'common/durationCount.dart';
+import 'common/paddingTheme.dart';
+import 'common/textTheme.dart';
+import 'gameRoom.dart';
 import 'providers/prevStatsNotifier.dart';
 import 'providers/roomIDProvider.dart';
 
+class GameResults extends StatelessWidget {
+  const GameResults({Key key}) : super(key: key);
+  static MaterialPage toMaterialPage() => MaterialPage(
+        child: GameResults(),
+        name: '/gameResults',
+        key: ValueKey('gameResults'),
+      );
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: Colors.green,
+        body: WillPopScope(
+          onWillPop: () async {
+            context.read(idNotifier.notifier).empty();
+            return true;
+          },
+          child: SafeArea(
+            //minimum: PaddingTheme.all16,
+            child: Padding(
+              padding: PaddingTheme.all16,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Flexible(
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: FittedBox(
+                            child: Text(
+                              "Results",
+                              style: TextStyleFontTheme.luckiestGuy.copyWith(
+                                fontSize: 48,
+                                color: Colors.green[50],
+                              ),
+                            ),
+                          ),
+                        ),
+                        ShadedLine(),
+                      ],
+                    ),
+                  ),
+                  PlayerTable(),
+                  Flexible(
+                    child: Row(
+                      children: [
+                        ShadedLine(),
+                        Flexible(
+                          child: FittedBox(
+                            child: Text(
+                              "YOUR RESULTS",
+                              style: TextStyleFontTheme.luckiestGuy.copyWith(
+                                fontSize: 48,
+                                color: Colors.green[50],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  MyResults(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+}
+
+class MyResults extends ConsumerWidget {
+  const MyResults({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, ScopedReader watch) {
+    final prevStats = watch(prevStatsProvider);
+
+    return Flexible(
+      flex: 3,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          StatsValueWidget(
+            value: prevStats.level,
+            header: "LEVEL",
+          ),
+          StatsValueWidget(
+            value: prevStats.pts,
+            header: "POINTS",
+          ),
+          StatsValueWidget(
+            value: prevStats.avg,
+            header: "AVG. SCORE",
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class PlayerTable extends ConsumerWidget {
+  const PlayerTable({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, ScopedReader watch) => Flexible(
+        flex: 4,
+        //fit: FlexFit.tight,
+        child: AnimatedSwitcher(
+            duration: DurationCount.m500,
+            child: watch(allBoardPlayersProvider).when(
+              data: (localPlayers) {
+                localPlayers.sort((a, b) => b.pts.compareTo(a.pts));
+                return Align(
+                  //color: Colors.blue,
+                  //constraints: BoxConstraints.expand(),
+                  alignment: Alignment.topCenter,
+                  child: FittedBox(
+                    child: DataTable(
+                      headingTextStyle: TextStyleFontTheme.luckiestGuy.copyWith(
+                        color: Colors.green[100],
+                        fontSize: 28,
+                      ),
+                      dataTextStyle: TextStyleFontTheme.poppins.copyWith(
+                        fontSize: 24,
+                        color: Colors.green[100],
+                      ),
+                      rows: List.generate(
+                        localPlayers.length,
+                        (index) => DataRow(
+                          cells: [
+                            DataCell(Text((index + 1).toString())),
+                            DataCell(FittedBox(
+                                child: Text(localPlayers[index].name))),
+                            DataCell(Text(localPlayers[index].pts.toString()))
+                          ],
+                        ),
+                      ),
+                      columns: [
+                        DataColumn(label: Text("Rank")),
+                        DataColumn(label: Text("Name")),
+                        DataColumn(label: Text("Points")),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              loading: () => Container(),
+              error: (error, stackTrace) => Container(),
+            )),
+      );
+}
+
+class ShadedLine extends StatelessWidget {
+  const ShadedLine({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: ShaderMask(
+        shaderCallback: (bounds) => LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            Colors.white70,
+            Colors.white54,
+            Colors.white30,
+            Colors.white30,
+            Colors.white12,
+            Colors.transparent
+          ],
+        ).createShader(bounds),
+        child: Divider(
+          color: Colors.white60,
+          thickness: 4,
+          indent: 16,
+        ),
+      ),
+    );
+  }
+}
+
+/*
 class GameResults extends StatelessWidget {
   static MaterialPage toMaterialPage() => MaterialPage(
         child: GameResults(),
@@ -238,7 +426,7 @@ class BottomButtons extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.from(
-            [/*"PLAY AGAIN",*/ "EXIT GAME"].map(
+            [*/ /*"PLAY AGAIN",*/ /* "EXIT GAME"].map(
               (title) => Flexible(
                 child: FractionallySizedBox(
                   widthFactor: 0.9,
@@ -279,4 +467,4 @@ class BottomButtons extends StatelessWidget {
           ),
         ),
       );
-}
+}*/

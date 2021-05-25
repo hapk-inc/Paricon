@@ -38,13 +38,22 @@ class Auth {
     _auth.signOut();
   }
 
-  Future<UserCredential> signInWithGoogle() async {
-    final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+  Future get signInWithGoogle async {
+    try {
+      final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
 
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-    final GoogleAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final GoogleAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      await _auth.signInWithCredential(credential);
+      print("Google SIgn in over");
+      print(_auth.currentUser);
+      await PlayerDatabase(app).createPlayer(_auth.currentUser);
+    } catch (e) {
+      print(e);
+    }
   }
 }

@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "118238046593-neqhlbrflnuntd1ird7hl01v0ehjhll0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hapk.pariconDemo",
+            "certificate_hash": "83132a31cf6a02ab1ed6e324bce76592b4fa2f61"
+          }
+        },
+        {
           "client_id": "118238046593-kvp54d513sjkd1lai0o51rs9kdakci50.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/screens/common/paddingTheme.dart';
-import 'package:paricon/screens/providers/packageInfoProvider.dart';
-import 'package:paricon/screens/providers/playerProvider.dart';
 
 import 'common/durationCount.dart';
+import 'common/paddingTheme.dart';
 import 'common/textTheme.dart';
 import 'gameRoom.dart';
 import 'providers/authProvider.dart';
+import 'providers/packageInfoProvider.dart';
+import 'providers/playerProvider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   static MaterialPage get toMaterialPage => MaterialPage(
@@ -116,29 +116,29 @@ class ProfileScreen extends ConsumerWidget {
                                           elevation: 4,
                                           child: e.played == 0
                                               ? NotYetPlayedWidget()
-                                              : Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceEvenly,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    StatsValueWidget(
-                                                      value:
-                                                          e.played.toDouble(),
-                                                      header: "GAMES",
-                                                    ),
-                                                    Spacer(),
-                                                    StatsValueWidget(
-                                                      value: e.win.toDouble(),
-                                                      header: "WINS",
-                                                    ),
-                                                    Spacer(),
-                                                    StatsValueWidget(
-                                                      value: e.avg,
-                                                      header: "AVG. SCORE",
-                                                    ),
-                                                  ],
+                                              : Padding(
+                                                  padding: PaddingTheme.all8,
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceAround,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    children: [
+                                                      StatsValueWidget(
+                                                        value: e.played,
+                                                        header: "GAMES",
+                                                      ),
+                                                      StatsValueWidget(
+                                                        value: e.win,
+                                                        header: "WINS",
+                                                      ),
+                                                      StatsValueWidget(
+                                                        value: e.avg,
+                                                        header: "AVG. SCORE",
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                         ),
                                       )

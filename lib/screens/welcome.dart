@@ -6,7 +6,7 @@ import 'enterName.dart';
 import 'providers/pageProvider.dart';
 
 class Welcome extends StatelessWidget {
-  const Welcome({Key key}) : super(key: key);
+  const Welcome({Key? key}) : super(key: key);
 
   static MaterialPage get toMaterialPage => MaterialPage(
       child: Welcome(), key: ValueKey('welCome'), name: '/welcome');
@@ -41,7 +41,7 @@ class Welcome extends StatelessWidget {
 }
 
 class WelcomeStartBtn extends StatelessWidget {
-  const WelcomeStartBtn({Key key}) : super(key: key);
+  const WelcomeStartBtn({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Flexible(
@@ -57,7 +57,7 @@ class WelcomeStartBtn extends StatelessWidget {
                 ),
                 elevation: MaterialStateProperty.all<double>(12.0),
                 backgroundColor:
-                    MaterialStateProperty.all<Color>(Colors.red[700]),
+                    MaterialStateProperty.all<Color?>(Colors.red[700]),
                 shape: MaterialStateProperty.all<OutlinedBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
@@ -101,7 +101,7 @@ class WelcomeButtons extends StatelessWidget {
                       heightFactor: 0.2,
                       child: ElevatedButton(
                           style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
+                            backgroundColor: MaterialStateProperty.all<Color?>(
                                 Colors.red[200]),
                             shape: MaterialStateProperty.all<OutlinedBorder>(
                               RoundedRectangleBorder(
@@ -114,7 +114,7 @@ class WelcomeButtons extends StatelessWidget {
                               btn,
                               style: Theme.of(context)
                                   .textTheme
-                                  .bodyText1
+                                  .bodyText1!
                                   .copyWith(
                                       fontSize: 16, color: Colors.black87),
                             ),

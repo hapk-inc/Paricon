@@ -4,7 +4,8 @@ import 'package:paricon/screens/common/paddingTheme.dart';
 import 'textTheme.dart';
 
 class ButtonStyleTheme {
-  static ButtonStyle buildDashboardButtonStyle({Color btncolor}) => ButtonStyle(
+  static ButtonStyle buildDashboardButtonStyle({Color? btnColor}) =>
+      ButtonStyle(
         padding: MaterialStateProperty.all(
           EdgeInsets.all(16.0),
         ),
@@ -12,7 +13,7 @@ class ButtonStyleTheme {
         side: MaterialStateProperty.all(
           BorderSide(color: Colors.white70, width: 4),
         ),
-        backgroundColor: MaterialStateProperty.all(btncolor),
+        backgroundColor: MaterialStateProperty.all(btnColor),
         shape: MaterialStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(32.0),

@@ -1,15 +1,13 @@
 import 'dart:convert';
 
-import 'package:meta/meta.dart';
-
 import 'roomDetails.dart';
 
 class Room {
-  final List players;
-  final bool isGameStarted;
+  final List? players;
+  final bool? isGameStarted;
   final RoomDetails details;
   const Room(
-      {this.players, @required this.isGameStarted, @required this.details});
+      {this.players, required this.isGameStarted, required this.details});
 
   Map<String, dynamic> toMap() {
     return {

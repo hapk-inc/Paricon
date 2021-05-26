@@ -4,23 +4,26 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:paricon/models/room.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'database.dart';
 
 class RoomDatabase extends MyDatabase {
-  final String id;
+  final String? id;
 
   RoomDatabase(FirebaseApp app, {this.id}) : super(app);
 
   @override
   DatabaseReference get roomRef =>
-      id.isEmpty ? super.roomRef : super.roomRef.child(id);
+      id!.isEmpty ? super.roomRef : super.roomRef.child(id!);
 
   DatabaseReference get roomPlayersRef => roomRef.child('players');
 
   DatabaseReference get roomDetailsRef => roomRef.child('details');
 
   DatabaseReference get gameStartRef => roomRef.child('isGameStarted');
+
+  DatabaseReference get creatorRef => roomDetailsRef.child("creatorID");
 
   Future<String> creatorName(String uid) async => await roomPlayersRef
       .child(uid)
@@ -75,12 +78,15 @@ class RoomDatabase extends MyDatabase {
   Future gameStart(bool value) => gameStartRef.set(value);
 
   Stream<bool> get sGameStart {
-    StreamController<bool> controller;
+    late StreamController<bool> controller;
     controller = StreamController<bool>(
       onListen: () => gameStartRef.onValue.listen(
         (event) {
           var check = event.snapshot.value;
-          if (check is bool) controller.add(check);
+          if (check is bool) {
+            controller.add(check);
+            if (check) controller.close();
+          }
         },
       ),
     );
@@ -88,12 +94,16 @@ class RoomDatabase extends MyDatabase {
   }
 
   Stream<String> get sCreatorID {
-    StreamController<String> controller;
-    controller = StreamController<String>(
-      onListen: () => roomDetailsRef.child("creatorID").onValue.listen(
+    late BehaviorSubject<String> controller;
+    controller = BehaviorSubject<String>(
+      onListen: () => creatorRef.onValue.listen(
         (event) {
-          var id = event.snapshot.value;
-          if (id is String) controller.add(id);
+          final id = event.snapshot.value;
+          if (id is String)
+            controller.add(id);
+          else {
+            if (controller.hasValue) controller.close();
+          }
         },
       ),
     );
@@ -114,7 +124,7 @@ class RoomDatabase extends MyDatabase {
         Map map = snapshot.value;
         if (map.length != 1) return Future.error("Already Room Exist");
         Room room = Room.fromMap(map.values.first);
-        if (room.details.maxCount > room.players.length) {
+        if (room.details.maxCount! > room.players!.length) {
           final String id = map.keys.first;
           return id;
         } else
@@ -122,4 +132,6 @@ class RoomDatabase extends MyDatabase {
       },
     );
   }
+
+  Future newCreator(String nCreator) => creatorRef.set(nCreator);
 }

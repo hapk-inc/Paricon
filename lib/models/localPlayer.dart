@@ -1,20 +1,18 @@
 import 'dart:convert';
 
-import 'package:meta/meta.dart';
-
 class LocalPlayer {
-  final String name;
-  final int pts;
-  final int playerNo;
-  final bool isActive;
+  final String? name;
+  final int? pts;
+  final int? playerNo;
+  final bool? isActive;
 
   LocalPlayer(
-      {@required this.name,
-      @required this.pts,
-      @required this.playerNo,
+      {required this.name,
+      required this.pts,
+      required this.playerNo,
       this.isActive});
 
-  LocalPlayer copyWith({String name, int pts, int playerNo}) {
+  LocalPlayer copyWith({String? name, int? pts, int? playerNo}) {
     return LocalPlayer(
       name: name ?? this.name,
       pts: pts ?? this.pts,
@@ -31,9 +29,8 @@ class LocalPlayer {
     };
   }
 
-  factory LocalPlayer.fromMap(Map fromSnapshot) {
-    if (fromSnapshot == null) return null;
-    final Map<String, dynamic> map = Map<String, dynamic>.from(fromSnapshot);
+  factory LocalPlayer.fromMap(Map? fromSnapshot) {
+    final Map<String, dynamic> map = Map<String, dynamic>.from(fromSnapshot!);
     return LocalPlayer(
         name: map['name'],
         pts: map['pts'],

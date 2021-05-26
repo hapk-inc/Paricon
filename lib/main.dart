@@ -18,8 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
         home: WillPopScope(
           child: Consumer(
-            builder: (BuildContext context,
-                T Function<T>(ProviderBase<Object, T>) watch, Widget child) {
+            builder: (context, watch, child) {
               final _pages = watch(pageProvider);
               final _firebaseApp = watch(firebaseAppProvider);
               return AnimatedSwitcher(
@@ -49,9 +48,9 @@ class MyApp extends StatelessWidget {
                   orElse: () => Splash(),
                 ),
               );
-            },
+            } /*as Widget Function(BuildContext, T Function<T>(ProviderBase<Object?, T>), Widget?)*/,
           ),
-          onWillPop: () async => !await _navigatorKey.currentState.maybePop(),
+          onWillPop: () async => !await _navigatorKey.currentState!.maybePop(),
         ),
       );
 }

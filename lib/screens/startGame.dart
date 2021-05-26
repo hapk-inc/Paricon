@@ -6,14 +6,14 @@ import 'package:paricon/screens/setGame.dart';
 import 'common/paddingTheme.dart';
 
 class StartGame extends StatelessWidget {
-  const StartGame({Key key}) : super(key: key);
+  const StartGame({Key? key}) : super(key: key);
 
   static MaterialPage get toMaterialPage => MaterialPage(
       child: StartGame(), key: ValueKey('startGame'), name: '/startGame');
 
   @override
   Widget build(BuildContext context) {
-    TabController _controller;
+    TabController? _controller;
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -43,7 +43,7 @@ class StartGame extends StatelessWidget {
                       .toList(growable: false),
                   indicator: UnderlineTabIndicator(
                     borderSide: BorderSide(
-                      color: Colors.indigo[50],
+                      color: Colors.indigo[50]!,
                       width: 5,
                     ),
                   ),

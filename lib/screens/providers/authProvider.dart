@@ -15,7 +15,7 @@ final firebaseAppProvider = FutureProvider<FirebaseApp>(
 
 final authProvider = Provider<Auth>(
   (ref) {
-    final app = ref.read(firebaseAppProvider).data.value;
+    final app = ref.read(firebaseAppProvider).data!.value;
     return Auth(app);
   },
 );
@@ -28,7 +28,8 @@ final userCheckProvider = StreamProvider<bool>(
   name: "userCheckProvider",
 );
 
-final anonymousProvider = FutureProvider.autoDispose(
+final AutoDisposeFutureProvider<Null>? anonymousProvider =
+    FutureProvider.autoDispose(
   (ref) async {
     final auth = ref.read(authProvider);
     final name = ref.read(newNameNotifier.notifier);
@@ -37,30 +38,34 @@ final anonymousProvider = FutureProvider.autoDispose(
   name: 'anonymousProvider',
 );
 
-final googleSignInProvider = FutureProvider.autoDispose(
+final AutoDisposeFutureProvider<Null>? googleSignInProvider =
+    FutureProvider.autoDispose(
   (ref) async {
     final auth = ref.read(authProvider);
     await auth.signInWithGoogle;
   },
 );
 
-final firebaseUserProvider = Provider.autoDispose<User>(
+final AutoDisposeProvider<User>? firebaseUserProvider =
+    Provider.autoDispose<User>(
   (ref) {
     final auth = ref.read(authProvider);
-    return auth.currentUser;
+    return auth.currentUser!;
   },
 );
 
-final currentUserProvider = Provider.autoDispose<User>(
+final AutoDisposeProvider<User>? currentUserProvider =
+    Provider.autoDispose<User>(
   (ref) {
     final auth = ref.read(authProvider);
-    return auth.currentUser;
+    return auth.currentUser!;
   },
 );
 
-final signOutProvider = FutureProvider.autoDispose(
+final AutoDisposeFutureProvider<Null>? signOutProvider =
+    FutureProvider.autoDispose(
   (ref) async {
     final auth = ref.read(authProvider);
-    auth.signOut;
+    await auth.signOut;
   },
 );

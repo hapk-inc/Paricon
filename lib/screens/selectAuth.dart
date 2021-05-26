@@ -65,8 +65,8 @@ class SelectAuth extends StatelessWidget {
 }
 
 class AuthTextButton extends StatelessWidget {
-  final String btn;
-  const AuthTextButton({Key key, this.btn}) : super(key: key);
+  final String? btn;
+  const AuthTextButton({Key? key, this.btn}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +74,7 @@ class AuthTextButton extends StatelessWidget {
       child: FractionallySizedBox(
         child: TextButton(
           child: Text(
-            btn,
+            btn!,
             style: TextStyle(
               fontFamily: 'LuckiestGuy',
               color: Colors.white60,
@@ -82,10 +82,10 @@ class AuthTextButton extends StatelessWidget {
             ),
           ),
           onPressed: () {
-            if (btn.contains("Guest"))
-              context.read(anonymousProvider);
+            if (btn!.contains("Guest"))
+              context.read(anonymousProvider!);
             else
-              context.read(googleSignInProvider);
+              context.read(googleSignInProvider!);
           },
         ),
       ),
@@ -96,7 +96,7 @@ class AuthTextButton extends StatelessWidget {
 class AuthButtons extends StatelessWidget {
   final String btn;
 
-  const AuthButtons(this.btn, {Key key}) : super(key: key);
+  const AuthButtons(this.btn, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Flexible(
@@ -135,7 +135,7 @@ class AuthButtons extends StatelessWidget {
                       btn,
                       style: Theme.of(context)
                           .textTheme
-                          .caption
+                          .caption!
                           .copyWith(fontSize: 20, color: Colors.white70),
                     ),
                   ],
@@ -143,15 +143,15 @@ class AuthButtons extends StatelessWidget {
               ),
               onPressed: () async {
                 if (btn.contains("Guest"))
-                  context.read(anonymousProvider);
+                  context.read(anonymousProvider!);
                 else
-                  context.read(googleSignInProvider);
+                  context.read(googleSignInProvider!);
               },
             ),
           ),
         ),
       );
 
-  Color _btnColors(String value) =>
+  Color? _btnColors(String value) =>
       value.contains("Guest") ? Colors.brown[700] : Colors.red[900];
 }

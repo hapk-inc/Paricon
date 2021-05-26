@@ -10,7 +10,7 @@ import 'providers/pageProvider.dart';
 import 'startGame.dart';
 
 class Dashboard extends StatelessWidget {
-  const Dashboard({Key key}) : super(key: key);
+  const Dashboard({Key? key}) : super(key: key);
 
   static MaterialPage get toMaterialPage => MaterialPage(
         child: Dashboard(),
@@ -72,11 +72,11 @@ class Dashboard extends StatelessWidget {
 }
 
 class DashButtons extends StatelessWidget {
-  final String title, subtitle;
-  final Color btnColor;
-  final bool isLeftAligned;
+  final String? title, subtitle;
+  final Color? btnColor;
+  final bool? isLeftAligned;
   const DashButtons(
-      {Key key, this.title, this.subtitle, this.btnColor, this.isLeftAligned})
+      {Key? key, this.title, this.subtitle, this.btnColor, this.isLeftAligned})
       : super(key: key);
 
   @override
@@ -84,7 +84,7 @@ class DashButtons extends StatelessWidget {
     return Flexible(
       flex: 6,
       child: ElevatedButton(
-        style: ButtonStyleTheme.buildDashboardButtonStyle(btncolor: btnColor),
+        style: ButtonStyleTheme.buildDashboardButtonStyle(btnColor: btnColor),
         child: Container(
           padding: const EdgeInsets.all(8.0),
           alignment: Alignment.centerLeft,
@@ -97,7 +97,7 @@ class DashButtons extends StatelessWidget {
               Flexible(
                 child: FittedBox(
                   child: Text(
-                    title,
+                    title!,
                     style: TextStyleFontTheme.poppins.copyWith(fontSize: 24),
                     textScaleFactor: 1,
                   ),
@@ -108,7 +108,7 @@ class DashButtons extends StatelessWidget {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    subtitle,
+                    subtitle!,
                     style:
                         TextStyleFontTheme.luckiestGuy.copyWith(fontSize: 36),
                     maxLines: 3,
@@ -119,7 +119,7 @@ class DashButtons extends StatelessWidget {
             ],
           ),
         ),
-        onPressed: () => title.contains("Online")
+        onPressed: () => title!.contains("Online")
             ? context.read(pageProvider).addNext(StartGame.toMaterialPage)
             : ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBarThemeStyle.comingSoon()),
@@ -129,7 +129,7 @@ class DashButtons extends StatelessWidget {
 }
 
 class DashboardHeader extends StatelessWidget {
-  const DashboardHeader({Key key}) : super(key: key);
+  const DashboardHeader({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -4,17 +4,17 @@ import 'package:paricon/models/profile.dart';
 import 'authProvider.dart';
 import 'databaseProvider.dart';
 
-final profileProvider = FutureProvider.autoDispose<Profile>(
+final AutoDisposeFutureProvider<Profile>? profileProvider = FutureProvider.autoDispose<Profile>(
   (ref) async {
-    final auth = ref.read(currentUserProvider);
-    final playerDatabase = ref.read(playerDatabaseProvider(auth.uid));
+    final auth = ref.read(currentUserProvider!);
+    final playerDatabase = ref.read(playerDatabaseProvider!(auth.uid));
     return playerDatabase.profile;
   },
 );
 
-final otherProfileProvider = FutureProvider.autoDispose.family<Profile, String>(
+final AutoDisposeFutureProviderFamily<Profile, String>? otherProfileProvider = FutureProvider.autoDispose.family<Profile, String>(
   (ref, uid) async {
-    final playerDatabase = ref.read(playerDatabaseProvider(uid));
+    final playerDatabase = ref.read(playerDatabaseProvider!(uid));
     return playerDatabase.profile;
   },
 );

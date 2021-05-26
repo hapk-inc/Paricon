@@ -6,24 +6,24 @@ final prevStatsProvider = ChangeNotifierProvider<PrevStatsNotifier>(
 );
 
 class PrevStatsNotifier extends ChangeNotifier {
-  String _level;
-  bool _isWinner;
-  bool _matchDraw;
-  int _pts;
-  int _rank;
-  double _avg;
+  String? _level;
+  bool? _isWinner;
+  bool? _matchDraw;
+  int? _pts;
+  int? _rank;
+  double? _avg;
 
-  String get level => _level;
+  String? get level => _level;
 
-  bool get isWinner => _isWinner;
+  bool? get isWinner => _isWinner;
 
-  bool get matchDraw => _matchDraw;
+  bool? get matchDraw => _matchDraw;
 
-  int get pts => _pts;
+  int? get pts => _pts;
 
-  int get rank => _rank;
+  int? get rank => _rank;
 
-  double get avg => _avg;
+  double? get avg => _avg;
 
   setStats(String level, int pts, double avg, bool isWinner, bool isDraw) {
     _level = level;

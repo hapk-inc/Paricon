@@ -10,12 +10,12 @@ import 'package:rxdart/rxdart.dart';
 import 'database.dart';
 
 class BoardDatabase extends MyDatabase {
-  final String id;
+  final String? id;
 
   BoardDatabase(FirebaseApp app, {this.id}) : super(app);
 
   @override
-  DatabaseReference get boardRef => super.boardRef.child(id);
+  DatabaseReference get boardRef => super.boardRef.child(id!);
 
   DatabaseReference get boardIconRef => boardRef.child("icons");
 
@@ -34,16 +34,16 @@ class BoardDatabase extends MyDatabase {
   Future get removeData => boardRef.remove();
 
   Stream<String> get currentID {
-    BehaviorSubject<String> subject;
+    late BehaviorSubject<String> subject;
 
     subject = BehaviorSubject(
       onListen: () => boardCurrentIdRef.onValue.listen(
         (event) {
-          String e = event.snapshot?.value ?? null;
+          String? e = event.snapshot.value ?? null;
           if (e == null && subject.hasValue)
-            subject.done;
+            subject.close();
           else
-            subject.add(e);
+            subject.add(e!);
         },
       ),
     );
@@ -51,14 +51,14 @@ class BoardDatabase extends MyDatabase {
   }
 
   Stream<LocalIcon> localIcon(String icon) {
-    StreamController<LocalIcon> controller;
+    late StreamController<LocalIcon> controller;
     controller = StreamController<LocalIcon>(
       onListen: () => boardIconRef.child(icon).onValue.listen((event) {
         var value = event.snapshot.value;
         if (value != null) {
           LocalIcon localIcon = LocalIcon.fromMap(value);
           controller.add(localIcon);
-          if (localIcon.isFound) {
+          if (localIcon.isFound!) {
             controller.close();
           }
         }
@@ -113,15 +113,15 @@ class BoardDatabase extends MyDatabase {
       boardIconRef.child(icon).child("isFound").set(true);
 
   Stream<LocalPlayer> localPlayer(String player) {
-    BehaviorSubject<LocalPlayer> subject;
+    late BehaviorSubject<LocalPlayer> subject;
     subject = BehaviorSubject<LocalPlayer>(
       onListen: () => boardPlayerRef.child(player).onValue.listen(
         (event) {
-          LocalPlayer player = LocalPlayer.fromMap(event.snapshot.value);
+          final LocalPlayer? player = LocalPlayer.fromMap(event.snapshot.value);
           if (player == null && subject.hasValue)
-            subject.done;
+            subject.close();
           else
-            subject.add(player);
+            subject.add(player!);
         },
       ),
     );
@@ -134,11 +134,11 @@ class BoardDatabase extends MyDatabase {
       boardPlayerRef.child(uid).child("isActive").set(false);
 
   Stream<int> get sIconsFound {
-    BehaviorSubject<int> subject;
+    late BehaviorSubject<int> subject;
     subject = BehaviorSubject(
       onListen: () => boardIconsFoundRef.onValue.listen(
         (event) {
-          int e = event.snapshot?.value as int ?? null;
+          int e = event.snapshot.value;
           if (e == null && subject.hasValue)
             subject.close();
           else

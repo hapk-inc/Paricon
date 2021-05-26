@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/screens/providers/authProvider.dart';
+import 'package:paricon/screens/providers/boardProvider.dart';
 import 'package:paricon/screens/providers/roomIDProvider.dart';
+import 'package:paricon/screens/providers/roomProvider.dart';
 
 import 'paddingTheme.dart';
 import 'textTheme.dart';
 
 class ExitPopup extends StatelessWidget {
-  const ExitPopup({Key key}) : super(key: key);
+  const ExitPopup({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => AlertDialog(
@@ -19,7 +21,7 @@ class ExitPopup extends StatelessWidget {
         titleTextStyle: TextStyleFontTheme.poppins
             .copyWith(color: Colors.white70, fontSize: 24),
         title:
-            Text("Really ${context.read(firebaseUserProvider).displayName}.."),
+            Text("Really ${context.read(firebaseUserProvider!).displayName}.."),
         content: FractionallySizedBox(
             //constraints: BoxConstraints.expand(),
 
@@ -36,8 +38,15 @@ class ExitPopup extends StatelessWidget {
             .map(
               (e) => TextButton(
                 onPressed: () async {
-                  if (e.contains("yes"))
+                  if (e.contains("yes")) {
+                    try {
+                      final board = await context.read(boardProvider.future);
+                      await context.read(leavingBoardProvider.future);
+                    } catch (e) {
+                      await context.read(leavingRoomProvider.future);
+                    }
                     context.read(idNotifier.notifier).empty();
+                  }
                   Navigator.pop(context, e.contains("yes"));
                 },
                 child: Text(

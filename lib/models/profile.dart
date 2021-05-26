@@ -1,18 +1,17 @@
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:meta/meta.dart';
 
 import 'stats.dart';
 
 class Profile {
-  String name;
-  int userID;
-  List<Stats> stats;
+  String? name;
+  int? userID;
+  List<Stats>? stats;
 
-  Profile({@required this.name, @required this.userID, @required this.stats});
+  Profile({required this.name, required this.userID, required this.stats});
 
-  Profile copyWith({String name, int userID, List<Stats> stats}) => Profile(
+  Profile copyWith({String? name, int? userID, List<Stats>? stats}) => Profile(
         name: name ?? this.name,
         userID: userID ?? this.userID,
         stats: stats ?? this.stats,
@@ -21,7 +20,7 @@ class Profile {
   Map<String, dynamic> toMap() => {
         'name': name,
         'userID': userID,
-        'stats': stats?.map((x) => x.toMap())?.toList(growable: false),
+        'stats': stats?.map((x) => x.toMap()).toList(growable: false),
       };
 
   factory Profile.fromMap(Map fromSnapshot) {

@@ -1,13 +1,11 @@
 import 'dart:convert';
 
-import 'package:meta/meta.dart';
-
 import 'profile.dart';
 
 class Player {
   Profile profile;
   Player({
-    @required this.profile,
+    required this.profile,
   });
 
   Map<String, dynamic> toMap() {

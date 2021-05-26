@@ -1,20 +1,19 @@
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:meta/meta.dart';
 
 class Board {
   final List players;
   final List icons;
-  final String currentID;
+  final String? currentID;
   //final bool isGameOver;
   final int iconsFound;
   Board({
-    @required this.players,
-    @required this.icons,
-    @required this.currentID,
+    required this.players,
+    required this.icons,
+    required this.currentID,
     //@required this.isGameOver,
-    @required this.iconsFound,
+    required this.iconsFound,
   });
 
   factory Board.fromMap(Map fromSnapshot) {

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/localIcon.dart';
 
-final gameIconProvider =
+final AutoDisposeProvider<GameIconProvider>? gameIconProvider =
     Provider.autoDispose<GameIconProvider>((_) => GameIconProvider());
 
 class GameIconProvider {
@@ -59,7 +59,7 @@ class GameIconProvider {
     return a;
   }
 
-  IconData gameIcon(String _gameIcon) => _GameIconExt.displayIcon(_gameIcon);
+  IconData? gameIcon(String? _gameIcon) => _GameIconExt.displayIcon(_gameIcon);
 }
 
 enum GameIcons {
@@ -106,7 +106,7 @@ enum GameIcons {
 extension _GameIconExt on GameIcons {
   String get name => describeEnum(this);
 
-  static IconData displayIcon(String icon) {
+  static IconData? displayIcon(String? icon) {
     switch (icon) {
       case "accessibility":
         return Icons.accessibility;

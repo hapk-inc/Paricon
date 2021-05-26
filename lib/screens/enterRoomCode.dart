@@ -9,7 +9,7 @@ import 'providers/roomNotifierProvider.dart';
 import 'providers/roomProvider.dart';
 
 class EnterRoomCode extends StatelessWidget {
-  const EnterRoomCode({Key key}) : super(key: key);
+  const EnterRoomCode({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,14 +17,12 @@ class EnterRoomCode extends StatelessWidget {
     void _onPressed(String text) async {
       if (text.isNotEmpty && text.length == 6) {
         context.read(roomNotifierProvider).loading = true;
-        await context.read(roomCheckProvider(text).future).then(
+        await context.read(roomCheckProvider!(text).future).then(
           (value) async {
-            if (value != null) {
-              await context.read(joinRoomProvider.future);
-              context
-                  .read(pageProvider)
-                  .addNext(GameRoom.toMaterialPage(id: value));
-            }
+            await context.read(joinRoomProvider!.future);
+            context
+                .read(pageProvider)
+                .addNext(GameRoom.toMaterialPage(id: value));
           },
           onError: (err, _) {
             ScaffoldMessenger.of(context)

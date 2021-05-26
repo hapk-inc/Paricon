@@ -1,18 +1,16 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:meta/meta.dart';
-
 class RoomDetails {
-  final int roomCode;
-  final String level;
-  final int maxCount;
-  final String creatorID;
+  final int? roomCode;
+  final String? level;
+  final int? maxCount;
+  final String? creatorID;
   const RoomDetails({
-    @required this.roomCode,
-    @required this.level,
-    @required this.maxCount,
-    @required this.creatorID,
+    required this.roomCode,
+    required this.level,
+    required this.maxCount,
+    required this.creatorID,
   });
 
   Map<String, dynamic> toMap() => {

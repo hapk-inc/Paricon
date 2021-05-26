@@ -1,22 +1,20 @@
 import 'dart:convert';
 
-import 'package:meta/meta.dart';
-
 class Stats {
-  final int played;
-  final int win;
-  final double avg;
+  final int? played;
+  final int? win;
+  final double? avg;
 
   Stats({
-    @required this.played,
-    @required this.win,
-    @required this.avg,
+    required this.played,
+    required this.win,
+    required this.avg,
   });
 
   Stats copyWith({
-    int played,
-    int win,
-    double avg,
+    int? played,
+    int? win,
+    double? avg,
   }) {
     return Stats(
       played: played ?? this.played,
@@ -70,11 +68,11 @@ class Stats {
   int get hashCode => played.hashCode ^ win.hashCode ^ avg.hashCode;
 
   Stats operator +(Stats stats) {
-    double _avg = stats.avg - this.avg;
-    _avg = _avg / (this.played + 1);
-    _avg = this.avg + _avg;
+    double _avg = stats.avg! - this.avg!;
+    _avg = _avg / (this.played! + 1);
+    _avg = this.avg! + _avg;
     _avg = double.parse(_avg.toStringAsFixed(2));
     return Stats(
-        played: (this.played + 1), win: (this.win + stats.win), avg: _avg);
+        played: (this.played! + 1), win: (this.win! + stats.win!), avg: _avg);
   }
 }

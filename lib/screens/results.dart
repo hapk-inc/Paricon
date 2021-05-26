@@ -10,7 +10,7 @@ import 'providers/prevStatsNotifier.dart';
 import 'providers/roomIDProvider.dart';
 
 class GameResults extends StatelessWidget {
-  const GameResults({Key key}) : super(key: key);
+  const GameResults({Key? key}) : super(key: key);
   static MaterialPage toMaterialPage() => MaterialPage(
         child: GameResults(),
         name: '/gameResults',
@@ -79,7 +79,7 @@ class GameResults extends StatelessWidget {
 
 class MyResults extends ConsumerWidget {
   const MyResults({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -112,7 +112,7 @@ class MyResults extends ConsumerWidget {
 
 class PlayerTable extends ConsumerWidget {
   const PlayerTable({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -121,9 +121,9 @@ class PlayerTable extends ConsumerWidget {
         //fit: FlexFit.tight,
         child: AnimatedSwitcher(
             duration: DurationCount.m500,
-            child: watch(allBoardPlayersProvider).when(
+            child: watch(allBoardPlayersProvider!).when(
               data: (localPlayers) {
-                localPlayers.sort((a, b) => b.pts.compareTo(a.pts));
+                localPlayers.sort((a, b) => b.pts!.compareTo(a.pts!));
                 return Align(
                   //color: Colors.blue,
                   //constraints: BoxConstraints.expand(),
@@ -144,7 +144,7 @@ class PlayerTable extends ConsumerWidget {
                           cells: [
                             DataCell(Text((index + 1).toString())),
                             DataCell(FittedBox(
-                                child: Text(localPlayers[index].name))),
+                                child: Text(localPlayers[index].name!))),
                             DataCell(Text(localPlayers[index].pts.toString()))
                           ],
                         ),
@@ -165,7 +165,7 @@ class PlayerTable extends ConsumerWidget {
 }
 
 class ShadedLine extends StatelessWidget {
-  const ShadedLine({Key key}) : super(key: key);
+  const ShadedLine({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

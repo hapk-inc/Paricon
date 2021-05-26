@@ -17,7 +17,7 @@ class ProfileScreen extends ConsumerWidget {
       );
 
   static List<Widget> profileNameIdList(
-          {String name, String id, bool fromLeft}) =>
+          {String? name, String? id, bool? fromLeft}) =>
       <Widget>[
         Flexible(
           child: Container(
@@ -74,7 +74,7 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
-    TabController _tabController;
+    TabController? _tabController;
     final orientation = MediaQuery.of(context).orientation;
     return DefaultTabController(
       length: 3,
@@ -92,7 +92,7 @@ class ProfileScreen extends ConsumerWidget {
               fit: FlexFit.tight,
               child: AnimatedSwitcher(
                   duration: DurationCount.m500,
-                  child: watch(profileProvider).when(
+                  child: watch(profileProvider!).when(
                     data: (value) => orientation == Orientation.portrait
                         ? Column(
                             children: [
@@ -109,7 +109,7 @@ class ProfileScreen extends ConsumerWidget {
                               Flexible(
                                 flex: 3,
                                 child: TabBarView(
-                                  children: value.stats
+                                  children: value.stats!
                                       .map(
                                         (e) => Card(
                                           color: Colors.pink[100],
@@ -148,7 +148,7 @@ class ProfileScreen extends ConsumerWidget {
                                 ),
                               ),
                               Spacer(),
-                              if (watch(firebaseUserProvider).isAnonymous)
+                              if (watch(firebaseUserProvider!).isAnonymous)
                                 AnonymousUserWidget()
                             ],
                           )
@@ -169,7 +169,7 @@ class ProfileScreen extends ConsumerWidget {
                                   Flexible(
                                     flex: 3,
                                     child: TabBarView(
-                                      children: value.stats
+                                      children: value.stats!
                                           .map(
                                             (e) => Card(
                                               color: Colors.pink[100],
@@ -185,13 +185,13 @@ class ProfileScreen extends ConsumerWidget {
                                                               .center,
                                                       children: [
                                                         StatsValueWidget(
-                                                          value: e.played
+                                                          value: e.played!
                                                               .toDouble(),
                                                           header: "GAMES",
                                                         ),
                                                         StatsValueWidget(
                                                           value:
-                                                              e.win.toDouble(),
+                                                              e.win!.toDouble(),
                                                           header: "WINS",
                                                         ),
                                                         StatsValueWidget(
@@ -208,21 +208,24 @@ class ProfileScreen extends ConsumerWidget {
                                     ),
                                   ),
                                   Spacer(),
-                                  if (watch(firebaseUserProvider).isAnonymous)
+                                  if (watch(firebaseUserProvider!).isAnonymous)
                                     AnonymousUserWidget()
                                 ],
                               ))
                             ],
                           ),
                     loading: () => Container(),
-                    error: (error, stackTrace) => Container(),
+                    error: (error, stackTrace) {
+                      print(error);
+                      print(stackTrace);
+                    },
                   )),
               flex: 9,
             ),
             Flexible(
               child: AnimatedSwitcher(
                 duration: DurationCount.m500,
-                child: watch(packageInfoProvider).when(
+                child: watch(packageInfoProvider!).when(
                   data: (value) => Container(
                     padding: PaddingTheme.all8,
                     constraints: BoxConstraints.tightForFinite(),
@@ -250,7 +253,7 @@ class ProfileScreen extends ConsumerWidget {
 }
 
 class AnonymousUserWidget extends StatelessWidget {
-  const AnonymousUserWidget({Key key}) : super(key: key);
+  const AnonymousUserWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -269,7 +272,7 @@ class AnonymousUserWidget extends StatelessWidget {
 }
 
 class NotYetPlayedWidget extends StatelessWidget {
-  const NotYetPlayedWidget({Key key}) : super(key: key);
+  const NotYetPlayedWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -289,7 +292,7 @@ class NotYetPlayedWidget extends StatelessWidget {
 }
 
 class LevelTabs extends StatelessWidget {
-  const LevelTabs({Key key}) : super(key: key);
+  const LevelTabs({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -319,12 +322,12 @@ class LevelTabs extends StatelessWidget {
 }
 
 class SignOutButton extends StatelessWidget {
-  const SignOutButton({Key key}) : super(key: key);
+  const SignOutButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () => context.read(signOutProvider),
+      onPressed: () => context.read(signOutProvider!),
       child: Text(
         "SIGN OUT",
         style:

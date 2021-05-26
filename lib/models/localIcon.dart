@@ -1,27 +1,25 @@
 import 'dart:convert';
 
-import 'package:meta/meta.dart';
-
 class LocalIcon {
-  final String iconCode;
-  final int iconNo;
-  final bool isCheck;
-  final bool isFound;
+  final String? iconCode;
+  final int? iconNo;
+  final bool? isCheck;
+  final bool? isFound;
   LocalIcon({
-    @required this.iconCode,
-    @required this.iconNo,
+    required this.iconCode,
+    required this.iconNo,
     this.isCheck,
     this.isFound,
   });
 
   LocalIcon copyWith({
-    int iconCode,
-    int iconNo,
-    bool isCheck,
-    bool isFound,
+    int? iconCode,
+    int? iconNo,
+    bool? isCheck,
+    bool? isFound,
   }) {
     return LocalIcon(
-      iconCode: iconCode ?? this.iconCode,
+      iconCode: iconCode as String? ?? this.iconCode,
       iconNo: iconNo ?? this.iconNo,
       isCheck: isCheck ?? this.isCheck,
       isFound: isFound ?? this.isFound,
@@ -78,8 +76,8 @@ class LocalIcon {
 }
 
 class IconInfo {
-  final String icon;
-  final String iconCode;
+  final String? icon;
+  final String? iconCode;
 
   IconInfo(this.icon, this.iconCode);
 }

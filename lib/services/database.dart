@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class MyDatabase {
-  FirebaseDatabase _firebaseDatabase;
+  late FirebaseDatabase _firebaseDatabase;
   MyDatabase(FirebaseApp _app) {
     _firebaseDatabase = FirebaseDatabase(app: _app);
   }

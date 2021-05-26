@@ -9,13 +9,13 @@ import 'package:paricon/models/stats.dart';
 import 'database.dart';
 
 class PlayerDatabase extends MyDatabase {
-  final String uid;
+  final String? uid;
   PlayerDatabase(FirebaseApp app, {this.uid}) : super(app);
 
   @override
   // TODO: implement playerRef
   DatabaseReference get playerRef =>
-      uid == null ? super.playerRef : super.playerRef.child(uid);
+      uid == null ? super.playerRef : super.playerRef.child(uid!);
 
   DatabaseReference get profileRef => playerRef.child('profile');
 
@@ -47,7 +47,7 @@ class PlayerDatabase extends MyDatabase {
     final TransactionResult transactionResult = await _ref.runTransaction(
       (MutableData mutableData) async {
         try {
-          Map map = mutableData?.value ?? null;
+          Map map = mutableData.value ?? null;
           Stats oldStats = Stats.fromMap(map);
           Stats newStats = oldStats + stats;
           mutableData.value = newStats.toMap();

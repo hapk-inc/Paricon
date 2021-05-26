@@ -5,7 +5,7 @@ import 'package:paricon/models/localIcon.dart';
 final roomNotifierProvider = ChangeNotifierProvider((_) => RoomNotifier());
 
 class RoomNotifier extends ChangeNotifier {
-  IconInfo _iconInfo;
+  IconInfo? _iconInfo;
   bool _loading = false;
 
   bool get loading => _loading;
@@ -16,26 +16,26 @@ class RoomNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  IconInfo get iconInfo => _iconInfo;
+  IconInfo? get iconInfo => _iconInfo;
 
   /*setLoading(bool value) {
     _loading = value;
     notifyListeners();
   }*/
 
-  set iconInfo(IconInfo value) {
+  set iconInfo(IconInfo? value) {
     if (_iconInfo == value) return;
     _iconInfo = value;
     notifyListeners();
   }
 
-  bool validateIcons(IconInfo info) {
+  bool? validateIcons(IconInfo info) {
     _loading = true;
-    bool check;
+    bool? check;
     if (_iconInfo == null)
       _iconInfo = info;
     else
-      check = _iconInfo.iconCode == info.iconCode;
+      check = _iconInfo!.iconCode == info.iconCode;
     notifyListeners();
     return check;
   }

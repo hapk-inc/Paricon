@@ -16,9 +16,9 @@ import 'providers/playerProvider.dart';
 import 'providers/roomProvider.dart';
 
 class GameRoom extends ConsumerWidget {
-  const GameRoom({Key key}) : super(key: key);
+  const GameRoom({Key? key}) : super(key: key);
 
-  static MaterialPage toMaterialPage({String id}) => MaterialPage(
+  static MaterialPage toMaterialPage({String? id}) => MaterialPage(
         child: GameRoom(),
         name: '/gameRoom',
         key: ValueKey('gameRoom'),
@@ -27,8 +27,8 @@ class GameRoom extends ConsumerWidget {
   static List<Widget> get roomWidgetList => [DetailsWidget(), PlayersWidget()];
   @override
   Widget build(BuildContext context, ScopedReader watch) {
-    final firebaseUser = watch(currentUserProvider);
-    final bool _isCreatorIsYou = watch(creatorIDProvider).maybeWhen(
+    final firebaseUser = watch(currentUserProvider!);
+    final bool _isCreatorIsYou = watch(creatorIDProvider!).maybeWhen(
       orElse: () => false,
       data: (value) {
         return firebaseUser.uid == value;
@@ -92,16 +92,16 @@ class GameRoom extends ConsumerWidget {
 }
 
 class DetailsWidget extends ConsumerWidget {
-  const DetailsWidget({Key key}) : super(key: key);
+  const DetailsWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
-    List<Widget> detailList(String level, int maxCount) =>
+    List<Widget> detailList(String? level, int? maxCount) =>
         [level, "$maxCount players"]
             .map((_text) => Flexible(
                   child: FittedBox(
                     child: Text(
-                      _text,
+                      _text!,
                       style: TextStyleFontTheme.luckiestGuy.copyWith(
                         fontSize: MediaQuery.of(context).size.height,
                         color: Colors.brown[200],
@@ -126,7 +126,7 @@ class DetailsWidget extends ConsumerWidget {
                   CreatorWidget(),
                   Point5SpaceWidget(),
                 ] +
-                watch(roomProvider).when(
+                watch(roomProvider!).when(
                   data: (room) => [
                     Flexible(
                       flex: 3,
@@ -171,7 +171,7 @@ class DetailsWidget extends ConsumerWidget {
 
 class Point5SpaceWidget extends StatelessWidget {
   const Point5SpaceWidget({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -185,7 +185,7 @@ class Point5SpaceWidget extends StatelessWidget {
 }
 
 class CreatorWidget extends ConsumerWidget {
-  const CreatorWidget({Key key}) : super(key: key);
+  const CreatorWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, ScopedReader watch) => Flexible(
@@ -193,13 +193,13 @@ class CreatorWidget extends ConsumerWidget {
         child: FittedBox(
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 500),
-            child: watch(creatorIDProvider).maybeWhen(
+            child: watch(creatorIDProvider!).maybeWhen(
               orElse: () => CreatorTitleWidget(name: "_"),
               data: (value) {
-                final firebaseUser = watch(firebaseUserProvider);
+                final firebaseUser = watch(firebaseUserProvider!);
                 return firebaseUser.uid == value
                     ? CreatorTitleWidget(name: "You ")
-                    : watch(creatorNameProvider(value)).maybeWhen(
+                    : watch(creatorNameProvider!(value)).maybeWhen(
                         orElse: () => CreatorTitleWidget(name: "Someone"),
                         data: (_name) => CreatorTitleWidget(name: _name),
                       );
@@ -211,8 +211,8 @@ class CreatorWidget extends ConsumerWidget {
 }
 
 class CreatorTitleWidget extends StatelessWidget {
-  final String name;
-  const CreatorTitleWidget({Key key, this.name}) : super(key: key);
+  final String? name;
+  const CreatorTitleWidget({Key? key, this.name}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => RichText(
@@ -240,25 +240,25 @@ class CreatorTitleWidget extends StatelessWidget {
 }
 
 class PlayersWidget extends ConsumerWidget {
-  const PlayersWidget({Key key}) : super(key: key);
+  const PlayersWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, ScopedReader watch) => Flexible(
         flex: 7,
         child: FirebaseAnimatedList(
-          query: watch(playersQueryProvider),
+          query: watch(playersQueryProvider!),
           itemBuilder: (BuildContext context, DataSnapshot snapshot,
               Animation<double> animation, int index) {
-            final room = watch(roomProvider).data?.value;
+            final room = watch(roomProvider!).data?.value;
             final List levels = ['easy', 'medium', 'hard'];
             if (room == null) return Center(child: CircularProgressIndicator());
-            final String roomLevel = room.details.level;
+            final String? roomLevel = room.details.level;
             final int maxCount =
-                room.details.maxCount > 4 ? room.details.maxCount : 4;
+                room.details.maxCount! > 4 ? room.details.maxCount! : 4;
 
             Profile init = Profile.fromMap(snapshot.value);
             AsyncValue<Profile> profile =
-                watch(otherProfileProvider(snapshot.key));
+                watch(otherProfileProvider!(snapshot.key!));
             return FadeTransition(
               opacity: animation,
               child: SizedBox(
@@ -274,7 +274,7 @@ class PlayersWidget extends ConsumerWidget {
                     child: profile.when(
                       data: (value) {
                         final stats = value
-                            .stats[levels.indexOf(roomLevel.toLowerCase())];
+                            .stats![levels.indexOf(roomLevel!.toLowerCase())];
                         return Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Row(
@@ -290,7 +290,7 @@ class PlayersWidget extends ConsumerWidget {
                                       flex: 2,
                                       child: FittedBox(
                                         child: Text(
-                                          value.name,
+                                          value.name!,
                                           style: TextStyleFontTheme.luckiestGuy
                                               .copyWith(
                                                   fontSize:
@@ -354,7 +354,7 @@ class PlayersWidget extends ConsumerWidget {
                           ),
                         );
                       },
-                      loading: () => ListTile(title: Text(init.name)),
+                      loading: () => ListTile(title: Text(init.name!)),
                       error: (error, stackTrace) {
                         error.toString();
                         stackTrace.toString();
@@ -372,8 +372,8 @@ class PlayersWidget extends ConsumerWidget {
 
 class StatsValueWidget extends StatelessWidget {
   final dynamic value;
-  final String header;
-  const StatsValueWidget({Key key, this.value, this.header}) : super(key: key);
+  final String? header;
+  const StatsValueWidget({Key? key, this.value, this.header}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -398,7 +398,7 @@ class StatsValueWidget extends StatelessWidget {
             child: FractionallySizedBox(
               widthFactor: 0.7,
               child: AutoSizeText(
-                header,
+                header!,
                 style: TextStyleFontTheme.poppins
                     .copyWith(fontSize: 24, color: Colors.brown[400]),
                 maxLines: 1,
@@ -412,7 +412,7 @@ class StatsValueWidget extends StatelessWidget {
 }
 
 class NeverPlayedWidget extends StatelessWidget {
-  const NeverPlayedWidget({Key key}) : super(key: key);
+  const NeverPlayedWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Center(

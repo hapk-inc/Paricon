@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/screens/common/textTheme.dart';
 
+import 'common/textTheme.dart';
 import 'providers/newNameProvider.dart';
 import 'providers/pageProvider.dart';
 import 'selectAuth.dart';

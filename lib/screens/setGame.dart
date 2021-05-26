@@ -12,7 +12,7 @@ import 'providers/setGameProvider.dart';
 class SetGame extends ConsumerWidget {
   final bool isGameOnline;
 
-  const SetGame({Key key, this.isGameOnline = false}) : super(key: key);
+  const SetGame({Key? key, this.isGameOnline = false}) : super(key: key);
   static MaterialPage get toMaterialPage => MaterialPage(
         child: SetGame(),
         key: ValueKey('setGame'),
@@ -110,14 +110,12 @@ class SetGame extends ConsumerWidget {
                     ),
                     onPressed: () async {
                       context.read(roomNotifierProvider).loading = true;
-                      await context.read(createRoomProvider.future).then(
+                      await context.read(createRoomProvider!.future).then(
                         (value) async {
-                          if (value != null) {
-                            await context.read(joinRoomProvider.future);
-                            context
-                                .read(pageProvider)
-                                .addNext(GameRoom.toMaterialPage(id: value));
-                          }
+                          await context.read(joinRoomProvider!.future);
+                          context
+                              .read(pageProvider)
+                              .addNext(GameRoom.toMaterialPage(id: value));
                         },
                       ).whenComplete(() =>
                           context.read(roomNotifierProvider).loading = false);
@@ -144,10 +142,10 @@ class SetGame extends ConsumerWidget {
 }
 
 class PlayerAdjustButton extends StatelessWidget {
-  const PlayerAdjustButton({Key key, this.iconClick, this.icon})
+  const PlayerAdjustButton({Key? key, this.iconClick, this.icon})
       : super(key: key);
-  final IconData icon;
-  final VoidCallback iconClick;
+  final IconData? icon;
+  final VoidCallback? iconClick;
 
   @override
   Widget build(BuildContext context) => Flexible(
@@ -164,14 +162,14 @@ class PlayerAdjustButton extends StatelessWidget {
 }
 
 class CreateGameTitleWidget extends StatelessWidget {
-  final String title;
-  const CreateGameTitleWidget({Key key, this.title}) : super(key: key);
+  final String? title;
+  const CreateGameTitleWidget({Key? key, this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Flexible(
         child: FittedBox(
           child: Text(
-            title,
+            title!,
             style: TextStyleFontTheme.reggaeOne.copyWith(
               color: Colors.white54,
             ),

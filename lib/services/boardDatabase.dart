@@ -117,11 +117,14 @@ class BoardDatabase extends MyDatabase {
     subject = BehaviorSubject<LocalPlayer>(
       onListen: () => boardPlayerRef.child(player).onValue.listen(
         (event) {
-          final LocalPlayer? player = LocalPlayer.fromMap(event.snapshot.value);
-          if (player == null && subject.hasValue)
+          final value = event.snapshot.value;
+
+          if (value == null && subject.hasValue)
             subject.close();
-          else
+          else {
+            final LocalPlayer? player = LocalPlayer.fromMap(value);
             subject.add(player!);
+          }
         },
       ),
     );
@@ -138,14 +141,26 @@ class BoardDatabase extends MyDatabase {
     subject = BehaviorSubject(
       onListen: () => boardIconsFoundRef.onValue.listen(
         (event) {
-          int e = event.snapshot.value;
-          if (e == null && subject.hasValue)
+          final value = event.snapshot.value;
+
+          if (value == null && subject.hasValue)
             subject.close();
-          else
-            subject.add(e);
+          else {
+            int foundValue = value as int;
+            subject.add(foundValue);
+          }
         },
       ),
     );
     return subject.stream;
   }
+
+  Future<String> playerColor(String id) => boardPlayerRef
+      .child(id)
+      .child("color")
+      .once()
+      .then((snapShot) => snapShot.value);
+
+  Future<void> setIconColor(String? e, String color) =>
+      boardIconRef.child(e!).child("color").set(color);
 }

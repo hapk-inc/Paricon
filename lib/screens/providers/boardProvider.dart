@@ -9,6 +9,7 @@ import 'package:paricon/models/stats.dart';
 
 import 'authProvider.dart';
 import 'databaseProvider.dart';
+import 'gameIconProvider.dart';
 import 'prevStatsNotifier.dart';
 import 'roomIDProvider.dart';
 import 'roomNotifierProvider.dart';
@@ -34,7 +35,7 @@ final AutoDisposeFutureProvider<bool>? incrementPtsProvider =
     FutureProvider.autoDispose<bool>(
   (ref) {
     final boardDatabase = ref.read(boardDatabaseProvider!);
-    final player = ref.read(currentUserProvider!);
+    final player = ref.read(firebaseUserProvider!);
     return boardDatabase.increment(player.uid);
   },
 );
@@ -77,7 +78,7 @@ final btnClickProvider = AutoDisposeFutureProviderFamily<void, IconInfo>(
   (ref, iconInfo) async {
     final boardDatabase = ref.read(boardDatabaseProvider!);
     final iconNotifier = ref.read(roomNotifierProvider);
-    final firebaseUser = ref.read(currentUserProvider!);
+    final firebaseUser = ref.read(firebaseUserProvider!);
 
     await boardDatabase.setIconCheck(iconInfo.icon!, true);
     bool? check = iconNotifier.validateIcons(iconInfo);
@@ -87,11 +88,15 @@ final btnClickProvider = AutoDisposeFutureProviderFamily<void, IconInfo>(
     final id2 = iconNotifier.iconInfo!.icon;
     iconNotifier.iconInfo = null;
     if (check) {
+      final currentColor = await ref.read(currentPlayerColor.future);
       await Future.wait(
         []
           ..addAll(
             [id, id2].map(
-              (e) => boardDatabase.iconFound(e!),
+              (e) => Future.wait([
+                boardDatabase.setIconColor(e, currentColor),
+                boardDatabase.iconFound(e!)
+              ]),
             ),
           )
           ..addAll(
@@ -122,7 +127,7 @@ final btnClickProvider = AutoDisposeFutureProviderFamily<void, IconInfo>(
 final AutoDisposeFutureProvider<Null>? checkNextPlayerProvider =
     FutureProvider.autoDispose(
   (ref) async {
-    final firebaseUser = ref.read(currentUserProvider!);
+    final firebaseUser = ref.read(firebaseUserProvider!);
     final boardDatabase = ref.read(boardDatabaseProvider!);
     return boardDatabase.boardPlayers.then(
       (fromSnapshot) {
@@ -160,9 +165,9 @@ final AutoDisposeFutureProvider<bool>? updateStatsProvider =
     FutureProvider.autoDispose<bool>(
   (ref) async {
     final boardDatabase = ref.read(boardDatabaseProvider!);
-    final firebaseUser = ref.read(currentUserProvider!);
+    final firebaseUser = ref.read(firebaseUserProvider!);
     final playerDatabase = ref.read(playerDatabaseProvider!(firebaseUser.uid));
-
+    final gameIcon = ref.read(gameIconProvider!);
     final room = await ref.read(roomProvider!.future);
     final Map fromSnapshot = await (boardDatabase.boardPlayers);
     final Map<String, dynamic> map = Map<String, dynamic>.from(fromSnapshot);
@@ -177,7 +182,7 @@ final AutoDisposeFutureProvider<bool>? updateStatsProvider =
         sortMap.values.first['pts'] == sortMap[firebaseUser.uid]['pts'];
 
     final String level = room.details.level!;
-    final int totalPts = iconCount(level) ~/ 2;
+    final int totalPts = gameIcon.iconCount(level) ~/ 2;
 
     final double _avg = (yourPts / totalPts) * 100;
     final double avg = double.parse(_avg.toStringAsFixed(2));
@@ -203,7 +208,7 @@ final leavingBoardProvider = FutureProvider.autoDispose(
       ref.watch(idNotifier.notifier).state = "";
     } else {
       final String id = await ref.read(currentIDProvider.last);
-      final firebaseUser = ref.read(currentUserProvider!);
+      final firebaseUser = ref.read(firebaseUserProvider!);
       if (firebaseUser.uid == id)
         await ref.read(checkNextPlayerProvider!.future);
 
@@ -229,12 +234,20 @@ final AutoDisposeFutureProvider<List<LocalPlayer>>? allBoardPlayersProvider =
   },
 );
 
-int iconCount(String level) {
-  //16 or 30 for easy
-  final String _level = level.toLowerCase();
-  return _level == "easy"
-      ? 16
-      : _level == "medium"
-          ? 42
-          : 72;
-}
+final AutoDisposeFutureProvider<String> yourColorProvider =
+    AutoDisposeFutureProvider<String>(
+  (ref) async {
+    final firebaseUser = ref.read(firebaseUserProvider!);
+    final boardDatabase = ref.read(boardDatabaseProvider!);
+    return boardDatabase.playerColor(firebaseUser.uid);
+  },
+);
+
+final AutoDisposeFutureProvider<String> currentPlayerColor =
+    AutoDisposeFutureProvider<String>(
+  (ref) async {
+    final currentPlayer = await ref.watch(currentIDProvider.last);
+    final boardDatabase = ref.read(boardDatabaseProvider!);
+    return boardDatabase.playerColor(currentPlayer);
+  },
+);

@@ -1,30 +1,16 @@
-import 'dart:convert';
-
 class LocalIcon {
   final String? iconCode;
   final int? iconNo;
   final bool? isCheck;
   final bool? isFound;
+  final String? color;
   LocalIcon({
     required this.iconCode,
     required this.iconNo,
+    this.color,
     this.isCheck,
     this.isFound,
   });
-
-  LocalIcon copyWith({
-    int? iconCode,
-    int? iconNo,
-    bool? isCheck,
-    bool? isFound,
-  }) {
-    return LocalIcon(
-      iconCode: iconCode as String? ?? this.iconCode,
-      iconNo: iconNo ?? this.iconNo,
-      isCheck: isCheck ?? this.isCheck,
-      isFound: isFound ?? this.isFound,
-    );
-  }
 
   Map<String, dynamic> toMap(String id) => {
         id: {
@@ -42,13 +28,9 @@ class LocalIcon {
       iconNo: map['iconNo'],
       isCheck: map['isCheck'] ?? false,
       isFound: map['isFound'] ?? false,
+      color: map['color'] ?? null,
     );
   }
-
-  //String toJson() => json.encode(toMap());
-
-  factory LocalIcon.fromJson(String source) =>
-      LocalIcon.fromMap(json.decode(source));
 
   @override
   String toString() {

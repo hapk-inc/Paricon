@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/services/auth.dart';
 
@@ -8,7 +9,11 @@ import 'newNameProvider.dart';
 final firebaseAppProvider = FutureProvider<FirebaseApp>(
   (_) async => await Future.delayed(
     const Duration(milliseconds: 500),
-    () => Firebase.initializeApp(),
+    () async {
+      final app = await Firebase.initializeApp();
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+      return app;
+    },
   ),
   name: "firebaseAppProvider",
 );
@@ -47,14 +52,6 @@ final AutoDisposeFutureProvider<Null>? googleSignInProvider =
 );
 
 final AutoDisposeProvider<User>? firebaseUserProvider =
-    Provider.autoDispose<User>(
-  (ref) {
-    final auth = ref.read(authProvider);
-    return auth.currentUser!;
-  },
-);
-
-final AutoDisposeProvider<User>? currentUserProvider =
     Provider.autoDispose<User>(
   (ref) {
     final auth = ref.read(authProvider);

@@ -30,13 +30,14 @@ class GameBoard extends ConsumerWidget {
 
     Future<bool> _onBackPressed() async => await showDialog(
           context: context,
-          builder: (context) => ExitPopup(),
+          builder: (context) => ExitPopup(isScreenBoard: true),
         );
+    final gameIcon = watch(gameIconProvider!);
+    final yourColor = watch(yourColorProvider).data?.value;
 
     final board = watch(boardProvider).data?.value;
 
     return Scaffold(
-      backgroundColor: Colors.brown[200],
       body: WillPopScope(
         onWillPop: _onBackPressed,
         child: SafeArea(
@@ -64,21 +65,23 @@ class GameBoard extends ConsumerWidget {
               child: watch(boardProvider).when(
                 data: (value) => MediaQuery.of(context).orientation ==
                         Orientation.portrait
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Flexible(
-                            child: CurrentPlayerName(),
-                          ),
-                          Flexible(
-                            flex: 7,
-                            child: GridIcons(icons: value.icons),
-                          ),
-                          Flexible(
-                            flex: 2,
-                            child: GamePlayers(players: value.players),
-                          )
-                        ],
+                    ? AnimatedContainer(
+                        duration: DurationCount.m500,
+                        color: gameIcon.iconColor(yourColor)!.withOpacity(0.25),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Flexible(child: CurrentPlayerName()),
+                            Flexible(
+                              flex: 7,
+                              child: GridIcons(icons: value.icons),
+                            ),
+                            Flexible(
+                              flex: 2,
+                              child: GamePlayers(players: value.players),
+                            )
+                          ],
+                        ),
                       )
                     : Row(
                         children: [
@@ -120,8 +123,8 @@ List<Widget> playerWidgets(LocalPlayer localPlayer, double newHeight) => [
             child: Text(
               localPlayer.pts.toString(),
               key: ValueKey(localPlayer.pts),
-              style: TextStyleFontTheme.luckiestGuy.copyWith(
-                  fontSize: newHeight * 0.75, color: Colors.indigo[100]),
+              style: TextStyleFontTheme.luckiestGuy
+                  .copyWith(fontSize: newHeight * 0.75, color: Colors.white70),
             ),
           ),
         ),
@@ -138,7 +141,7 @@ List<Widget> playerWidgets(LocalPlayer localPlayer, double newHeight) => [
             localPlayer.name!,
             style: TextStyleFontTheme.reggaeOne.copyWith(
               fontSize: newHeight * 0.5,
-              color: Colors.indigo[300],
+              color: Colors.white60,
             ),
           ),
         ),
@@ -154,7 +157,7 @@ class GamePlayers extends ConsumerWidget {
     final int maxCount = players!.length > 4 ? players!.length : 4;
     final Orientation orientation = MediaQuery.of(context).orientation;
     final double newH = (MediaQuery.of(context).size.height * 0.75) / maxCount;
-
+    final gameIcon = watch(gameIconProvider!);
     if (orientation == Orientation.portrait)
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -178,7 +181,9 @@ class GamePlayers extends ConsumerWidget {
                           Matrix4.rotationZ(player.isActive! ? -0.025 : 0),
                       //padding: ,
                       decoration: BoxDecoration(
-                        color: Colors.indigo.withOpacity(_yourTurn ? 1 : 0.25),
+                        color: gameIcon
+                            .iconBoxColor(player.color)!
+                            .withOpacity(_yourTurn ? 1 : 0.25),
                         borderRadius: BorderRadius.circular(4.0),
                         boxShadow: [
                           BoxShadow(
@@ -301,9 +306,13 @@ class IconCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
-    final firebaseUser = watch(currentUserProvider!);
+    final firebaseUser = watch(firebaseUserProvider!);
     final roomNotifier = watch(roomNotifierProvider);
     final gameIcnProvider = watch(gameIconProvider!);
+
+    //final gameIcon = watch(gameIconProvider!);
+    final yourColor = watch(yourColorProvider).data?.value;
+
     bool _yourTurn = watch(currentIDProvider).maybeWhen(
       orElse: () => false,
       data: (value) {
@@ -344,16 +353,18 @@ class IconCard extends ConsumerWidget {
                           padding: PaddingTheme.all4,
                           decoration: BoxDecoration(
                             color: _icon.isFound!
-                                ? Colors.purple[50]
-                                : Colors.purple,
+                                ? gameIcnProvider
+                                    .iconBoxColor(yourColor)!
+                                    .withOpacity(0.2)
+                                : gameIcnProvider.iconBoxColor(yourColor),
                             borderRadius: BorderRadius.circular(4.0),
                           ),
                           child: FittedBox(
                             child: Icon(
                               gameIcnProvider.gameIcon(_icon.iconCode),
                               color: _icon.isFound!
-                                  ? Colors.purple
-                                  : Colors.white60,
+                                  ? gameIcnProvider.iconColor(_icon.color)
+                                  : Colors.white70,
                               size: MediaQuery.of(context).size.height,
                             ),
                           ),
@@ -372,7 +383,7 @@ class IconCard extends ConsumerWidget {
                           child: Container(
                             constraints: BoxConstraints.expand(),
                             decoration: BoxDecoration(
-                                color: Colors.purple,
+                                color: gameIcnProvider.iconBoxColor(yourColor),
                                 borderRadius: BorderRadius.circular(4.0)),
                           ),
                         ),
@@ -416,19 +427,96 @@ class CurrentPlayerName extends ConsumerWidget {
   }
 }
 
-class PlayerName extends StatelessWidget {
+class PlayerName extends ConsumerWidget {
   final String? name;
   const PlayerName({Key? key, this.name}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => FittedBox(
+  Widget build(BuildContext context, ScopedReader watch) {
+    final gameIcon = watch(gameIconProvider!);
+    final currentColor = watch(currentPlayerColor).data?.value;
+    return FittedBox(
+      child: OutlineBorderText(
+        strokeColor: Colors.white70,
+        strokeWidth: 5,
         child: Text(
           name!,
           key: ValueKey(name),
           style: TextStyleFontTheme.luckiestGuy.copyWith(
-            color: Colors.indigo[400],
+            color: gameIcon.iconColor(currentColor),
             fontSize: MediaQuery.of(context).size.height * 0.1,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class OutlineBorderText extends StatelessWidget {
+  OutlineBorderText({
+    required this.child,
+    this.strokeCap = StrokeCap.round,
+    this.strokeJoin = StrokeJoin.round,
+    this.strokeWidth = 6.0,
+    this.strokeColor = const Color.fromRGBO(53, 0, 71, 1),
+  }) : assert(child is Text);
+
+  /// the stroke cap style
+  final StrokeCap strokeCap;
+
+  /// the stroke joint style
+  final StrokeJoin strokeJoin;
+
+  /// the stroke width
+  final double strokeWidth;
+
+  /// the stroke color
+  final Color strokeColor;
+
+  /// the [Text] widget to apply stroke on
+  final Text child;
+
+  @override
+  Widget build(BuildContext context) {
+    TextStyle style;
+    if (child.style != null) {
+      style = child.style!.copyWith(
+        foreground: Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeCap = strokeCap
+          ..strokeJoin = strokeJoin
+          ..strokeWidth = strokeWidth
+          ..color = strokeColor,
+        color: null,
       );
+    } else {
+      style = TextStyle(
+        foreground: Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeCap = strokeCap
+          ..strokeJoin = strokeJoin
+          ..strokeWidth = strokeWidth
+          ..color = strokeColor,
+      );
+    }
+    return Stack(
+      alignment: Alignment.center,
+      textDirection: child.textDirection,
+      children: <Widget>[
+        Text(
+          child.data!,
+          style: style,
+          maxLines: child.maxLines,
+          overflow: child.overflow,
+          semanticsLabel: child.semanticsLabel,
+          softWrap: child.softWrap,
+          strutStyle: child.strutStyle,
+          textAlign: child.textAlign,
+          textDirection: child.textDirection,
+          textScaleFactor: child.textScaleFactor,
+        ),
+        child,
+      ],
+    );
+  }
 }

@@ -9,7 +9,8 @@ import 'paddingTheme.dart';
 import 'textTheme.dart';
 
 class ExitPopup extends StatelessWidget {
-  const ExitPopup({Key? key}) : super(key: key);
+  final bool? isScreenBoard;
+  const ExitPopup({Key? key, this.isScreenBoard}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => AlertDialog(
@@ -39,12 +40,11 @@ class ExitPopup extends StatelessWidget {
               (e) => TextButton(
                 onPressed: () async {
                   if (e.contains("yes")) {
-                    try {
-                      final board = await context.read(boardProvider.future);
+                    if (isScreenBoard!)
                       await context.read(leavingBoardProvider.future);
-                    } catch (e) {
+                    else
                       await context.read(leavingRoomProvider.future);
-                    }
+
                     context.read(idNotifier.notifier).empty();
                   }
                   Navigator.pop(context, e.contains("yes"));

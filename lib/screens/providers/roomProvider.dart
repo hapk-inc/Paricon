@@ -15,7 +15,7 @@ final AutoDisposeFutureProvider<String>? createRoomProvider =
   (ref) async {
     final setGame = ref.read(setGameProvider);
     final roomDatabase = ref.watch(roomDatabaseProvider!);
-    final User user = ref.read(currentUserProvider!);
+    final User user = ref.read(firebaseUserProvider!);
 
     final room = Room.createRoom(setGame.level, setGame.playerCount, user.uid);
     String key = await roomDatabase.createRoom(room);
@@ -29,7 +29,7 @@ final AutoDisposeFutureProvider<Null>? joinRoomProvider =
   (ref) async {
     final roomDatabase = ref.read(roomDatabaseProvider!);
 
-    final user = ref.read(currentUserProvider!);
+    final user = ref.read(firebaseUserProvider!);
     await roomDatabase.joinRoom(user);
   },
 );
@@ -121,14 +121,23 @@ Map convertToBoard(Map<dynamic, dynamic> map) {
   List<int> playerOrder = List.generate(map.length, (index) => index + 1)
     ..shuffle();
 
+  List<String> colorNames = [
+    'red',
+    'green',
+    'indigo',
+    'brown',
+    'purple',
+    'orange'
+  ]..shuffle();
+  int i = 0;
   map.updateAll(
     (key, value) {
-      int order = playerOrder.last;
-      playerOrder.removeLast();
       Map<dynamic, dynamic> localPlayer = value;
       localPlayer.remove("timestamp");
-      localPlayer["playerNo"] = order;
+      localPlayer["playerNo"] = playerOrder[i];
+      localPlayer["color"] = colorNames[i];
       localPlayer["pts"] = 0;
+      i++;
       return localPlayer;
     },
   );
@@ -166,7 +175,7 @@ final AutoDisposeFutureProvider gameStartProvider = FutureProvider.autoDispose(
 final leavingRoomProvider = FutureProvider.autoDispose(
   (ref) async {
     final roomDatabase = ref.read(roomDatabaseProvider!);
-    final firebaseUser = ref.read(currentUserProvider!);
+    final firebaseUser = ref.read(firebaseUserProvider!);
 
     final room = await ref.read(roomProvider!.future);
     final Map playersProvider = await ref.read(roomPlayersProvider!.future);
@@ -190,7 +199,7 @@ final AutoDisposeFutureProvider changeCreatorProvider =
     FutureProvider.autoDispose(
   (ref) async {
     final roomDatabase = ref.read(roomDatabaseProvider!);
-    final firebaseUser = ref.read(currentUserProvider!);
+    final firebaseUser = ref.read(firebaseUserProvider!);
 
     final Map playersProvider = await ref.read(roomPlayersProvider!.future);
     List<String> players = List.from(playersProvider.keys);

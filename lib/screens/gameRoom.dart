@@ -27,7 +27,7 @@ class GameRoom extends ConsumerWidget {
   static List<Widget> get roomWidgetList => [DetailsWidget(), PlayersWidget()];
   @override
   Widget build(BuildContext context, ScopedReader watch) {
-    final firebaseUser = watch(currentUserProvider!);
+    final firebaseUser = watch(firebaseUserProvider!);
     final bool _isCreatorIsYou = watch(creatorIDProvider!).maybeWhen(
       orElse: () => false,
       data: (value) {
@@ -37,7 +37,9 @@ class GameRoom extends ConsumerWidget {
 
     Future<bool> _onBackPressed() async => await showDialog(
           context: context,
-          builder: (context) => ExitPopup(),
+          builder: (context) => ExitPopup(
+            isScreenBoard: false,
+          ),
         );
 
     return Scaffold(

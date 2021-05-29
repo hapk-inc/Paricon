@@ -60,6 +60,44 @@ class GameIconProvider {
   }
 
   IconData? gameIcon(String? _gameIcon) => _GameIconExt.displayIcon(_gameIcon);
+
+  Color? iconColor(String? color) {
+    switch (color) {
+      case 'red':
+        return Colors.red;
+      case 'green':
+        return Colors.green;
+      case 'indigo':
+        return Colors.indigo;
+      case 'brown':
+        return Colors.brown;
+      case 'purple':
+        return Colors.purple;
+      case 'orange':
+        return Colors.orange;
+      default:
+        return Colors.white70;
+    }
+  }
+
+  Color? iconBoxColor(String? color) {
+    switch (color) {
+      case 'red':
+        return Colors.red[700];
+      case 'green':
+        return Colors.green[700];
+      case 'indigo':
+        return Colors.indigo[700];
+      case 'brown':
+        return Colors.brown[700];
+      case 'purple':
+        return Colors.purple[700];
+      case 'orange':
+        return Colors.orange[700];
+      default:
+        return Colors.black54;
+    }
+  }
 }
 
 enum GameIcons {

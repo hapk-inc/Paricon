@@ -1,32 +1,25 @@
-import 'dart:convert';
-
 class LocalPlayer {
   final String? name;
+  final String? color;
   final int? pts;
   final int? playerNo;
   final bool? isActive;
 
-  LocalPlayer(
-      {required this.name,
-      required this.pts,
-      required this.playerNo,
-      this.isActive});
+  LocalPlayer({
+    required this.name,
+    required this.color,
+    required this.pts,
+    required this.playerNo,
+    this.isActive,
+  });
 
   LocalPlayer copyWith({String? name, int? pts, int? playerNo}) {
     return LocalPlayer(
       name: name ?? this.name,
       pts: pts ?? this.pts,
       playerNo: playerNo ?? this.playerNo,
+      color: color ?? this.color,
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'pts': pts,
-      'playerNo': playerNo,
-      'isActive': isActive,
-    };
   }
 
   factory LocalPlayer.fromMap(Map? fromSnapshot) {
@@ -34,14 +27,10 @@ class LocalPlayer {
     return LocalPlayer(
         name: map['name'],
         pts: map['pts'],
+        color: map['color'] ?? null,
         playerNo: map['playerNo'],
         isActive: map['isActive']);
   }
-
-  String toJson() => json.encode(toMap());
-
-  factory LocalPlayer.fromJson(String source) =>
-      LocalPlayer.fromMap(json.decode(source));
 
   @override
   String toString() =>
@@ -54,6 +43,7 @@ class LocalPlayer {
     return other is LocalPlayer &&
         other.name == name &&
         other.pts == pts &&
+        other.color == color &&
         other.playerNo == playerNo &&
         other.isActive == isActive;
   }

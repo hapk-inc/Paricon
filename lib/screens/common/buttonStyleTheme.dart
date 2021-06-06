@@ -24,7 +24,7 @@ class ButtonStyleTheme {
   static ButtonStyle createGameButtonStyle({bool enabled = false}) =>
       ButtonStyle(
         textStyle: MaterialStateProperty.all(
-          TextStyleFontTheme.reggaeOne,
+          TextStyleFontTheme.poppins,
         ),
         backgroundColor: MaterialStateProperty.all(
             enabled ? Colors.indigo[300] : Colors.indigo[700]),

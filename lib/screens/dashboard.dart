@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/screens/common/paddingTheme.dart';
+import 'package:paricon/screens/startGame.dart';
 
 import 'common/buttonStyleTheme.dart';
 import 'common/snackBarTheme.dart';
 import 'common/textTheme.dart';
 import 'profile.dart';
 import 'providers/pageProvider.dart';
-import 'startGame.dart';
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends ConsumerWidget {
   const Dashboard({Key? key}) : super(key: key);
 
   static MaterialPage get toMaterialPage => MaterialPage(
@@ -42,7 +42,7 @@ class Dashboard extends StatelessWidget {
       ];
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context, ScopedReader watch) => Scaffold(
         backgroundColor: Colors.purple[100],
         body: SafeArea(
           minimum: PaddingTheme.all8,
@@ -119,10 +119,19 @@ class DashButtons extends StatelessWidget {
             ],
           ),
         ),
-        onPressed: () => title!.contains("Online")
-            ? context.read(pageProvider).addNext(StartGame.toMaterialPage)
-            : ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBarThemeStyle.comingSoon()),
+        onPressed: () {
+          switch (title!) {
+            case "Play Online":
+              context.read(pageProvider).addNext(StartGame.toMaterialPage);
+              break;
+            /* case "Practice":
+              context.read(pageProvider).addNext(SetPractice.toMaterialPage);
+              break;*/
+            default:
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBarThemeStyle.comingSoon());
+          }
+        },
       ),
     );
   }

@@ -1,10 +1,12 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'common/durationCount.dart';
 import 'common/paddingTheme.dart';
+import 'common/popup.dart';
+import 'common/statsValue.dart';
 import 'common/textTheme.dart';
-import 'gameRoom.dart';
 import 'providers/authProvider.dart';
 import 'providers/packageInfoProvider.dart';
 import 'providers/playerProvider.dart';
@@ -16,69 +18,89 @@ class ProfileScreen extends ConsumerWidget {
         key: ValueKey('profile'),
       );
 
-  static List<Widget> profileNameIdList(
-          {String? name, String? id, bool? fromLeft}) =>
-      <Widget>[
-        Flexible(
-          child: Container(
-            constraints: BoxConstraints.expand(),
-            child: FittedBox(
-              child: Icon(
-                Icons.person,
-                color: Colors.black54,
-              ),
-            ),
-          ),
-        ),
-        Flexible(
-          child: Padding(
-            padding: PaddingTheme.all8,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              /*crossAxisAlignment:
-                  fromLeft ? CrossAxisAlignment.start : CrossAxisAlignment.end,*/
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      name ?? "Takashi Sensei",
-                      style: TextStyleFontTheme.meriendaOne.copyWith(
-                        fontSize: 36,
-                        color: Colors.black87,
-                      ),
-                      textScaleFactor: 2.5,
-                    ),
-                  ),
-                  flex: 2,
-                ),
-                Flexible(
-                  child: FittedBox(
-                    child: Text(
-                      "ID: " + (id ?? "00000"),
-                      style: TextStyleFontTheme.meriendaOne.copyWith(
-                        fontSize: 24,
-                        color: Colors.black54,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textScaleFactor: 1,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        )
-      ];
-
   @override
   Widget build(BuildContext context, ScopedReader watch) {
     TabController? _tabController;
     final orientation = MediaQuery.of(context).orientation;
+
+    List<Widget> profileNameIdList(
+            {String? name, String? id, bool? fromLeft}) =>
+        <Widget>[
+          Flexible(
+            child: Container(
+              constraints: BoxConstraints.expand(),
+              child: FittedBox(
+                child: Icon(
+                  Icons.person,
+                  color: Colors.pink[700],
+                ),
+              ),
+            ),
+          ),
+          Flexible(
+            child: Padding(
+              padding: PaddingTheme.all8,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                    child: Row(
+                      children: [
+                        Flexible(
+                          flex: 2,
+                          child: AutoSizeText(
+                            name ?? "NoOne",
+                            maxFontSize: 64,
+                            minFontSize: 16, maxLines: 2, softWrap: true,
+                            style: TextStyleFontTheme.luckiestGuy.copyWith(
+                              color: Colors.pink[700],
+                              fontSize: 72,
+                            ),
+                            //textScaleFactor: 2.5,
+                          ),
+                        ),
+                        Flexible(
+                          child: TextButton(
+                            /* onPressed: () => context
+                                .read(pageProvider)
+                                .addNext(EnterName.toMaterialPage),*/
+                            onPressed: () async => await showDialog(
+                                context: context,
+                                builder: (context) => EditNamePopUp()),
+                            child: Text(
+                              "EDIT",
+                              style: TextStyleFontTheme.poppins
+                                  .copyWith(color: Colors.black38),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    child: FittedBox(
+                      child: Text(
+                        "ID: " + (id ?? "00000"),
+                        style: TextStyleFontTheme.meriendaOne.copyWith(
+                          //fontSize: 24,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        //textScaleFactor: 1,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        ];
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.pink[200],
         appBar: AppBar(
           backgroundColor: Colors.pink,
@@ -100,7 +122,7 @@ class ProfileScreen extends ConsumerWidget {
                                 flex: 3,
                                 child: Row(
                                   children: profileNameIdList(
-                                    name: value.name,
+                                    name: value.name ?? "NoOne",
                                     id: value.userID.toString(),
                                   ),
                                 ),
@@ -215,10 +237,7 @@ class ProfileScreen extends ConsumerWidget {
                             ],
                           ),
                     loading: () => Container(),
-                    error: (error, stackTrace) {
-                      print(error);
-                      print(stackTrace);
-                    },
+                    error: (error, stackTrace) {},
                   )),
               flex: 9,
             ),

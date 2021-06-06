@@ -34,7 +34,7 @@ class StartGame extends StatelessWidget {
                             child: FittedBox(
                               child: Text(
                                 e,
-                                style: TextStyleFontTheme.reggaeOne,
+                                style: TextStyleFontTheme.poppins,
                               ),
                             ),
                           ),

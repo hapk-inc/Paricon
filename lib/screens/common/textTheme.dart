@@ -22,5 +22,5 @@ class TextStyleFontTheme {
     fontFamily: 'MeriendaOne',
   );
 
-  static const reggaeOne = TextStyle(fontFamily: 'ReggaeOne');
+  //static const reggaeOne = TextStyle(fontFamily: 'ReggaeOne');
 }

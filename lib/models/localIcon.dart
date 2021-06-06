@@ -34,7 +34,7 @@ class LocalIcon {
 
   @override
   String toString() {
-    return 'LocalIcon(iconCode: $iconCode, iconNo: $iconNo, isCheck: $isCheck, isFound: $isFound)';
+    return 'LocalIcon(iconCode: $iconCode, iconNo: $iconNo, isCheck: $isCheck, isFound: $isFound , color: $color)';
   }
 
   @override
@@ -55,6 +55,18 @@ class LocalIcon {
         isCheck.hashCode ^
         isFound.hashCode;
   }
+
+  bool checkFound() => (this.isCheck ?? false) || (this.isFound ?? false);
+
+  LocalIcon setCheck(bool value) =>
+      LocalIcon(iconCode: this.iconCode, iconNo: this.iconNo, isCheck: value);
+
+  LocalIcon setFoundTrue(String color) => LocalIcon(
+      iconCode: this.iconCode,
+      color: color,
+      iconNo: this.iconNo,
+      isFound: true,
+      isCheck: false);
 }
 
 class IconInfo {

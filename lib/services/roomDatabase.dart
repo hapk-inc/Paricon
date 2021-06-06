@@ -49,7 +49,6 @@ class RoomDatabase extends MyDatabase {
   }
 
   Future<Room> get room {
-    print(roomRef.path);
     return roomRef.once().then(
       (snapshot) {
         Room _room = Room.fromMap(snapshot.value);

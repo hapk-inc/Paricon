@@ -20,3 +20,11 @@ final AutoDisposeFutureProviderFamily<Profile, String>? otherProfileProvider =
     return playerDatabase.profile;
   },
 );
+
+final AutoDisposeFutureProviderFamily<void, String>? updateNameProvider =
+    FutureProvider.autoDispose.family<void, String>(
+  (ref, playerName) async {
+    final auth = ref.read(authProvider);
+    await auth.updateName(playerName);
+  },
+);

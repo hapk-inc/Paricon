@@ -1,8 +1,9 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:paricon/screens/common/textTheme.dart';
 
 import 'common/snackBarTheme.dart';
-import 'common/textTheme.dart';
 import 'gameRoom.dart';
 import 'providers/pageProvider.dart';
 import 'providers/roomNotifierProvider.dart';
@@ -25,8 +26,12 @@ class EnterRoomCode extends StatelessWidget {
                 .addNext(GameRoom.toMaterialPage(id: value));
           },
           onError: (err, _) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBarThemeStyle.roomCodeError(err));
+            if (err is String)
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBarThemeStyle.roomCodeError(err));
+            else if (err is DatabaseError)
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBarThemeStyle.roomCodeError("No Database Permission"));
           },
         );
       } else
@@ -40,16 +45,17 @@ class EnterRoomCode extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: TextField(
+          autofocus: true,
           controller: _controller,
-          style: TextStyleFontTheme.reggaeOne.copyWith(
+          style: TextStyleFontTheme.poppins.copyWith(
             color: Colors.white54,
             fontSize: MediaQuery.of(context).size.height * 0.05,
             letterSpacing: 5,
           ),
-          enabled: true,
           cursorColor: Colors.white54,
+          keyboardType:
+              TextInputType.numberWithOptions(decimal: false, signed: false),
           onEditingComplete: () => _onPressed(_controller.text),
-          keyboardType: TextInputType.number,
           decoration: InputDecoration(
             alignLabelWithHint: true,
             border: OutlineInputBorder(),

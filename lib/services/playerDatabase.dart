@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -58,4 +59,14 @@ class PlayerDatabase extends MyDatabase {
     );
     return transactionResult.committed;
   }
+
+  Future<void> updateName(String? newName) async =>
+      profileRef.child("name").set(newName);
+
+  Future<String?> fetchPrevRecord(String level) async =>
+      profileRef.child("stats").child(level).child("timeRecord").once().then(
+        (value) {
+          return value.value as String;
+        },
+      ).onError((error, _) => "");
 }

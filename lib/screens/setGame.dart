@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,11 +14,6 @@ class SetGame extends ConsumerWidget {
   final bool isGameOnline;
 
   const SetGame({Key? key, this.isGameOnline = false}) : super(key: key);
-  static MaterialPage get toMaterialPage => MaterialPage(
-        child: SetGame(),
-        key: ValueKey('setGame'),
-        name: '/setGame',
-      );
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
@@ -101,11 +97,13 @@ class SetGame extends ConsumerWidget {
                 child: ElevatedButton(
                     style: ButtonStyleTheme.createGameButtonStyle(),
                     child: Center(
-                      child: FittedBox(
-                        child: Text(
-                          "Start Game",
-                          textScaleFactor: 2,
-                        ),
+                      child: AutoSizeText(
+                        "Start Game",
+                        style: TextStyleFontTheme.bangers
+                            .copyWith(fontSize: 48, color: Colors.white70),
+                        minFontSize: 24,
+                        maxLines: 36,
+                        //textScaleFactor: 2,
                       ),
                     ),
                     onPressed: () async {
@@ -170,7 +168,7 @@ class CreateGameTitleWidget extends StatelessWidget {
         child: FittedBox(
           child: Text(
             title!,
-            style: TextStyleFontTheme.reggaeOne.copyWith(
+            style: TextStyleFontTheme.poppins.copyWith(
               color: Colors.white54,
             ),
             textScaleFactor: 2,

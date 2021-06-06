@@ -1,7 +1,7 @@
 class LocalPlayer {
   final String? name;
   final String? color;
-  final int? pts;
+  int? pts;
   final int? playerNo;
   final bool? isActive;
 

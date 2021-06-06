@@ -1,11 +1,12 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/screens/providers/boardProvider.dart';
 
-import 'common/durationCount.dart';
 import 'common/paddingTheme.dart';
+import 'common/statsValue.dart';
 import 'common/textTheme.dart';
-import 'gameRoom.dart';
+import 'providers/gameIconProvider.dart';
+import 'providers/onlineBoardProvider.dart';
 import 'providers/prevStatsNotifier.dart';
 import 'providers/roomIDProvider.dart';
 
@@ -17,64 +18,70 @@ class GameResults extends StatelessWidget {
         key: ValueKey('gameResults'),
       );
   @override
-  Widget build(BuildContext context) => Scaffold(
-        backgroundColor: Colors.green,
-        body: WillPopScope(
-          onWillPop: () async {
-            context.read(idNotifier.notifier).empty();
-            return true;
-          },
-          child: SafeArea(
-            //minimum: PaddingTheme.all16,
-            child: Padding(
-              padding: PaddingTheme.all16,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Flexible(
-                    child: Row(
-                      children: [
-                        Flexible(
-                          child: FittedBox(
-                            child: Text(
-                              "Results",
-                              style: TextStyleFontTheme.luckiestGuy.copyWith(
-                                fontSize: 48,
-                                color: Colors.green[50],
-                              ),
+  Widget build(BuildContext context) {
+    final gameProvider = context.read(gameIconProvider!);
+    final onlineNotifier = context.read(onlineBoardNotifier);
+    return Scaffold(
+      backgroundColor:
+          gameProvider.iconColor(onlineNotifier.sortByPoints.first.color),
+      body: WillPopScope(
+        onWillPop: () async {
+          context.read(idNotifier.notifier).empty();
+          context.read(onlineBoardNotifier).dispose();
+          return true;
+        },
+        child: SafeArea(
+          //minimum: PaddingTheme.all16,
+          child: Padding(
+            padding: PaddingTheme.all16,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Flexible(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: FittedBox(
+                          child: Text(
+                            "Results",
+                            style: TextStyleFontTheme.luckiestGuy.copyWith(
+                              fontSize: 48,
+                              color: Colors.white70,
                             ),
                           ),
                         ),
-                        ShadedLine(),
-                      ],
-                    ),
+                      ),
+                      ShadedLine(),
+                    ],
                   ),
-                  PlayerTable(),
-                  Flexible(
-                    child: Row(
-                      children: [
-                        ShadedLine(),
-                        Flexible(
-                          child: FittedBox(
-                            child: Text(
-                              "YOUR RESULTS",
-                              style: TextStyleFontTheme.luckiestGuy.copyWith(
-                                fontSize: 48,
-                                color: Colors.green[50],
-                              ),
+                ),
+                PlayerTable(),
+                Flexible(
+                  child: Row(
+                    children: [
+                      ShadedLine(),
+                      Flexible(
+                        child: FittedBox(
+                          child: Text(
+                            "YOUR RESULTS",
+                            style: TextStyleFontTheme.luckiestGuy.copyWith(
+                              fontSize: 48,
+                              color: Colors.white70,
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  MyResults(),
-                ],
-              ),
+                ),
+                MyResults(),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
 }
 
 class MyResults extends ConsumerWidget {
@@ -95,14 +102,17 @@ class MyResults extends ConsumerWidget {
           StatsValueWidget(
             value: prevStats.level,
             header: "LEVEL",
+            color: Colors.white70,
           ),
           StatsValueWidget(
             value: prevStats.pts,
             header: "POINTS",
+            color: Colors.white70,
           ),
           StatsValueWidget(
             value: prevStats.avg,
             header: "AVG. SCORE",
+            color: Colors.white70,
           ),
         ],
       ),
@@ -110,57 +120,105 @@ class MyResults extends ConsumerWidget {
   }
 }
 
-class PlayerTable extends ConsumerWidget {
-  const PlayerTable({
-    Key? key,
-  }) : super(key: key);
+class PlayerTable extends StatelessWidget {
+  const PlayerTable({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader watch) => Flexible(
-        flex: 4,
-        //fit: FlexFit.tight,
-        child: AnimatedSwitcher(
-            duration: DurationCount.m500,
-            child: watch(allBoardPlayersProvider!).when(
-              data: (localPlayers) {
-                localPlayers.sort((a, b) => b.pts!.compareTo(a.pts!));
-                return Align(
-                  //color: Colors.blue,
-                  //constraints: BoxConstraints.expand(),
-                  alignment: Alignment.topCenter,
-                  child: FittedBox(
-                    child: DataTable(
-                      headingTextStyle: TextStyleFontTheme.luckiestGuy.copyWith(
-                        color: Colors.green[100],
-                        fontSize: 28,
-                      ),
-                      dataTextStyle: TextStyleFontTheme.poppins.copyWith(
-                        fontSize: 24,
-                        color: Colors.green[100],
-                      ),
-                      rows: List.generate(
-                        localPlayers.length,
-                        (index) => DataRow(
-                          cells: [
-                            DataCell(Text((index + 1).toString())),
-                            DataCell(FittedBox(
-                                child: Text(localPlayers[index].name!))),
-                            DataCell(Text(localPlayers[index].pts.toString()))
-                          ],
+  Widget build(BuildContext context) {
+    final gameiCon = context.read(gameIconProvider!);
+    final notifier = context.read(onlineBoardNotifier);
+    final players = notifier.sortByPoints;
+    return Flexible(
+      fit: FlexFit.tight,
+      flex: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Table(
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          columnWidths: {
+            0: FlexColumnWidth(2),
+            1: FlexColumnWidth(6),
+            2: FlexColumnWidth(2),
+          },
+          children: <TableRow>[
+                TableRow(
+                  //decoration: BoxDecoration(border: BoxBorder()),
+                  children: [
+                    TableHeader(title: "Name"),
+                    TableHeader(title: "Icons"),
+                    TableHeader(title: "Points"),
+                  ],
+                )
+              ] +
+              players
+                  .map(
+                    (e) => TableRow(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: AutoSizeText(
+                            e.name!,
+                            style: TextStyleFontTheme.luckiestGuy
+                                .copyWith(color: Colors.white70, fontSize: 72),
+                            maxLines: 1,
+                            minFontSize: 32,
+                            maxFontSize: 48,
+                          ),
                         ),
-                      ),
-                      columns: [
-                        DataColumn(label: Text("Rank")),
-                        DataColumn(label: Text("Name")),
-                        DataColumn(label: Text("Points")),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Wrap(
+                            spacing: 2.0,
+                            //alignment: WrapAlignment.center,
+                            //crossAxisAlignment: WrapCrossAlignment.start,
+                            children: notifier
+                                .coloredIcons(e.color!)
+                                .map(
+                                  (e) => Icon(
+                                    gameiCon.gameIcon(e.iconCode),
+                                    color: Colors.white70,
+                                    size: 24,
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: AutoSizeText(
+                            e.pts.toString(),
+                            style: TextStyleFontTheme.luckiestGuy.copyWith(
+                              fontSize: 48,
+                              color: Colors.white70,
+                            ),
+                            maxLines: 1,
+                            minFontSize: 36,
+                            maxFontSize: 72,
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                );
-              },
-              loading: () => Container(),
-              error: (error, stackTrace) => Container(),
-            )),
+                  )
+                  .toList(),
+        ),
+      ),
+    );
+  }
+}
+
+class TableHeader extends StatelessWidget {
+  final String title;
+  const TableHeader({Key? key, required this.title}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => FittedBox(
+        alignment: Alignment.center,
+        fit: BoxFit.scaleDown,
+        child: Text(
+          title,
+          style: TextStyleFontTheme.luckiestGuy
+              .copyWith(fontSize: 20, color: Colors.white60),
+        ),
       );
 }
 

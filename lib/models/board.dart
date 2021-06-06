@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
@@ -20,12 +21,26 @@ class Board {
     final map = Map<String, dynamic>.from(fromSnapshot);
     final mPlayers = map['players'];
     final mIcons = map['icons'];
-    return Board(
-      players: Map<String, dynamic>.from(mPlayers).keys.toList(growable: false),
-      icons: Map<String, dynamic>.from(mIcons).keys.toList(growable: false),
+
+    //Arrange icons and players based on iconNo and playerNo
+    final sortedIcons = SplayTreeMap.from(
+      mIcons,
+      (a, b) => mIcons[a]["iconNo"].compareTo(mIcons[b]["iconNo"]),
+    );
+    //Arrange icons and players based on iconNo and playerNo
+    final sortedPlayers = SplayTreeMap.from(
+      mPlayers,
+      (a, b) => mPlayers[a]["playerNo"].compareTo(mPlayers[b]["playerNo"]),
+    );
+    final Board _board = Board(
+      players:
+          Map<String, dynamic>.from(sortedPlayers).keys.toList(growable: false),
+      icons:
+          Map<String, dynamic>.from(sortedIcons).keys.toList(growable: false),
       currentID: map['currentID'], iconsFound: map['iconsFound'] ?? 0,
       //isGameOver: map['isGameOver'],
     );
+    return _board;
   }
 
   //String toJson() => json.encode(toMap());

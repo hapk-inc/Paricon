@@ -75,6 +75,8 @@ class GameIconProvider {
         return Colors.purple;
       case 'orange':
         return Colors.orange;
+      case 'blue':
+        return Colors.blue;
       default:
         return Colors.white70;
     }
@@ -223,7 +225,7 @@ extension _GameIconExt on GameIcons {
       case "grade":
         return Icons.grade;
       default:
-        return null;
+        return Icons.cancel;
     }
   }
 }

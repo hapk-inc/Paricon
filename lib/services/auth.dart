@@ -21,7 +21,7 @@ class Auth {
   Future signInAnonymous({String name = ""}) async {
     try {
       await _auth.signInAnonymously();
-      await _auth.currentUser!.updateProfile(displayName: name);
+      await _auth.currentUser!.updateDisplayName(name);
       await PlayerDatabase(app).createPlayer(_auth.currentUser!);
 
       //return _auth.currentUser;
@@ -52,11 +52,14 @@ class Auth {
         idToken: googleAuth.idToken,
       ) as GoogleAuthCredential;
       await _auth.signInWithCredential(credential);
-      print("Google SIgn in over");
+
       print(_auth.currentUser);
       await PlayerDatabase(app).createPlayer(_auth.currentUser!);
-    } catch (e) {
-      print(e);
-    }
+    } catch (e) {}
+  }
+
+  Future<void> updateName(String newName) async {
+    await _auth.currentUser!.updateDisplayName(newName);
+    await PlayerDatabase(app, uid: _auth.currentUser?.uid).updateName(newName);
   }
 }

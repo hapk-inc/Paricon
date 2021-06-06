@@ -111,7 +111,6 @@ final AutoDisposeFutureProvider createBoardProvider =
       };
       await boardDatabase.createBoard(map);
     } catch (e) {
-      print("105-");
       print(e);
     }
   },
@@ -166,9 +165,7 @@ final AutoDisposeFutureProvider gameStartProvider = FutureProvider.autoDispose(
     try {
       final roomDatabase = ref.read(roomDatabaseProvider!);
       await roomDatabase.gameStart(true);
-    } catch (e) {
-      print(e);
-    }
+    } catch (e) {}
   },
 );
 

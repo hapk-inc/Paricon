@@ -93,10 +93,12 @@ final btnClickProvider = AutoDisposeFutureProviderFamily<void, IconInfo>(
         []
           ..addAll(
             [id, id2].map(
-              (e) => Future.wait([
-                boardDatabase.setIconColor(e, currentColor),
-                boardDatabase.iconFound(e!)
-              ]),
+              (e) => Future.wait(
+                [
+                  boardDatabase.setIconColor(e, currentColor),
+                  boardDatabase.iconFound(e!)
+                ],
+              ),
             ),
           )
           ..addAll(
@@ -155,7 +157,6 @@ final AutoDisposeStreamProvider<int>? allIconsFoundProvider =
       final boardDatabase = ref.read(boardDatabaseProvider!);
       return boardDatabase.sIconsFound;
     } catch (e) {
-      print(e);
       return Stream.error(e);
     }
   },

@@ -1,13 +1,14 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/profile.dart';
+import 'package:paricon/screens/common/snackBarTheme.dart';
 
 import 'common/durationCount.dart';
 import 'common/paddingTheme.dart';
 import 'common/popup.dart';
+import 'common/statsValue.dart';
 import 'common/textTheme.dart';
 import 'gameBoard.dart';
 import 'providers/authProvider.dart';
@@ -51,7 +52,6 @@ class GameRoom extends ConsumerWidget {
           onChange: (BuildContext context, AsyncValue<bool> asyncValue) {
             asyncValue.whenData(
               (_check) {
-                print("Entering room");
                 if (_check)
                   watch(pageProvider).replace(GameBoard.toMaterialPage());
               },
@@ -84,8 +84,11 @@ class GameRoom extends ConsumerWidget {
                       (_) => context.read(gameStartProvider),
                     )
                     .catchError(
-                      (err, stackTrace) {},
-                    ),
+                  (err, stackTrace) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBarThemeStyle.waitForOthers());
+                  },
+                ),
               )
             : Container(),
       ),
@@ -337,17 +340,14 @@ class PlayersWidget extends ConsumerWidget {
                                               CrossAxisAlignment.center,
                                           children: [
                                             StatsValueWidget(
-                                              value: stats.played,
-                                              header: "GAMES",
-                                            ),
+                                                value: stats.played,
+                                                header: "GAMES"),
                                             StatsValueWidget(
-                                              value: stats.win,
-                                              header: "WINS",
-                                            ),
+                                                value: stats.win,
+                                                header: "WINS"),
                                             StatsValueWidget(
-                                              value: stats.avg,
-                                              header: "AVG. SCORE",
-                                            ),
+                                                value: stats.avg,
+                                                header: "AVG. SCORE"),
                                           ],
                                         ),
                                       ),
@@ -370,47 +370,6 @@ class PlayersWidget extends ConsumerWidget {
           },
         ),
       );
-}
-
-class StatsValueWidget extends StatelessWidget {
-  final dynamic value;
-  final String? header;
-  const StatsValueWidget({Key? key, this.value, this.header}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Flexible(
-      fit: FlexFit.tight,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Flexible(
-            flex: 2,
-            child: FittedBox(
-              child: AutoSizeText(
-                value.toString(),
-                style: TextStyleFontTheme.luckiestGuy
-                    .copyWith(fontSize: 32, color: Colors.brown[800]),
-                maxLines: 1,
-              ),
-            ),
-          ),
-          Flexible(
-            child: FractionallySizedBox(
-              widthFactor: 0.7,
-              child: AutoSizeText(
-                header!,
-                style: TextStyleFontTheme.poppins
-                    .copyWith(fontSize: 24, color: Colors.brown[400]),
-                maxLines: 1,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class NeverPlayedWidget extends StatelessWidget {

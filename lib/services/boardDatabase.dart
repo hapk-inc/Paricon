@@ -27,9 +27,8 @@ class BoardDatabase extends MyDatabase {
 
   Future createBoard(Map board) async => await boardRef.set(board);
 
-  Future<Board> get board async => await boardRef.once().then(
-        (snapshot) => Board.fromMap(snapshot.value),
-      );
+  Future<Board> get board async =>
+      await boardRef.once().then((snapshot) => Board.fromMap(snapshot.value));
 
   Future get removeData => boardRef.remove();
 

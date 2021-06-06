@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/localIcon.dart';
 import 'package:paricon/models/localPlayer.dart';
+import 'package:paricon/screens/providers/onlineBoardProvider.dart';
 
 import 'common/durationCount.dart';
 import 'common/paddingTheme.dart';
@@ -50,7 +51,6 @@ class GameBoard extends ConsumerWidget {
                   final num iconCount = board.icons.length;
                   //if (value % 2 == 0 && value > 8) {
                   if (_value == iconCount) {
-                    print("Game Over");
                     final isUpdated = await watch(updateStatsProvider!.future);
                     if (isUpdated)
                       context
@@ -63,48 +63,61 @@ class GameBoard extends ConsumerWidget {
             child: AnimatedSwitcher(
               duration: DurationCount.m500,
               child: watch(boardProvider).when(
-                data: (value) => MediaQuery.of(context).orientation ==
-                        Orientation.portrait
-                    ? AnimatedContainer(
-                        duration: DurationCount.m500,
-                        color: gameIcon.iconColor(yourColor)!.withOpacity(0.25),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                data: (value) {
+                  print("Board Value");
+                  print(value.toString());
+                  return MediaQuery.of(context).orientation ==
+                          Orientation.portrait
+                      ? AnimatedContainer(
+                          duration: DurationCount.m500,
+                          color:
+                              gameIcon.iconColor(yourColor)!.withOpacity(0.25),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Flexible(child: CurrentPlayerName()),
+                              Flexible(
+                                flex: 7,
+                                child: GridIcons(icons: value.icons),
+                              ),
+                              Flexible(
+                                flex: 2,
+                                child: GamePlayers(players: value.players),
+                              )
+                            ],
+                          ),
+                        )
+                      : Row(
                           children: [
-                            Flexible(child: CurrentPlayerName()),
                             Flexible(
                               flex: 7,
                               child: GridIcons(icons: value.icons),
                             ),
                             Flexible(
-                              flex: 2,
-                              child: GamePlayers(players: value.players),
+                              flex: 3,
+                              child: Column(
+                                children: [
+                                  Flexible(child: CurrentPlayerName()),
+                                  Flexible(
+                                    child: GamePlayers(players: value.players),
+                                    flex: 3,
+                                  )
+                                ],
+                              ),
                             )
                           ],
-                        ),
-                      )
-                    : Row(
-                        children: [
-                          Flexible(
-                            flex: 7,
-                            child: GridIcons(icons: value.icons),
-                          ),
-                          Flexible(
-                            flex: 3,
-                            child: Column(
-                              children: [
-                                Flexible(child: CurrentPlayerName()),
-                                Flexible(
-                                  child: GamePlayers(players: value.players),
-                                  flex: 3,
-                                )
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                loading: () => Container(),
-                error: (error, stackTrace) => Container(),
+                        );
+                },
+                loading: () {
+                  print("board loading");
+                  return Container();
+                },
+                error: (error, stackTrace) {
+                  print("Board Error");
+                  print(error);
+                  print(stackTrace);
+                  return Container();
+                },
               ),
             ),
           ),
@@ -139,7 +152,7 @@ List<Widget> playerWidgets(LocalPlayer localPlayer, double newHeight) => [
         child: FittedBox(
           child: Text(
             localPlayer.name!,
-            style: TextStyleFontTheme.reggaeOne.copyWith(
+            style: TextStyleFontTheme.poppins.copyWith(
               fontSize: newHeight * 0.5,
               color: Colors.white60,
             ),
@@ -175,37 +188,42 @@ class GamePlayers extends ConsumerWidget {
                 child: AnimatedSwitcher(
                   duration: DurationCount.m500,
                   child: watch(localPlayerProvider(e)).when(
-                    data: (player) => AnimatedContainer(
-                      duration: DurationCount.m500,
-                      transform:
-                          Matrix4.rotationZ(player.isActive! ? -0.025 : 0),
-                      //padding: ,
-                      decoration: BoxDecoration(
-                        color: gameIcon
-                            .iconBoxColor(player.color)!
-                            .withOpacity(_yourTurn ? 1 : 0.25),
-                        borderRadius: BorderRadius.circular(4.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey,
-                            offset: Offset(0.0, 1.0), //(x,y)
-                            blurRadius: 6.0,
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: MediaQuery.of(context).size.longestSide !=
-                                MediaQuery.of(context).size.width
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: playerWidgets(player, newH),
-                              )
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: playerWidgets(player, newH),
-                              ),
-                      ),
-                    ),
+                    data: (player) {
+                      watch(onlineBoardNotifier).replacePlayer(player);
+                      if (_yourTurn)
+                        watch(onlineBoardNotifier).myPlayer = player;
+                      return AnimatedContainer(
+                        duration: DurationCount.m500,
+                        transform:
+                            Matrix4.rotationZ(player.isActive! ? -0.025 : 0),
+                        //padding: ,
+                        decoration: BoxDecoration(
+                          color: gameIcon
+                              .iconBoxColor(player.color)!
+                              .withOpacity(_yourTurn ? 1 : 0.25),
+                          borderRadius: BorderRadius.circular(4.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey,
+                              offset: Offset(0.0, 1.0), //(x,y)
+                              blurRadius: 6.0,
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: MediaQuery.of(context).size.longestSide !=
+                                  MediaQuery.of(context).size.width
+                              ? Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: playerWidgets(player, newH),
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: playerWidgets(player, newH),
+                                ),
+                        ),
+                      );
+                    },
                     loading: () => Container(),
                     error: (error, stackTrace) => Container(),
                   ),
@@ -291,9 +309,7 @@ class GridIcons extends StatelessWidget {
       mainAxisSpacing: 2.0,
       children: icons!
           .map(
-            (_id) => IconCard(
-              id: _id,
-            ),
+            (_id) => IconCard(id: _id),
           )
           .toList(),
     );
@@ -323,6 +339,7 @@ class IconCard extends ConsumerWidget {
       duration: DurationCount.m500,
       child: watch(iconProvider!(id!)).when(
         data: (_icon) {
+          watch(onlineBoardNotifier).replaceIcon(_icon);
           final bool checkFound = _icon.isCheck! || _icon.isFound!;
           final info = IconInfo(id, _icon.iconCode);
           return AnimatedContainer(

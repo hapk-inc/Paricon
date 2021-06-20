@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/screens/providers/authProvider.dart';
-import 'package:paricon/screens/providers/boardProvider.dart';
 import 'package:paricon/screens/providers/playerProvider.dart';
 import 'package:paricon/screens/providers/practiceProvider.dart';
 import 'package:paricon/screens/providers/roomIDProvider.dart';
@@ -42,12 +41,16 @@ class ExitPopup extends StatelessWidget {
               (e) => TextButton(
                 onPressed: () async {
                   if (e.contains("yes")) {
-                    if (isScreenBoard!)
+                    /* if (isScreenBoard!)
                       await context.read(leavingBoardProvider.future);
                     else
+                      await context.read(leavingRoomProvider.future);*/
+                    if (!isScreenBoard!) {
                       await context.read(leavingRoomProvider.future);
+                    }
 
                     context.read(idNotifier.notifier).empty();
+                    //  context.read(onlineBoardNotifier).dispose();
                   }
                   Navigator.pop(context, e.contains("yes"));
                 },

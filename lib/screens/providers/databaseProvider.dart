@@ -18,17 +18,19 @@ final AutoDisposeProvider<RoomDatabase>? roomDatabaseProvider =
     Provider.autoDispose<RoomDatabase>(
   (ref) {
     final app = ref.read(firebaseAppProvider).data!.value;
-    final id = ref.watch(idNotifier.notifier);
+    final id = ref.watch(idNotifier.notifier).state;
+    //final id = ref.watch(onlineBoardNotifier).roomID;
 
-    return RoomDatabase(app, id: id.state);
+    return RoomDatabase(app, id: id);
   },
 );
 
 final AutoDisposeProvider<BoardDatabase>? boardDatabaseProvider =
     Provider.autoDispose<BoardDatabase>(
   (ref) {
-    final id = ref.read(idNotifier.notifier);
+    final id = ref.read(idNotifier.notifier).state;
+    //final id = ref.read(onlineBoardNotifier).roomID;
     final app = ref.read(firebaseAppProvider).data!.value;
-    return BoardDatabase(app, id: id.state);
+    return BoardDatabase(app, id: id);
   },
 );

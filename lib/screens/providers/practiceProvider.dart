@@ -181,29 +181,28 @@ class PracticeNotifier extends ChangeNotifier {
     replaceIcon(icon.setCheck(true));
 
     if (_compareIcon!.isEmpty) {
-      _compareIcon = icon.iconCode!;
+      _compareIcon = icon.iconCode;
       _boardLoading = false;
       notifyListeners();
       return;
     }
 
-    final bool validate = _compareIcon == icon.iconCode!;
+    final bool validate = _compareIcon == icon.iconCode;
 
     await Future.delayed(
       const Duration(milliseconds: 500),
       () {
         if (validate) {
           _icons = _icons
-              .map((e) => e.isCheck ?? false
-                  ? e.setFoundTrue(_players[_currentID].color!)
-                  : e)
+              .map((e) =>
+                  e.isCheck ? e.setFoundTrue(_players[_currentID].color) : e)
               .toList(growable: false);
-          _players[_currentID].pts = (_players[_currentID].pts ?? 0) + 1;
+          _players[_currentID].pts = (_players[_currentID].pts) + 1;
 
-          gameOver = _icons.every((element) => element.isFound ?? false);
+          gameOver = _icons.every((element) => element.isFound);
         } else {
           _icons = _icons
-              .map((e) => e.isCheck ?? false ? e.setCheck(false) : e)
+              .map((e) => e.isCheck ? e.setCheck(false) : e)
               .toList(growable: false);
           if (!_recordTime) {
             _currentID++;

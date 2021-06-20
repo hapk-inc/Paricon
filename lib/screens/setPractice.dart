@@ -182,7 +182,7 @@ class SetPractice extends ConsumerWidget {
                   heightFactor: 1,
                   child: ElevatedButton(
                     onPressed: () {
-                      final xIcons = watch(gameIconProvider!);
+                      final xIcons = watch(gameIconProvider);
                       practice.icons = xIcons.generateIcons(practice.level);
                       practice.createBoard();
                       context

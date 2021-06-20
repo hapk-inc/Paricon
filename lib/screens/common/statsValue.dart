@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 
 import 'textTheme.dart';
 
-class StatsValueWidget extends StatelessWidget {
+class StatsValue extends StatelessWidget {
   final Color? color;
   final dynamic value;
   final String? header;
-  const StatsValueWidget({Key? key, this.value, this.header, this.color})
+
+  const StatsValue({Key? key, this.value, this.header, this.color})
       : super(key: key);
 
   @override

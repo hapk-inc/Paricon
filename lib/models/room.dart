@@ -4,8 +4,9 @@ import 'roomDetails.dart';
 
 class Room {
   final List? players;
-  final bool? isGameStarted;
+  final bool isGameStarted;
   final RoomDetails details;
+
   const Room(
       {this.players, required this.isGameStarted, required this.details});
 
@@ -30,8 +31,10 @@ class Room {
     );
   }
 
-  factory Room.createRoom(String level, int maxCount, String uid) => Room(
+  factory Room.createRoom(
+          String level, int maxCount, String uid, String type) =>
+      Room(
         isGameStarted: false,
-        details: RoomDetails.createDetails(level, maxCount, uid),
+        details: RoomDetails.createDetails(level, maxCount, uid, type),
       );
 }

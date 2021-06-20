@@ -5,6 +5,7 @@ class MyDatabase {
   late FirebaseDatabase _firebaseDatabase;
   MyDatabase(FirebaseApp _app) {
     _firebaseDatabase = FirebaseDatabase(app: _app);
+    _firebaseDatabase.setPersistenceEnabled(true);
   }
 
   DatabaseReference get playerRef =>

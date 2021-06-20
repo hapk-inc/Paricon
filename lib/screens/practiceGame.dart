@@ -4,15 +4,16 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/localIcon.dart';
-import 'package:paricon/screens/providers/pageProvider.dart';
+import 'package:paricon/models/localPlayer.dart';
 
 import 'common/durationCount.dart';
+import 'common/outlineBorder.dart';
 import 'common/paddingTheme.dart';
 import 'common/popup.dart';
 import 'common/textTheme.dart';
-import 'gameBoard.dart';
 import 'providers/authProvider.dart';
 import 'providers/gameIconProvider.dart';
+import 'providers/pageProvider.dart';
 import 'providers/practiceProvider.dart';
 
 class PracticeBoard extends ConsumerWidget {
@@ -65,7 +66,7 @@ class PracticeBoard extends ConsumerWidget {
                       child: GridView.count(
                         padding: PaddingTheme.all8,
                         crossAxisCount: context
-                            .read(gameIconProvider!)
+                            .read(gameIconProvider)
                             .crossAxisCount(practice.icons.length),
                         shrinkWrap: true,
                         //childAspectRatio: newRatio,
@@ -111,6 +112,126 @@ class PracticeBoard extends ConsumerWidget {
 }
 
 class PracticePlayers extends ConsumerWidget {
+  const PracticePlayers({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, ScopedReader watch) {
+    final practice = watch(practiceProvider);
+    final currentID = practice.currentID;
+    final List<LocalPlayer> oddList =
+        practice.players.where((element) => element.playerNo.isOdd).toList();
+    final List<LocalPlayer> evenList =
+        practice.players.where((element) => !element.playerNo.isOdd).toList();
+    return Column(
+      children: [
+        Flexible(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: oddList.map((player) {
+              final int index = player.playerNo - 1;
+              return Flexible(
+                child: FractionallySizedBox(
+                  widthFactor: 0.9,
+                  child: AnimatedContainer(
+                    duration: DurationCount.m500,
+                    decoration: BoxDecoration(
+                      color: watch(gameIconProvider)
+                          .iconBoxColor(player.color)
+                          .withOpacity(index == practice.currentID ? 1 : 0.25),
+                      borderRadius: BorderRadius.circular(4.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(0.0, 1.0), //(x,y)
+                          blurRadius: 8.0,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                        child: AnimatedDefaultTextStyle(
+                      style: TextStyleFontTheme.luckiestGuy.copyWith(
+                          fontSize: index == currentID ? 24 : 16,
+                          color: index == currentID
+                              ? Colors.white70
+                              : Colors.black26),
+                      duration: DurationCount.m500,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                                child: FittedBox(child: Text(player.name!))),
+                            Flexible(
+                                child: FittedBox(
+                                    child: Text(player.pts.toString()))),
+                          ],
+                        ),
+                      ),
+                    )),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        Flexible(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: evenList.map((player) {
+              final int index = player.playerNo - 1;
+              return Flexible(
+                child: FractionallySizedBox(
+                  widthFactor: 0.9,
+                  child: AnimatedContainer(
+                    duration: DurationCount.m500,
+                    decoration: BoxDecoration(
+                      color: watch(gameIconProvider)
+                          .iconBoxColor(player.color)
+                          .withOpacity(index == practice.currentID ? 1 : 0.25),
+                      borderRadius: BorderRadius.circular(4.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(0.0, 1.0), //(x,y)
+                          blurRadius: 8.0,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                        child: AnimatedDefaultTextStyle(
+                      style: TextStyleFontTheme.luckiestGuy.copyWith(
+                          fontSize: index == currentID ? 24 : 16,
+                          color: index == currentID
+                              ? Colors.white70
+                              : Colors.black26),
+                      duration: DurationCount.m500,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                                child: FittedBox(child: Text(player.name!))),
+                            Flexible(
+                                child: FittedBox(
+                                    child: Text(player.pts.toString()))),
+                          ],
+                        ),
+                      ),
+                    )),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class PracticePlayers2 extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ScopedReader watch) {
     final practice = watch(practiceProvider);
@@ -126,8 +247,8 @@ class PracticePlayers extends ConsumerWidget {
               duration: DurationCount.m500,
               constraints: BoxConstraints.expand(),
               decoration: BoxDecoration(
-                color: watch(gameIconProvider!)
-                    .iconBoxColor(player.color)!
+                color: watch(gameIconProvider)
+                    .iconBoxColor(player.color)
                     .withOpacity(index == practice.currentID ? 1 : 0.25),
                 borderRadius: BorderRadius.circular(4.0),
                 boxShadow: [
@@ -152,8 +273,7 @@ class PracticePlayers extends ConsumerWidget {
                     children: [
                       Flexible(child: FittedBox(child: Text(player.name!))),
                       Flexible(
-                          child:
-                              FittedBox(child: Text(player.pts!.toString()))),
+                          child: FittedBox(child: Text(player.pts.toString()))),
                     ],
                   ),
                 ),
@@ -194,7 +314,7 @@ class PracticePlayerName extends ConsumerWidget {
                         key: ValueKey(playerName),
                         style: TextStyleFontTheme.luckiestGuy.copyWith(
                           fontSize: 48,
-                          color: watch(gameIconProvider!)
+                          color: watch(gameIconProvider)
                               .iconColor(practice.players[currentID].color),
                         ),
                       ),
@@ -235,7 +355,7 @@ class PracticeIconCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ScopedReader watch) {
     final practice = context.read(practiceProvider);
-    final gameIcnProvider = watch(gameIconProvider!);
+    final gameIcnProvider = watch(gameIconProvider);
     return AnimatedContainer(
       duration: DurationCount.m500,
       decoration: BoxDecoration(
@@ -256,16 +376,16 @@ class PracticeIconCard extends ConsumerWidget {
                     padding: PaddingTheme.all4,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4.0),
-                      color: (icon.isFound ?? false)
+                      color: (icon.isFound)
                           ? gameIcnProvider
-                              .iconColor(icon.color)!
+                              .iconColor(icon.color)
                               .withOpacity(0.25)
                           : Colors.blue,
                     ),
                     child: FittedBox(
                       child: Icon(
                         gameIcnProvider.gameIcon(icon.iconCode),
-                        color: (icon.isFound ?? false)
+                        color: (icon.isFound)
                             ? gameIcnProvider.iconColor(icon.color)
                             : Colors.white70,
                         size: 72,

@@ -50,9 +50,12 @@ class ProfileScreen extends ConsumerWidget {
                         Flexible(
                           flex: 2,
                           child: AutoSizeText(
+                            //name /*+ "\nasdf"*/ ?? "NoOne",
                             name ?? "NoOne",
                             maxFontSize: 64,
-                            minFontSize: 16, maxLines: 2, softWrap: true,
+                            wrapWords: false,
+                            minFontSize: 16,
+                            maxLines: 2,
                             style: TextStyleFontTheme.luckiestGuy.copyWith(
                               color: Colors.pink[700],
                               fontSize: 72,
@@ -147,15 +150,15 @@ class ProfileScreen extends ConsumerWidget {
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment.end,
                                                     children: [
-                                                      StatsValueWidget(
+                                                      StatsValue(
                                                         value: e.played,
                                                         header: "GAMES",
                                                       ),
-                                                      StatsValueWidget(
+                                                      StatsValue(
                                                         value: e.win,
                                                         header: "WINS",
                                                       ),
-                                                      StatsValueWidget(
+                                                      StatsValue(
                                                         value: e.avg,
                                                         header: "AVG. SCORE",
                                                       ),
@@ -206,17 +209,17 @@ class ProfileScreen extends ConsumerWidget {
                                                           CrossAxisAlignment
                                                               .center,
                                                       children: [
-                                                        StatsValueWidget(
+                                                        StatsValue(
                                                           value: e.played!
                                                               .toDouble(),
                                                           header: "GAMES",
                                                         ),
-                                                        StatsValueWidget(
+                                                        StatsValue(
                                                           value:
                                                               e.win!.toDouble(),
                                                           header: "WINS",
                                                         ),
-                                                        StatsValueWidget(
+                                                        StatsValue(
                                                           value: e.avg,
                                                           header: "AVG. SCORE",
                                                         ),

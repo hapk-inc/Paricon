@@ -88,43 +88,52 @@ class DashButtons extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(8.0),
           alignment: Alignment.centerLeft,
-          child: Column(
-            //mainAxisAlignment: MainAxisAlignment.spaceAround,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            textDirection: TextDirection.ltr,
-            children: [
-              Flexible(
-                child: FittedBox(
+          child: title != "Play Online"
+              ? Align(
+                  alignment: Alignment.centerLeft,
                   child: Text(
-                    title!,
-                    style: TextStyleFontTheme.poppins.copyWith(fontSize: 24),
-                    textScaleFactor: 1,
+                    "Coming Soon...",
+                    style: TextStyleFontTheme.poppins,
                   ),
+                )
+              : Column(
+                  //mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  textDirection: TextDirection.ltr,
+                  children: [
+                    Flexible(
+                      child: FittedBox(
+                        child: Text(
+                          title!,
+                          style:
+                              TextStyleFontTheme.poppins.copyWith(fontSize: 24),
+                          textScaleFactor: 1,
+                        ),
+                      ),
+                    ),
+                    Flexible(
+                      flex: 2,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          subtitle!,
+                          style: TextStyleFontTheme.luckiestGuy
+                              .copyWith(fontSize: 36),
+                          maxLines: 3,
+                          //textScaleFactor: 3,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              Flexible(
-                flex: 2,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    subtitle!,
-                    style:
-                        TextStyleFontTheme.luckiestGuy.copyWith(fontSize: 36),
-                    maxLines: 3,
-                    //textScaleFactor: 3,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
         onPressed: () {
           switch (title!) {
             case "Play Online":
               context.read(pageProvider).addNext(StartGame.toMaterialPage);
               break;
-            /* case "Practice":
+          /*case "Practice":
               context.read(pageProvider).addNext(SetPractice.toMaterialPage);
               break;*/
             default:

@@ -1,29 +1,26 @@
-import 'dart:async';
-import 'dart:collection';
+import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/board.dart';
+import 'package:paricon/models/enumFiles.dart';
 import 'package:paricon/models/localIcon.dart';
 import 'package:paricon/models/localPlayer.dart';
 import 'package:paricon/models/stats.dart';
+import 'package:paricon/screens/common/durationCount.dart';
+import 'package:paricon/screens/providers/onlineBoardProvider.dart';
 
 import 'authProvider.dart';
 import 'databaseProvider.dart';
-import 'gameIconProvider.dart';
-import 'prevStatsNotifier.dart';
-import 'roomIDProvider.dart';
-import 'roomNotifierProvider.dart';
-import 'roomProvider.dart';
 
 final AutoDisposeFutureProvider<Board> boardProvider =
     FutureProvider.autoDispose<Board>(
   (ref) async {
     final boardDatabase = ref.read(boardDatabaseProvider!);
-    return await boardDatabase.board;
+    return boardDatabase.board;
   },
 );
 
-final AutoDisposeStreamProviderFamily<LocalIcon, String>? iconProvider =
+final AutoDisposeStreamProviderFamily<LocalIcon, String> iconProvider =
     StreamProvider.family.autoDispose<LocalIcon, String>(
   (ref, icon) {
     final boardDatabase = ref.read(boardDatabaseProvider!);
@@ -31,14 +28,14 @@ final AutoDisposeStreamProviderFamily<LocalIcon, String>? iconProvider =
   },
 );
 
-final AutoDisposeFutureProvider<bool>? incrementPtsProvider =
+/*final AutoDisposeFutureProvider<bool>? incrementPtsProvider =
     FutureProvider.autoDispose<bool>(
   (ref) {
     final boardDatabase = ref.read(boardDatabaseProvider!);
     final player = ref.read(firebaseUserProvider!);
     return boardDatabase.increment(player.uid);
   },
-);
+);*/
 
 final AutoDisposeStreamProvider<String> currentIDProvider =
     StreamProvider.autoDispose<String>(
@@ -48,7 +45,15 @@ final AutoDisposeStreamProvider<String> currentIDProvider =
   },
 );
 
-final AutoDisposeFutureProvider<String>? nameProvider =
+final AutoDisposeStreamProvider<String> currentIconProvider =
+    StreamProvider.autoDispose<String>(
+  (ref) {
+    final boardDatabase = ref.read(boardDatabaseProvider!);
+    return boardDatabase.currentIcon;
+  },
+);
+
+/*final AutoDisposeFutureProvider<String>? nameProvider =
     FutureProvider.autoDispose<String>(
   (ref) async {
     final boardDatabase = ref.read(boardDatabaseProvider!);
@@ -56,15 +61,15 @@ final AutoDisposeFutureProvider<String>? nameProvider =
 
     return boardDatabase.playerName(id);
   },
-);
+);*/
 
-final AutoDisposeFutureProviderFamily<void, String>? iconFoundProvider =
+/*final AutoDisposeFutureProviderFamily<void, String>? iconFoundProvider =
     FutureProvider.family.autoDispose<void, String>(
   (ref, icon) async {
     final boardDatabase = ref.read(boardDatabaseProvider!);
     return await boardDatabase.iconFound(icon);
   },
-);
+);*/
 
 final localPlayerProvider =
     AutoDisposeStreamProviderFamily<LocalPlayer, String>(
@@ -74,59 +79,127 @@ final localPlayerProvider =
   },
 );
 
-final btnClickProvider = AutoDisposeFutureProviderFamily<void, IconInfo>(
-  (ref, iconInfo) async {
+final btnClickProvider = FutureProvider.family.autoDispose<bool, String>(
+  (ref, _icon) async {
     final boardDatabase = ref.read(boardDatabaseProvider!);
-    final iconNotifier = ref.read(roomNotifierProvider);
+    final notifier = ref.read(onlineBoardNotifier);
+    //final boardNotifier = ref.read(onlineBoardNotifier);
     final firebaseUser = ref.read(firebaseUserProvider!);
 
-    await boardDatabase.setIconCheck(iconInfo.icon!, true);
-    bool? check = iconNotifier.validateIcons(iconInfo);
-    if (check == null) return null;
+    final board = ref.read(boardProvider).data!.value;
+    final iconsID = board.icons;
 
-    final id = iconInfo.icon;
-    final id2 = iconNotifier.iconInfo!.icon;
-    iconNotifier.iconInfo = null;
-    if (check) {
-      final currentColor = await ref.read(currentPlayerColor.future);
-      await Future.wait(
-        []
-          ..addAll(
-            [id, id2].map(
-              (e) => Future.wait(
-                [
-                  boardDatabase.setIconColor(e, currentColor),
-                  boardDatabase.iconFound(e!)
-                ],
+    final String color = notifier.myPlayer!.color;
+
+    await boardDatabase.setIconCheck(_icon, true);
+    notifier.alreadyClicked = !notifier.alreadyClicked;
+
+    if (!notifier.alreadyClicked) {
+      final List<LocalIcon> selectedIcons = notifier.icons
+          .where((element) => element.isCheck && !element.isFound)
+          .toList(growable: false);
+
+      if (selectedIcons.length == 2) {
+        final bool sameIcons =
+            selectedIcons.first.checkIconCode(selectedIcons.last);
+        bool _validate = false;
+
+        if (notifier.type == GameType.orderWise) {
+          if (sameIcons) {
+            final String orderWiseIcon =
+                await ref.read(currentIconProvider.last);
+            if (orderWiseIcon.isEmpty) {
+              _validate = sameIcons;
+            } else {
+              _validate = selectedIcons.first.iconCode == orderWiseIcon;
+            }
+          } else {
+            _validate = false;
+          }
+        } else {
+          _validate = sameIcons;
+        }
+
+        if (_validate) {
+          await boardDatabase.increment(firebaseUser.uid);
+
+          await Future.wait(
+            selectedIcons.map(
+              (e) {
+                final updatedIcon =
+                    e.copyWith(color: color, isFound: true, isCheck: false);
+                return boardDatabase.updateIcon(
+                    iconsID[e.iconNo! - 1], updatedIcon);
+              },
+            ),
+          );
+
+          if (notifier.type == GameType.orderWise) {
+            if (notifier.orderWiseIcon) {
+              await boardDatabase.setCurrentIcon("");
+              notifier.orderWiseIcon = false;
+            }
+          }
+        } else {
+          final List<int> iconOrder = selectedIcons.map(
+            (e) {
+              final int i = e.iconNo! - 1;
+              return i;
+            },
+          ).toList(growable: false);
+          await Future.delayed(
+            DurationCount.m500,
+            () => Future.wait(
+              iconOrder.map(
+                (e) => boardDatabase.setIconCheck(iconsID[e], false),
               ),
             ),
-          )
-          ..addAll(
-            [
-              boardDatabase.increment(firebaseUser.uid),
-              boardDatabase.incrementIconsFound
-            ],
-          ),
-      );
-    } else {
-      await Future.delayed(
-        const Duration(milliseconds: 200),
-        () => Future.wait(
-          [
-            ...[id, id2].map(
-              (e) => boardDatabase.setIconCheck(e!, false),
-            ),
-            ...[ref.read(checkNextPlayerProvider!.future)],
-          ],
-        ),
-      );
-      //await ref.read(checkNextPlayerProvider.future);
-    }
-    return;
+          );
+          if (notifier.type == GameType.orderWise) {
+            if (!notifier.orderWiseIcon) {
+              final List<LocalIcon> falseIcons = notifier.icons
+                  .where((element) => !element.isCheck && !element.isFound)
+                  .toList(growable: false);
+              final String newOrderWiseIcon =
+                  falseIcons[Random.secure().nextInt(falseIcons.length)]
+                      .iconCode;
+              await boardDatabase.setCurrentIcon(newOrderWiseIcon);
+              notifier.orderWiseIcon = true;
+            }
+          }
+          await ref.read(nextPlayerProvider.future);
+        }
+      }
+      return true;
+    } else
+      return false;
+
+    //if(!boar)
   },
 );
 
-final AutoDisposeFutureProvider<Null>? checkNextPlayerProvider =
+final AutoDisposeFutureProvider nextPlayerProvider = FutureProvider.autoDispose(
+  (ref) async {
+    final boardDatabase = ref.read(boardDatabaseProvider!);
+    final boardNotifier = ref.read(onlineBoardNotifier);
+    final firebaseUser = ref.read(firebaseUserProvider!);
+
+    final board = ref.read(boardProvider).data!.value;
+    final List<String> playersID = List.castFrom(board.players);
+    final players = boardNotifier.players;
+    if (players.length != 1) {
+      int i = boardNotifier.currentIndex.toInt();
+      do {
+        i++;
+        if (i == players.length) i = 0;
+      } while (!players[i.toInt()].isActive);
+      if (playersID[i] != firebaseUser.uid)
+        await boardDatabase.setCurrentID(playersID[i]);
+    }
+  },
+);
+
+/*final AutoDisposeFutureProvider<Null>? checkNextPlayerProvider =
     FutureProvider.autoDispose(
   (ref) async {
     final firebaseUser = ref.read(firebaseUserProvider!);
@@ -148,9 +221,9 @@ final AutoDisposeFutureProvider<Null>? checkNextPlayerProvider =
       } /*as FutureOr<Never> Function(dynamic)*/,
     );
   } /*as Future<Never> Function(AutoDisposeProviderReference)*/,
-);
+);*/
 
-final AutoDisposeStreamProvider<int>? allIconsFoundProvider =
+/*final AutoDisposeStreamProvider<int>? allIconsFoundProvider =
     StreamProvider.autoDispose<int>(
   (ref) {
     try {
@@ -160,9 +233,25 @@ final AutoDisposeStreamProvider<int>? allIconsFoundProvider =
       return Stream.error(e);
     }
   },
-);
+);*/
 
-final AutoDisposeFutureProvider<bool>? updateStatsProvider =
+final AutoDisposeFutureProvider updateStatsProvider =
+    FutureProvider.autoDispose(
+  (ref) async {
+    final firebaseUser = ref.read(firebaseUserProvider!);
+    final playerDatabase = ref.read(playerDatabaseProvider!(firebaseUser.uid));
+
+    final notifier = ref.read(onlineBoardNotifier);
+
+    final List<LocalPlayer> sortedPlayers = notifier.sortByPoints;
+    final bool isWinner = sortedPlayers.first.pts == notifier.myPlayer!.pts;
+
+    final Stats stats =
+        Stats(played: 1, win: isWinner ? 1 : 0, avg: notifier.myAvg);
+    await playerDatabase.updateStats(notifier.level, stats);
+  },
+);
+/*final AutoDisposeFutureProvider<bool>? updateStatsProvider =
     FutureProvider.autoDispose<bool>(
   (ref) async {
     final boardDatabase = ref.read(boardDatabaseProvider!);
@@ -194,9 +283,9 @@ final AutoDisposeFutureProvider<bool>? updateStatsProvider =
         await playerDatabase.updateStats(level.toLowerCase(), stats);
     return isUpdated;
   },
-);
+);*/
 
-final leavingBoardProvider = FutureProvider.autoDispose(
+/*final leavingBoardProvider = FutureProvider.autoDispose(
   (ref) async {
     final boardDatabase = ref.read(boardDatabaseProvider!);
     final roomDatabase = ref.read(roomDatabaseProvider!);
@@ -216,9 +305,9 @@ final leavingBoardProvider = FutureProvider.autoDispose(
       boardDatabase.leaveGame(firebaseUser.uid);
     }
   },
-);
+);*/
 
-final AutoDisposeFutureProvider<List<LocalPlayer>>? allBoardPlayersProvider =
+/*final AutoDisposeFutureProvider<List<LocalPlayer>>? allBoardPlayersProvider =
     FutureProvider.autoDispose<List<LocalPlayer>>(
   (ref) async {
     final boardDatabase = ref.read(boardDatabaseProvider!);
@@ -233,9 +322,9 @@ final AutoDisposeFutureProvider<List<LocalPlayer>>? allBoardPlayersProvider =
         .toList(growable: false);
     return players as FutureOr<List<LocalPlayer>>;
   },
-);
+);*/
 
-final AutoDisposeFutureProvider<String> yourColorProvider =
+/*final AutoDisposeFutureProvider<String> yourColorProvider =
     AutoDisposeFutureProvider<String>(
   (ref) async {
     final firebaseUser = ref.read(firebaseUserProvider!);
@@ -252,3 +341,4 @@ final AutoDisposeFutureProvider<String> currentPlayerColor =
     return boardDatabase.playerColor(currentPlayer);
   },
 );
+*/

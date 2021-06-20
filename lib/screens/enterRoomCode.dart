@@ -1,12 +1,13 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:paricon/models/enumFiles.dart';
 import 'package:paricon/screens/common/textTheme.dart';
 
 import 'common/snackBarTheme.dart';
 import 'gameRoom.dart';
 import 'providers/pageProvider.dart';
-import 'providers/roomNotifierProvider.dart';
+
+//import 'providers/roomNotifierProvider.dart';
 import 'providers/roomProvider.dart';
 
 class EnterRoomCode extends StatelessWidget {
@@ -17,28 +18,40 @@ class EnterRoomCode extends StatelessWidget {
     final TextEditingController _controller = TextEditingController();
     void _onPressed(String text) async {
       if (text.isNotEmpty && text.length == 6) {
-        context.read(roomNotifierProvider).loading = true;
+        //context.read(roomNotifierProvider).loading = true;
         await context.read(roomCheckProvider!(text).future).then(
           (value) async {
-            await context.read(joinRoomProvider!.future);
-            context
-                .read(pageProvider)
-                .addNext(GameRoom.toMaterialPage(id: value));
-          },
-          onError: (err, _) {
-            if (err is String)
+            if (value is String) {
+              await context.read(joinRoomProvider.future);
+              context
+                  .read(pageProvider)
+                  .replace(GameRoom.toMaterialPage(id: value));
+            } else {
+              final status = value as RoomStatus;
+              String msg = "";
+              switch (status) {
+                case RoomStatus.houseFull:
+                  msg = "Room is full already";
+                  break;
+                case RoomStatus.notExists:
+                  msg = "Room not exists";
+                  break;
+                case RoomStatus.alreadyStarted:
+                  msg = "Game already Started";
+                  break;
+                case RoomStatus.duplicateCode:
+                  msg = "Try with some other code";
+                  break;
+              }
               ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBarThemeStyle.roomCodeError(err));
-            else if (err is DatabaseError)
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBarThemeStyle.roomCodeError("No Database Permission"));
+                  .showSnackBar(SnackBarThemeStyle.roomCodeError(msg));
+            }
           },
         );
       } else
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBarThemeStyle.roomCodeError("Enter valid roomCode"),
-        );
-      context.read(roomNotifierProvider).loading = false;
+            SnackBarThemeStyle.roomCodeError("Enter valid roomCode"));
+      // context.read(roomNotifierProvider).loading = false;
     }
 
     return Center(

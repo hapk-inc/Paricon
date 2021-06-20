@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_update/in_app_update.dart';
@@ -18,15 +19,12 @@ import 'screens/welcome.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(ProviderScope(child: MyApp()));
+  runApp(
+    ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
-
-/*final packageProvider = await ref.read(packageInfoProvider!.future);
-
-if (!packageProvider.version.contains("dev")) {
-if (playersProvider.length == 1)
-return Future.error("Wait for Other Players");
-}*/
 
 class MyApp extends ConsumerWidget {
   @override
@@ -37,13 +35,16 @@ class MyApp extends ConsumerWidget {
             data: (value) => value.version.contains("dev")
                 ? FirebaseInit()
                 : watch(inAppUpdateProvider).when(
-                    data: (value) => value.updateAvailability ==
+              data: (value) => value.updateAvailability ==
                             UpdateAvailability.updateAvailable
                         ? AppUpdate()
                         : FirebaseInit(),
                     loading: () => Splash(),
-                    error: (error, stackTrace) =>
-                        CircularProgressTheme.pinkIndicator,
+                    error: (error, stackTrace) {
+                      print(error);
+                      print(stackTrace);
+                      return CircularProgressTheme.pinkIndicator;
+                    },
                   ),
             orElse: () => Splash(),
           ),
@@ -78,9 +79,13 @@ class FirebaseInit extends ConsumerWidget {
               child: _pages.pages.isEmpty
                   ? Scaffold(backgroundColor: Colors.red)
                   : Navigator(
-                      pages: _pages.pages,
+                pages: _pages.pages,
                       onPopPage: _pages.handlePopPage,
                       key: _navigatorKey,
+                      observers: [
+                        FirebaseAnalyticsObserver(
+                            analytics: context.read(firebaseAnalyticsProvider)),
+                      ],
                     ),
             ),
           ),

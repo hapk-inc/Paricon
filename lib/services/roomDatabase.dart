@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:paricon/models/enumFiles.dart';
 import 'package:paricon/models/room.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -111,23 +112,23 @@ class RoomDatabase extends MyDatabase {
 
   Future get removeData => roomRef.remove();
 
-  Future<String> checkRoom(String roomCode) async {
+  Future<dynamic> checkRoom(String roomCode) async {
     num _roomCode = num.parse(roomCode);
-    return await roomRef
+    return roomRef
         .orderByChild("details/roomCode")
         .equalTo(_roomCode)
         .once()
         .then(
       (snapshot) {
-        if (snapshot.value == null) return Future.error("Room Does not Exist");
+        if (snapshot.value == null) return RoomStatus.notExists;
         Map map = snapshot.value;
-        if (map.length != 1) return Future.error("Already Room Exist");
-        Room room = Room.fromMap(map.values.first);
-        if (room.details.maxCount! > room.players!.length) {
+        if (map.length != 1) return RoomStatus.duplicateCode;
+        final Room _room = Room.fromMap(map.values.first);
+        if (_room.details.maxCount > _room.players!.length) {
           final String id = map.keys.first;
           return id;
         } else
-          return Future.error("HouseFull");
+          return RoomStatus.houseFull;
       },
     );
   }

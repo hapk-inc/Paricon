@@ -1,16 +1,16 @@
 class LocalPlayer {
   final String? name;
-  final String? color;
-  int? pts;
-  final int? playerNo;
-  final bool? isActive;
+  final String color;
+  int pts;
+  final int playerNo;
+  final bool isActive;
 
   LocalPlayer({
     required this.name,
     required this.color,
-    required this.pts,
+    this.pts = 0,
     required this.playerNo,
-    this.isActive,
+    this.isActive = false,
   });
 
   LocalPlayer copyWith({String? name, int? pts, int? playerNo}) {
@@ -18,7 +18,7 @@ class LocalPlayer {
       name: name ?? this.name,
       pts: pts ?? this.pts,
       playerNo: playerNo ?? this.playerNo,
-      color: color ?? this.color,
+      color: color,
     );
   }
 

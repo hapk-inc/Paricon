@@ -41,21 +41,22 @@ class Auth {
   }
 
   Future get signInWithGoogle async {
-    try {
-      final GoogleSignInAccount googleUser =
-          await (GoogleSignIn().signIn() as FutureOr<GoogleSignInAccount>);
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      final GoogleAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      ) as GoogleAuthCredential;
-      await _auth.signInWithCredential(credential);
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
 
-      print(_auth.currentUser);
-      await PlayerDatabase(app).createPlayer(_auth.currentUser!);
-    } catch (e) {}
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    await _auth.signInWithCredential(credential);
+
+    await PlayerDatabase(app).createPlayer(_auth.currentUser!);
   }
 
   Future<void> updateName(String newName) async {

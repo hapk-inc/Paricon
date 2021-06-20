@@ -23,12 +23,16 @@ class BoardDatabase extends MyDatabase {
 
   DatabaseReference get boardCurrentIdRef => boardRef.child("currentID");
 
-  DatabaseReference get boardIconsFoundRef => boardRef.child("iconsFound");
+  DatabaseReference get boardCurrentIconRef => boardRef.child("currentIcon");
 
   Future createBoard(Map board) async => await boardRef.set(board);
 
   Future<Board> get board async =>
       await boardRef.once().then((snapshot) => Board.fromMap(snapshot.value));
+
+  /*Future<String> get currentIcon async => await boardCurrentIconRef
+      .once()
+      .then((snapshot) => snapshot.value as String);*/
 
   Future get removeData => boardRef.remove();
 
@@ -49,17 +53,37 @@ class BoardDatabase extends MyDatabase {
     return subject.stream;
   }
 
+  Stream<String> get currentIcon {
+    late BehaviorSubject<String> subject;
+
+    subject = BehaviorSubject(
+      onListen: () => boardCurrentIconRef.onValue.listen(
+        (event) {
+          String? e = event.snapshot.value ?? null;
+          if (e == null && subject.hasValue)
+            subject.close();
+          else
+            subject.add(e!);
+        },
+      ),
+    );
+    return subject.stream;
+  }
+
   Stream<LocalIcon> localIcon(String icon) {
-    late StreamController<LocalIcon> controller;
-    controller = StreamController<LocalIcon>(
+    late BehaviorSubject<LocalIcon> controller;
+    controller = BehaviorSubject<LocalIcon>(
       onListen: () => boardIconRef.child(icon).onValue.listen((event) {
         var value = event.snapshot.value;
         if (value != null) {
           LocalIcon localIcon = LocalIcon.fromMap(value);
+
           controller.add(localIcon);
-          if (localIcon.isFound!) {
+          if (localIcon.isFound) {
             controller.close();
           }
+        } else {
+          if (controller.hasValue) controller.close();
         }
       }),
     );
@@ -78,38 +102,8 @@ class BoardDatabase extends MyDatabase {
     return transactionResult.committed;
   }
 
-  Future<bool> get incrementIconsFound async {
-    // Increment counter in transaction.
-    final TransactionResult transactionResult =
-        await boardIconsFoundRef.runTransaction(
-      (MutableData mutableData) async {
-        mutableData.value = (mutableData.value ?? 0) + 2;
-        return mutableData;
-      },
-    );
-    return transactionResult.committed;
-  }
-
-  Future get boardPlayers => boardPlayerRef
-      .orderByChild("isActive")
-      .equalTo(true)
-      .once()
-      .then((snapshot) => snapshot.value);
-
-  Future get allBoardPlayers =>
-      boardPlayerRef.once().then((snapshot) => snapshot.value);
-
-  Future<String> playerName(String player) => boardPlayerRef
-      .child(player)
-      .child("name")
-      .once()
-      .then((snapShot) => snapShot.value);
-
   Future setIconCheck(String icon, bool check) =>
       boardIconRef.child(icon).child("isCheck").set(check);
-
-  Future iconFound(String icon) =>
-      boardIconRef.child(icon).child("isFound").set(true);
 
   Stream<LocalPlayer> localPlayer(String player) {
     late BehaviorSubject<LocalPlayer> subject;
@@ -132,34 +126,11 @@ class BoardDatabase extends MyDatabase {
 
   Future setCurrentID(String player) => boardCurrentIdRef.set(player);
 
+  Future setCurrentIcon(String icon) => boardCurrentIconRef.set(icon);
+
   Future leaveGame(String uid) async =>
       boardPlayerRef.child(uid).child("isActive").set(false);
 
-  Stream<int> get sIconsFound {
-    late BehaviorSubject<int> subject;
-    subject = BehaviorSubject(
-      onListen: () => boardIconsFoundRef.onValue.listen(
-        (event) {
-          final value = event.snapshot.value;
-
-          if (value == null && subject.hasValue)
-            subject.close();
-          else {
-            int foundValue = value as int;
-            subject.add(foundValue);
-          }
-        },
-      ),
-    );
-    return subject.stream;
-  }
-
-  Future<String> playerColor(String id) => boardPlayerRef
-      .child(id)
-      .child("color")
-      .once()
-      .then((snapShot) => snapShot.value);
-
-  Future<void> setIconColor(String? e, String color) =>
-      boardIconRef.child(e!).child("color").set(color);
+  Future updateIcon(iconsID, LocalIcon e) =>
+      boardIconRef.child(iconsID).update(e.updateIcon);
 }

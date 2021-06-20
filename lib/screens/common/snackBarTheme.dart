@@ -40,7 +40,7 @@ class SnackBarThemeStyle {
         elevation: 8,
         duration: const Duration(seconds: 1),
         content: FractionallySizedBox(
-          heightFactor: 0.04,
+          heightFactor: 0.025,
           child: FittedBox(
             alignment: Alignment.centerLeft,
             child: Text(

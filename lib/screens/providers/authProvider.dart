@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -7,7 +8,7 @@ import 'package:paricon/services/auth.dart';
 import 'newNameProvider.dart';
 
 final firebaseAppProvider = FutureProvider<FirebaseApp>(
-  (_) async => await Future.delayed(
+      (_) async => await Future.delayed(
     const Duration(milliseconds: 500),
     () async {
       final app = await Firebase.initializeApp();
@@ -17,6 +18,9 @@ final firebaseAppProvider = FutureProvider<FirebaseApp>(
   ),
   name: "firebaseAppProvider",
 );
+
+final firebaseAnalyticsProvider =
+    Provider<FirebaseAnalytics>((_) => FirebaseAnalytics());
 
 final authProvider = Provider<Auth>(
   (ref) {
@@ -34,8 +38,8 @@ final userCheckProvider = StreamProvider<bool>(
 );
 
 final AutoDisposeFutureProvider<Null>? anonymousProvider =
-    FutureProvider.autoDispose(
-  (ref) async {
+FutureProvider.autoDispose(
+      (ref) async {
     final auth = ref.read(authProvider);
     final name = ref.read(newNameNotifier.notifier);
     await auth.signInAnonymous(name: name.state);
@@ -44,24 +48,24 @@ final AutoDisposeFutureProvider<Null>? anonymousProvider =
 );
 
 final AutoDisposeFutureProvider<Null>? googleSignInProvider =
-    FutureProvider.autoDispose(
-  (ref) async {
+FutureProvider.autoDispose(
+      (ref) async {
     final auth = ref.read(authProvider);
     await auth.signInWithGoogle;
   },
 );
 
 final AutoDisposeProvider<User>? firebaseUserProvider =
-    Provider.autoDispose<User>(
-  (ref) {
+Provider.autoDispose<User>(
+      (ref) {
     final auth = ref.read(authProvider);
     return auth.currentUser!;
   },
 );
 
 final AutoDisposeFutureProvider<Null>? signOutProvider =
-    FutureProvider.autoDispose(
-  (ref) async {
+FutureProvider.autoDispose(
+      (ref) async {
     final auth = ref.read(authProvider);
     await auth.signOut;
   },

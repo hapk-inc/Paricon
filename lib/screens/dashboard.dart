@@ -133,7 +133,7 @@ class DashButtons extends StatelessWidget {
             case "Play Online":
               context.read(pageProvider).addNext(StartGame.toMaterialPage);
               break;
-          /*case "Practice":
+            /*case "Practice":
               context.read(pageProvider).addNext(SetPractice.toMaterialPage);
               break;*/
             default:

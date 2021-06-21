@@ -14,8 +14,8 @@ import 'roomIDProvider.dart';
 import 'setGameProvider.dart';
 
 final AutoDisposeFutureProvider<String>? createRoomProvider =
-FutureProvider.autoDispose<String>(
-      (ref) async {
+    FutureProvider.autoDispose<String>(
+  (ref) async {
     final setGame = ref.read(setGameProvider);
     final roomDatabase = ref.read(roomDatabaseProvider!);
     final User user = ref.read(firebaseUserProvider!);
@@ -64,16 +64,16 @@ final AutoDisposeFutureProviderFamily<dynamic, String>? roomCheckProvider =
 );
 
 final AutoDisposeFutureProviderFamily<String, String>? creatorNameProvider =
-FutureProvider.autoDispose.family<String, String>(
-      (ref, creatorID) async {
+    FutureProvider.autoDispose.family<String, String>(
+  (ref, creatorID) async {
     final roomDatabase = ref.watch(roomDatabaseProvider!);
     return await roomDatabase.creatorName(creatorID);
   },
 );
 
 final AutoDisposeProvider<Query>? playersQueryProvider =
-Provider.autoDispose<Query>(
-      (ref) {
+    Provider.autoDispose<Query>(
+  (ref) {
     final roomDatabase = ref.read(roomDatabaseProvider!);
     return roomDatabase.playersQuery;
   },
@@ -166,16 +166,16 @@ Map convertToBoard(Map<dynamic, dynamic> map) {
 }
 
 final AutoDisposeFutureProvider<Map<dynamic, dynamic>>? roomPlayersProvider =
-FutureProvider.autoDispose<Map>(
-      (ref) async {
+    FutureProvider.autoDispose<Map>(
+  (ref) async {
     final roomDatabase = ref.read(roomDatabaseProvider!);
     return roomDatabase.roomPlayers;
   },
 );
 
 final AutoDisposeStreamProvider<bool>? sGameStartProvider =
-StreamProvider.autoDispose<bool>(
-      (ref) {
+    StreamProvider.autoDispose<bool>(
+  (ref) {
     final roomDatabase = ref.read(roomDatabaseProvider!);
     return roomDatabase.sGameStart;
   },
@@ -214,23 +214,23 @@ final leavingRoomProvider = FutureProvider.autoDispose(
 );
 
 final AutoDisposeFutureProvider changeCreatorProvider =
-FutureProvider.autoDispose(
-      (ref) async {
+    FutureProvider.autoDispose(
+  (ref) async {
     final roomDatabase = ref.read(roomDatabaseProvider!);
     final firebaseUser = ref.read(firebaseUserProvider!);
 
     final Map playersProvider = await ref.read(roomPlayersProvider!.future);
     List<String> players = List.from(playersProvider.keys);
     String nCreator =
-    players.firstWhere((element) => element != firebaseUser.uid);
+        players.firstWhere((element) => element != firebaseUser.uid);
     //String nCreator = players[Random.secure().nextInt(players.length)];
     await roomDatabase.newCreator(nCreator);
   },
 );
 
 final AutoDisposeStreamProvider<String>? creatorIDProvider =
-StreamProvider.autoDispose<String>(
-      (ref) {
+    StreamProvider.autoDispose<String>(
+  (ref) {
     final roomDatabase = ref.read(roomDatabaseProvider!);
     return roomDatabase.sCreatorID;
   },

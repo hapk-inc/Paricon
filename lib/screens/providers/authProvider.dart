@@ -8,7 +8,7 @@ import 'package:paricon/services/auth.dart';
 import 'newNameProvider.dart';
 
 final firebaseAppProvider = FutureProvider<FirebaseApp>(
-      (_) async => await Future.delayed(
+  (_) async => await Future.delayed(
     const Duration(milliseconds: 500),
     () async {
       final app = await Firebase.initializeApp();
@@ -38,8 +38,8 @@ final userCheckProvider = StreamProvider<bool>(
 );
 
 final AutoDisposeFutureProvider<Null>? anonymousProvider =
-FutureProvider.autoDispose(
-      (ref) async {
+    FutureProvider.autoDispose(
+  (ref) async {
     final auth = ref.read(authProvider);
     final name = ref.read(newNameNotifier.notifier);
     await auth.signInAnonymous(name: name.state);
@@ -48,24 +48,24 @@ FutureProvider.autoDispose(
 );
 
 final AutoDisposeFutureProvider<Null>? googleSignInProvider =
-FutureProvider.autoDispose(
-      (ref) async {
+    FutureProvider.autoDispose(
+  (ref) async {
     final auth = ref.read(authProvider);
     await auth.signInWithGoogle;
   },
 );
 
 final AutoDisposeProvider<User>? firebaseUserProvider =
-Provider.autoDispose<User>(
-      (ref) {
+    Provider.autoDispose<User>(
+  (ref) {
     final auth = ref.read(authProvider);
     return auth.currentUser!;
   },
 );
 
 final AutoDisposeFutureProvider<Null>? signOutProvider =
-FutureProvider.autoDispose(
-      (ref) async {
+    FutureProvider.autoDispose(
+  (ref) async {
     final auth = ref.read(authProvider);
     await auth.signOut;
   },

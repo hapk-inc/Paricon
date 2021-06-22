@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/enumFiles.dart';
 import 'package:paricon/screens/common/textTheme.dart';
+import 'package:paricon/screens/providers/authProvider.dart';
 
 import 'common/snackBarTheme.dart';
 import 'gameRoom.dart';
@@ -23,6 +24,8 @@ class EnterRoomCode extends StatelessWidget {
           (value) async {
             if (value is String) {
               await context.read(joinRoomProvider.future);
+              final analytics = context.read(firebaseAnalyticsProvider);
+              analytics.setCurrentScreen(screenName: "game_room_screen");
               context
                   .read(pageProvider)
                   .replace(GameRoom.toMaterialPage(id: value));

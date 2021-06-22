@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/screens/common/paddingTheme.dart';
+import 'package:paricon/screens/providers/authProvider.dart';
 import 'package:paricon/screens/startGame.dart';
 
 import 'common/buttonStyleTheme.dart';
@@ -129,10 +130,14 @@ class DashButtons extends StatelessWidget {
                 ),
         ),
         onPressed: () {
+          final analytics = context.read(firebaseAnalyticsProvider);
           switch (title!) {
             case "Play Online":
-              context.read(pageProvider).addNext(StartGame.toMaterialPage);
-              break;
+              {
+                analytics.setCurrentScreen(screenName: "play_online_screen");
+                context.read(pageProvider).addNext(StartGame.toMaterialPage);
+                break;
+              }
             /*case "Practice":
               context.read(pageProvider).addNext(SetPractice.toMaterialPage);
               break;*/
@@ -160,11 +165,9 @@ class DashboardHeader extends StatelessWidget {
             flex: 3,
             child: ConstrainedBox(
               constraints: BoxConstraints.expand(),
-              child: FittedBox(
+              child: Image.asset(
+                'assets/title_purple.png',
                 fit: BoxFit.cover,
-                child: Image.asset(
-                  'assets/title_purple.png',
-                ),
               ),
             ),
           ),

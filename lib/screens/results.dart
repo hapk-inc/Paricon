@@ -13,7 +13,7 @@ import 'providers/roomIDProvider.dart';
 class GameResults extends StatelessWidget {
   const GameResults({Key? key}) : super(key: key);
 
-  static MaterialPage toMaterialPage() => MaterialPage(
+  static MaterialPage get toMaterialPage => MaterialPage(
         child: GameResults(),
         name: '/gameResults',
         key: ValueKey('gameResults'),

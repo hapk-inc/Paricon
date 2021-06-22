@@ -23,7 +23,7 @@ import 'results.dart';
 class GameBoard extends ConsumerWidget {
   const GameBoard({Key? key}) : super(key: key);
 
-  static MaterialPage toMaterialPage() => MaterialPage(
+  static MaterialPage get toMaterialPage => MaterialPage(
         child: GameBoard(),
         name: '/gameBoard',
         key: ValueKey('gameBoard'),
@@ -292,10 +292,10 @@ class CardIcon extends StatelessWidget {
                   notifier.icons.every((element) => element.isFound);
               if (allFound) {
                 print("All Found $allFound");
+                final analytics = context.read(firebaseAnalyticsProvider);
                 await context.read(updateStatsProvider.future);
-                context
-                    .read(pageProvider)
-                    .replace(GameResults.toMaterialPage());
+                analytics.setCurrentScreen(screenName: "game_results_screen");
+                context.read(pageProvider).replace(GameResults.toMaterialPage);
               }
             }
           },

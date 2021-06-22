@@ -55,9 +55,16 @@ class GameRoom extends ConsumerWidget {
           provider: sGameStartProvider,
           onChange: (BuildContext context, AsyncValue<bool> asyncValue) {
             asyncValue.whenData(
-                  (_check) {
-                if (_check)
-                  watch(pageProvider).replace(GameBoard.toMaterialPage());
+              (_check) {
+                if (_check) {
+                  final analytics = context.read(firebaseAnalyticsProvider);
+
+                  analytics.setCurrentScreen(screenName: "game_board_screen");
+                  /*analytics.logEvent(name: "game_board_screen",parameters: {
+
+                  });*/
+                  context.read(pageProvider).replace(GameBoard.toMaterialPage);
+                }
               },
             );
           },

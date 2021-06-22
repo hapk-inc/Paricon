@@ -2,14 +2,14 @@ import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/models/localIcon.dart';
-import 'package:paricon/models/room.dart';
+import '/models/localIcon.dart';
+import '/models/room.dart';
 
 import 'authProvider.dart';
 import 'databaseProvider.dart';
 import 'gameIconProvider.dart';
-import 'packageInfoProvider.dart';
 import 'roomIDProvider.dart';
 import 'setGameProvider.dart';
 
@@ -86,9 +86,8 @@ final AutoDisposeFutureProvider<bool> createBoardProvider =
     final details = room.details;
 
     final Map playersProvider = await ref.read(roomPlayersProvider!.future);
-    final packageProvider = await ref.read(packageInfoProvider!.future);
 
-    if (!packageProvider.version.contains("dev")) {
+    if (!kDebugMode) {
       if (playersProvider.length == 1) return false;
     }
 
@@ -103,16 +102,7 @@ final AutoDisposeFutureProvider<bool> createBoardProvider =
       {},
       (previousValue, element) => {...previousValue, ...element},
     );
-    /*final Map icons = xIcons
-        .generateIcons(details.level)
-        .map((e) => e.toMap(xIcons.generateRandomID))
-        .fold(
-      {},
-      (previousValue, element) => {...previousValue, ...element},
-    );*/
-    /*if (room.details.type.toLowerCase() == "orderwise") ...{
-        "currentIcon": room.details.type
-      },*/
+
     String _currentIcon = "";
     if (details.type == "orderWise") {
       final localIcon = localIcons[Random.secure().nextInt(localIcons.length)];

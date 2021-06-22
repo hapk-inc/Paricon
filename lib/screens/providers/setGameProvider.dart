@@ -50,7 +50,7 @@ class SetGameNotifier extends ChangeNotifier {
       _details = "Play Normal Game";
     else if (_type == "closed")
       _details = "Others can't see your card";
-    else if (_type == "orderWise") _details = "OrderWise game";
+    else if (_type == "orderWise") _details = "Find the chosen one";
 
     notifyListeners();
   }

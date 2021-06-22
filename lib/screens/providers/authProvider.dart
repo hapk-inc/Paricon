@@ -19,8 +19,13 @@ final firebaseAppProvider = FutureProvider<FirebaseApp>(
   name: "firebaseAppProvider",
 );
 
-final firebaseAnalyticsProvider =
-    Provider<FirebaseAnalytics>((_) => FirebaseAnalytics());
+final firebaseAnalyticsProvider = Provider<FirebaseAnalytics>(
+  (_) {
+    final analytics = FirebaseAnalytics();
+    analytics.setAnalyticsCollectionEnabled(true);
+    return analytics;
+  },
+);
 
 final authProvider = Provider<Auth>(
   (ref) {

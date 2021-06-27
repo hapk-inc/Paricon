@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/screens/common/paddingTheme.dart';
-import 'package:paricon/screens/providers/authProvider.dart';
-import 'package:paricon/screens/startGame.dart';
 
+import 'package:paricon/screens/setPractice.dart';
+
+import 'common/paddingTheme.dart';
+import 'providers/authProvider.dart';
+
+import 'startGame.dart';
+
+import 'allPlayers.dart';
 import 'common/buttonStyleTheme.dart';
 import 'common/snackBarTheme.dart';
 import 'common/textTheme.dart';
@@ -22,8 +27,8 @@ class Dashboard extends ConsumerWidget {
   List<Widget> get buttonList => const [
         DashButtons(
           btnColor: Colors.red,
-          title: "Practice",
-          subtitle: "Play Local Game",
+          title: "Play Local Game",
+          subtitle: "Play in One Phone",
           isLeftAligned: true,
         ),
         Spacer(),
@@ -37,7 +42,7 @@ class Dashboard extends ConsumerWidget {
         DashButtons(
           btnColor: Colors.green,
           title: "Friends and Strangers",
-          subtitle: "Search for other Players",
+          subtitle: "Check out other players",
           isLeftAligned: true,
         ),
       ];
@@ -89,45 +94,36 @@ class DashButtons extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(8.0),
           alignment: Alignment.centerLeft,
-          child: title != "Play Online"
-              ? Align(
-                  alignment: Alignment.centerLeft,
+          child: Column(
+            //mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            textDirection: TextDirection.ltr,
+            children: [
+              Flexible(
+                child: FittedBox(
                   child: Text(
-                    "Coming Soon...",
-                    style: TextStyleFontTheme.poppins,
+                    title!,
+                    style: TextStyleFontTheme.poppins.copyWith(fontSize: 24),
+                    textScaleFactor: 1,
                   ),
-                )
-              : Column(
-                  //mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  textDirection: TextDirection.ltr,
-                  children: [
-                    Flexible(
-                      child: FittedBox(
-                        child: Text(
-                          title!,
-                          style:
-                              TextStyleFontTheme.poppins.copyWith(fontSize: 24),
-                          textScaleFactor: 1,
-                        ),
-                      ),
-                    ),
-                    Flexible(
-                      flex: 2,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          subtitle!,
-                          style: TextStyleFontTheme.luckiestGuy
-                              .copyWith(fontSize: 36),
-                          maxLines: 3,
-                          //textScaleFactor: 3,
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
+              ),
+              Flexible(
+                flex: 2,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    subtitle!,
+                    style:
+                        TextStyleFontTheme.luckiestGuy.copyWith(fontSize: 36),
+                    maxLines: 3,
+                    //textScaleFactor: 3,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         onPressed: () {
           final analytics = context.read(firebaseAnalyticsProvider);
@@ -138,9 +134,12 @@ class DashButtons extends StatelessWidget {
                 context.read(pageProvider).addNext(StartGame.toMaterialPage);
                 break;
               }
-            /*case "Practice":
+            case "Play Local Game":
               context.read(pageProvider).addNext(SetPractice.toMaterialPage);
-              break;*/
+              break;
+            case "Friends and Strangers":
+              context.read(pageProvider).addNext(AllPlayers.toMaterialPage);
+              break;
             default:
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBarThemeStyle.comingSoon());

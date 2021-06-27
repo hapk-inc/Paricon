@@ -1,11 +1,13 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/enumFiles.dart';
 import 'package:paricon/models/localIcon.dart';
 import 'package:paricon/models/localPlayer.dart';
 
 final onlineBoardNotifier =
-    ChangeNotifierProvider<OnlineBoardNotifier>((_) => OnlineBoardNotifier());
+ChangeNotifierProvider<OnlineBoardNotifier>((_) => OnlineBoardNotifier());
 
 class OnlineBoardNotifier extends ChangeNotifier {
   List<LocalPlayer> _players = List.empty(growable: true);
@@ -14,6 +16,21 @@ class OnlineBoardNotifier extends ChangeNotifier {
   int _currentIndex = 0;
   GameType _type = GameType.normal;
   bool _orderWiseIcon = true;
+  ConfettiController _confetiController =
+      ConfettiController(duration: Duration(milliseconds: 500));
+  List<Color>? _confettiColors;
+
+  List<Color>? get confettiColors => _confettiColors;
+
+  set confettiColors(List<Color>? value) {
+    if (_confettiColors == value) return;
+    _confettiColors = value;
+    print(_confettiColors);
+
+    notifyListeners();
+  }
+
+  ConfettiController get confetiController => _confetiController;
 
   bool get orderWiseIcon => _orderWiseIcon;
 
@@ -51,8 +68,8 @@ class OnlineBoardNotifier extends ChangeNotifier {
   String get level => _icons.length == 16
       ? "easy"
       : _icons.length == 42
-          ? "medium"
-          : "hard";
+      ? "medium"
+      : "hard";
 
   double get myAvg {
     final int totalPts = icons.length ~/ 2;
@@ -114,7 +131,7 @@ class OnlineBoardNotifier extends ChangeNotifier {
     List<LocalIcon> mlist = [];
     final a = icons.where((element) => element.color == color).toList();
     a.forEach(
-      (element) {
+          (element) {
         if (!mlist.any((_list) => _list.iconCode == element.iconCode))
           mlist.add(element);
       },

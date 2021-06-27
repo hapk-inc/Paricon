@@ -42,17 +42,7 @@ class GameResults extends StatelessWidget {
                 Flexible(
                   child: Row(
                     children: [
-                      Flexible(
-                        child: FittedBox(
-                          child: Text(
-                            "Results",
-                            style: TextStyleFontTheme.luckiestGuy.copyWith(
-                              fontSize: 48,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ),
-                      ),
+                      ResultsTitle(title: "Results"),
                       ShadedLine(),
                     ],
                   ),
@@ -62,17 +52,7 @@ class GameResults extends StatelessWidget {
                   child: Row(
                     children: [
                       ShadedLine(),
-                      Flexible(
-                        child: FittedBox(
-                          child: Text(
-                            "YOUR RESULTS",
-                            style: TextStyleFontTheme.luckiestGuy.copyWith(
-                              fontSize: 48,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ),
-                      ),
+                      ResultsTitle(title: "YOUR RESULTS")
                     ],
                   ),
                 ),
@@ -203,4 +183,23 @@ class PlayerTable extends StatelessWidget {
       ),
     );
   }
+}
+
+class ResultsTitle extends StatelessWidget {
+  final String title;
+
+  const ResultsTitle({Key? key, required this.title}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => Flexible(
+        child: FittedBox(
+          child: Text(
+            title,
+            style: TextStyleFontTheme.luckiestGuy.copyWith(
+              fontSize: 48,
+              color: Colors.white70,
+            ),
+          ),
+        ),
+      );
 }

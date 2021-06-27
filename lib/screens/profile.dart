@@ -125,7 +125,7 @@ class ProfileScreen extends ConsumerWidget {
                                 flex: 3,
                                 child: Row(
                                   children: profileNameIdList(
-                                    name: value.name ?? "NoOne",
+                                    name: value.name,
                                     id: value.userID.toString(),
                                   ),
                                 ),

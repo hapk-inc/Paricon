@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/screens/providers/authProvider.dart';
-import 'package:paricon/screens/providers/playerProvider.dart';
-import 'package:paricon/screens/providers/practiceProvider.dart';
-import 'package:paricon/screens/providers/roomIDProvider.dart';
-import 'package:paricon/screens/providers/roomProvider.dart';
+import '/screens/providers/authProvider.dart';
+import '/screens/providers/playerProvider.dart';
+
+import '/screens/providers/roomIDProvider.dart';
+import '/screens/providers/roomProvider.dart';
 
 import 'paddingTheme.dart';
 import 'textTheme.dart';
 
 class ExitPopup extends StatelessWidget {
   final bool? isScreenBoard;
+
   const ExitPopup({Key? key, this.isScreenBoard}) : super(key: key);
 
   @override
@@ -100,7 +101,7 @@ class ExitPractice extends StatelessWidget {
             .map(
               (e) => TextButton(
                 onPressed: () async {
-                  context.read(practiceProvider).dispose();
+                  //context.read(practiceProvider).dispose();
                   Navigator.pop(context, e.contains("yes"));
                 },
                 child: Text(

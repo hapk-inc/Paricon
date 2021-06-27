@@ -56,7 +56,7 @@ class StartGame extends StatelessWidget {
                   padding: PaddingTheme.all8,
                   child: TabBarView(
                     children: [
-                      SetGame(isGameOnline: true),
+                      SetGame(),
                       EnterRoomCode(),
                     ],
                     controller: _controller,

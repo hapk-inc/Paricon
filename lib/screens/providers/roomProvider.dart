@@ -141,7 +141,7 @@ Map convertToBoard(Map<dynamic, dynamic> map) {
   ]..shuffle();
   int i = 0;
   map.updateAll(
-        (key, value) {
+    (key, value) {
       Map<dynamic, dynamic> localPlayer = value;
       localPlayer.remove("timestamp");
       localPlayer["playerNo"] = playerOrder[i];

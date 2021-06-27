@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'durationCount.dart';
 import 'textTheme.dart';
 
 class SnackBarThemeStyle {
@@ -49,5 +50,13 @@ class SnackBarThemeStyle {
             ),
           ),
         ),
+      );
+
+  static SnackBar get chooseGameLevel => SnackBar(
+        content: Text(
+          'Choose Game Level',
+          style: TextStyleFontTheme.poppins,
+        ),
+        duration: DurationCount.m500,
       );
 }

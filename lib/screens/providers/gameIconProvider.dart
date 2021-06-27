@@ -107,4 +107,73 @@ class GameIconProvider {
         return Colors.white30;
     }
   }
+
+  List<Color>? confettiColors(String color) {
+    print("confetti colors $color");
+    switch (color) {
+      case 'red':
+        return const [
+          //Colors.red.withOpacity(opacity),
+          Colors.red,
+          Colors.redAccent,
+          // Colors.red.shade700,
+          //Colors.red.shade900,
+        ];
+      case 'green':
+        return const [
+          Colors.green,
+          Colors.greenAccent,
+          Colors.lightGreen,
+          Colors.greenAccent
+        ];
+      case 'indigo':
+        return const [
+          //Colors.indigo.shade900,
+          //Colors.indigo.shade700,
+          Colors.indigo,
+          Colors.indigoAccent,
+          //Colors.indigo.shade50,
+        ];
+      case 'brown':
+        return const [
+          //Colors.brown.shade200,
+          Colors.brown,
+          Colors.black87
+          //Colors.brown.shade700,
+          // Colors.brown.shade900,
+        ];
+      case 'purple':
+        return const [
+          // Colors.purple.shade900,
+          Colors.purple,
+          Colors.purpleAccent,
+          //Colors.purple.shade200,
+          //Colors.purple.shade50
+        ];
+      case 'orange':
+        return const [
+          Colors.orange,
+          Colors.orangeAccent,
+          Colors.deepOrange,
+          Colors.deepOrangeAccent,
+        ];
+      case 'blue':
+        return const [
+          Colors.blue,
+          Colors.blueAccent,
+          Colors.blueGrey,
+          Colors.lightBlue,
+          Colors.lightBlueAccent
+        ];
+      case 'pink':
+        return const [
+          Colors.pink,
+          Colors.pinkAccent,
+          //Colors.pink.shade700,
+          //Colors.pink.shade900,
+        ];
+      default:
+        return null;
+    }
+  }
 }

@@ -14,15 +14,15 @@ class LocalIcon {
   });
 
   LocalIcon copyWith({
-    String? iconCode,
-    int? iconNo,
+    /*String? iconCode,
+    int? iconNo,*/
     bool? isCheck,
     bool? isFound,
     String? color,
   }) =>
       LocalIcon(
-          iconCode: iconCode ?? this.iconCode,
-          iconNo: iconNo ?? this.iconNo,
+          iconCode: iconCode,
+          iconNo: iconNo,
           isCheck: isCheck ?? this.isCheck,
           isFound: isFound ?? this.isFound,
           color: color ?? "");

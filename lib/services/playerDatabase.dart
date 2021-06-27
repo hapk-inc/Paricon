@@ -1,22 +1,24 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:paricon/models/profile.dart';
-import 'package:paricon/models/stats.dart';
+import 'package:flutter/foundation.dart';
+import '/models/profile.dart';
+import '/models/stats.dart';
 
 import 'database.dart';
 
 class PlayerDatabase extends MyDatabase {
   final String? uid;
+
   PlayerDatabase(FirebaseApp app, {this.uid}) : super(app);
 
   @override
   // TODO: implement playerRef
-  DatabaseReference get playerRef =>
-      uid == null ? super.playerRef : super.playerRef.child(uid!);
+  DatabaseReference get playerRef => uid == null || uid!.isEmpty
+      ? super.playerRef
+      : super.playerRef.child(uid!);
 
   DatabaseReference get profileRef => playerRef.child('profile');
 
@@ -47,12 +49,10 @@ class PlayerDatabase extends MyDatabase {
         playerRef.child('profile').child("stats").child(level);
     final TransactionResult transactionResult = await _ref.runTransaction(
       (MutableData mutableData) async {
-        try {
-          Map map = mutableData.value ?? null;
-          Stats oldStats = Stats.fromMap(map);
-          Stats newStats = oldStats + stats;
-          mutableData.value = newStats.toMap();
-        } catch (e) {}
+        Map map = mutableData.value ?? null;
+        Stats oldStats = Stats.fromMap(map);
+        Stats newStats = oldStats + stats;
+        mutableData.value = newStats.toMap();
 
         return mutableData;
       },
@@ -69,4 +69,28 @@ class PlayerDatabase extends MyDatabase {
           return value.value as String;
         },
       ).onError((error, _) => "");
+
+  Future<List<Profile>?> allPlayers(String level) async => playerRef
+          .orderByChild("profile/stats/$level/played")
+          .startAt(kDebugMode
+              ? 5
+              : level == "easy"
+                  ? 5
+                  : 10)
+          //.limitToLast(10)
+          .once()
+          .then(
+        (snapshot) {
+          if (snapshot.value == null) return null;
+          final Map map = snapshot.value;
+
+          List<Profile> _list = map.values
+              .map(
+                (e) => Profile.fromMap(e['profile']),
+              )
+              .toList(growable: false);
+
+          return _list.reversed.toList();
+        },
+      );
 }

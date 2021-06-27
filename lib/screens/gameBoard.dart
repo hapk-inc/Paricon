@@ -1,16 +1,14 @@
-import 'dart:math';
-
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/models/enumFiles.dart';
-import 'package:paricon/models/localIcon.dart';
-import 'package:paricon/models/localPlayer.dart';
+import '/models/enumFiles.dart';
+import '/models/localIcon.dart';
+import '/models/localPlayer.dart';
 
 import 'common/durationCount.dart';
-import 'common/outlineBorder.dart';
-import 'common/paddingTheme.dart';
+import 'common/gameBoardWidgets.dart';
 import 'common/popup.dart';
-import 'common/textTheme.dart';
+
 import 'providers/authProvider.dart';
 import 'providers/boardProvider.dart';
 import 'providers/gameIconProvider.dart';
@@ -62,7 +60,6 @@ class InitBoard extends ConsumerWidget {
 
     final String currentColor = notifier.currentPlayer.color;
     final Color cColor = gIconProvider.iconColor(currentColor);
-    // final Color cColor = Colors.indigo;
 
     return SafeArea(
       child: Container(
@@ -90,12 +87,25 @@ class InitBoard extends ConsumerWidget {
             child: watch(boardProvider).when(
               data: (_board) {
                 context.read(onlineBoardNotifier).type = _board.type;
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                return Stack(
                   children: [
-                    BoardHeader(level: notifier.level),
-                    GridIcons(icons: _board.icons),
-                    PlayerList(players: _board.players)
+                    ConfettiWidget(
+                      confettiController: notifier.confetiController,
+                      blastDirectionality: BlastDirectionality.explosive,
+                      // don't specify a direction, blast randomly
+                      colors: notifier.confettiColors,
+                      // manually specify
+                      numberOfParticles: 25, // the colors to be used
+                      //createParticlePath: drawStar,
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        BoardHeader(level: notifier.level),
+                        GridIcons(icons: _board.icons),
+                        PlayerList(players: _board.players)
+                      ],
+                    ),
                   ],
                 );
               },
@@ -117,37 +127,10 @@ class InitBoard extends ConsumerWidget {
   }
 }
 
-class PlayerList extends StatelessWidget {
-  final List players;
-
-  const PlayerList({required this.players, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final int maxSize = players.length > 3 ? players.length : 3;
-    return Flexible(
-      flex: 2,
-      child: ListView.builder(
-        physics: NeverScrollableScrollPhysics(),
-        itemCount: players.length,
-        scrollDirection: Axis.horizontal,
-        shrinkWrap: true,
-        padding: PaddingTheme.all4,
-        itemBuilder: (context, index) => SizedBox(
-          width: MediaQuery.of(context).size.width / maxSize,
-          child: CardLocalPlayer(
-            id: players[index],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CardLocalPlayer extends StatelessWidget {
+class OnlinePlayer extends StatelessWidget {
   final String id;
 
-  const CardLocalPlayer({Key? key, required this.id}) : super(key: key);
+  const OnlinePlayer({Key? key, required this.id}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => ProviderListener(
@@ -168,73 +151,12 @@ class CardLocalPlayer extends StatelessWidget {
               orElse: () => false,
               data: (value) => id == value,
             );
-            final iconProvider = context.read(gameIconProvider);
+
             return AnimatedSwitcher(
               duration: DurationCount.m500,
               child: watch(localPlayerProvider(id)).when(
-                data: (player) => AnimatedContainer(
-                  margin: EdgeInsets.all(4.0),
-                  duration: DurationCount.m500,
-                  transform: Matrix4.rotationZ(yourTurn ? -0.05 : 0),
-                  decoration: BoxDecoration(
-                    color: iconProvider
-                        .iconBoxColor(player.color)
-                        .withOpacity(yourTurn ? 1 : 0.4),
-                    borderRadius: BorderRadius.circular(8.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey,
-                        offset: Offset(0.0, 1.0), //(x,y)
-                        blurRadius: 6.0,
-                      ),
-                    ],
-                  ),
-                  padding: PaddingTheme.all16,
-                  alignment: Alignment.center,
-                  child: AnimatedDefaultTextStyle(
-                    duration: DurationCount.m250,
-                    style: TextStyleFontTheme.luckiestGuy.copyWith(
-                        fontSize: yourTurn ? 24 : 16,
-                        color: yourTurn ? Colors.white60 : Colors.black26),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Flexible(
-                          flex: 3,
-                          child: FractionallySizedBox(
-                            heightFactor: 0.9,
-                            child: Container(
-                              constraints: BoxConstraints.expand(),
-                              child: FittedBox(
-                                child: AnimatedSwitcher(
-                                  duration: DurationCount.m500,
-                                  child: Text(
-                                    player.pts.toString(),
-                                    key: ValueKey(player.pts),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Flexible(
-                          //flex: 2,
-                          child: FractionallySizedBox(
-                            heightFactor: 0.9,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints.expand(),
-                              child: FittedBox(
-                                child: Text(
-                                  player.name!,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                data: (player) =>
+                    CardLocalPlayer(player: player, yourTurn: yourTurn),
                 loading: () => Container(),
                 error: (error, stackTrace) => Container(),
               ),
@@ -242,31 +164,6 @@ class CardLocalPlayer extends StatelessWidget {
           },
         ),
       );
-}
-
-class GridIcons extends StatelessWidget {
-  final List icons;
-
-  const GridIcons({required this.icons, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Flexible(
-      flex: 6,
-      child: GridView.builder(
-        itemCount: icons.length,
-        padding: icons.length == 16 ? PaddingTheme.all16 : PaddingTheme.all8,
-        physics: NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount:
-              context.read(gameIconProvider).crossAxisCount(icons.length),
-          crossAxisSpacing: 1.0,
-          mainAxisSpacing: 1.0,
-        ),
-        itemBuilder: (context, index) => CardIcon(id: icons[index]),
-      ),
-    );
-  }
 }
 
 class CardIcon extends StatelessWidget {
@@ -277,6 +174,7 @@ class CardIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final notifier = context.read(onlineBoardNotifier);
+    final gameIcon = context.read(gameIconProvider);
     return ProviderListener(
       provider: iconProvider(id),
       onChange: (BuildContext context, AsyncValue<LocalIcon> async) {
@@ -288,13 +186,15 @@ class CardIcon extends StatelessWidget {
             if (_icon.isFound) {
               /*if (notifier.type == GameType.orderWise)
                 context.refresh(currentIconProvider);*/
+              notifier.confettiColors = gameIcon.confettiColors(_icon.color);
+              notifier.confetiController.play();
               final bool allFound =
                   notifier.icons.every((element) => element.isFound);
               if (allFound) {
                 print("All Found $allFound");
-                final analytics = context.read(firebaseAnalyticsProvider);
+                //final analytics = context.read(firebaseAnalyticsProvider);
                 await context.read(updateStatsProvider.future);
-                analytics.setCurrentScreen(screenName: "game_results_screen");
+                //analytics.setCurrentScreen(screenName: "game_results_screen");
                 context.read(pageProvider).replace(GameResults.toMaterialPage);
               }
             }
@@ -321,129 +221,27 @@ class CardIcon extends StatelessWidget {
           return AnimatedSwitcher(
             duration: DurationCount.m500,
             child: watch(iconProvider(id)).when(
-              data: (_icon) => AnimatedContainer(
-                duration: DurationCount.m500,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4.0),
-                ),
-                transform: Matrix4.rotationZ(
-                  (!_icon.checkFound()
-                          ? (Random.secure().nextBool() ? -pi : pi)
-                          : -pi) /
-                      (_icon.checkFound() ? 60 : 15),
-                ),
-                child: ClipRRect(
-                  child: Card(
-                    elevation: 12,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    child: AnimatedContainer(
-                      duration: DurationCount.m500,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4.0),
-                        color: _icon.isFound ? Colors.white70 : iconBoxColor,
-                      ),
-                      child: AnimatedSwitcher(
-                        duration: DurationCount.m500,
-                        child: !_icon.checkFound()
-                            ? InkWell(
-                                onTap: yourTurn && !ctxNotifier.loading
-                                    ? () async {
-                                        ctxNotifier.loading = true;
-                                        await context
-                                            .read(btnClickProvider(id).future)
-                                            .whenComplete(
-                                              () => ctxNotifier.loading = false,
-                                            );
-                                      }
-                                    : null,
-                              )
-                            : _icon.isFound
-                                ? ShowFoundIcon(icon: _icon)
-                                : ctxNotifier.type == GameType.close &&
-                                        !yourTurn
-                                    ? DisableIcon()
-                                    : ShowCheckIcon(iconCode: _icon.iconCode),
-                      ),
-                    ),
-                  ),
-                ),
+              data: (_icon) => LocalIconCard(
+                icon: _icon,
+                iconTap: yourTurn && !ctxNotifier.loading
+                    ? () async {
+                        ctxNotifier.loading = true;
+                        await context
+                            .read(btnClickProvider(id).future)
+                            .whenComplete(
+                              () => ctxNotifier.loading = false,
+                            );
+                      }
+                    : null,
+                yourTurn: yourTurn,
+                iconColor: iconBoxColor,
+                type: ctxNotifier.type,
               ),
               loading: () => Container(),
               error: (error, stackTrace) => Container(),
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class ShowCheckIcon extends StatelessWidget {
-  final String iconCode;
-
-  const ShowCheckIcon({Key? key, required this.iconCode}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final gameIcon = context.read(gameIconProvider);
-    final String myColor = context.read(onlineBoardNotifier).myPlayer!.color;
-    return Container(
-      padding: PaddingTheme.all4,
-      decoration: BoxDecoration(
-        color: gameIcon.iconColor(myColor),
-        borderRadius: BorderRadius.circular(4.0),
-      ),
-      child: Center(
-        child: FittedBox(
-          child: Icon(
-            gameIcon.gameIcon(iconCode),
-            color: Colors.white70,
-            size: 72,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ShowFoundIcon extends StatelessWidget {
-  final LocalIcon icon;
-
-  const ShowFoundIcon({Key? key, required this.icon}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final gameIcon = context.read(gameIconProvider);
-    return Container(
-      color: Colors.white70,
-      constraints: BoxConstraints.expand(),
-      padding: PaddingTheme.all4,
-      child: Center(
-        child: FittedBox(
-          child: Icon(
-            gameIcon.gameIcon(icon.iconCode),
-            color: gameIcon.iconColor(icon.color),
-            size: 72,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class DisableIcon extends StatelessWidget {
-  const DisableIcon({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints.expand(),
-      margin: PaddingTheme.all4,
-      decoration: BoxDecoration(
-        color: Colors.white60,
-        borderRadius: BorderRadius.circular(4.0),
       ),
     );
   }
@@ -497,9 +295,7 @@ class GameLoader extends StatelessWidget {
             ),
           ),
           if (notifier.type == GameType.orderWise)
-            OrderWiseIcon(
-              iconColor: myColor,
-            )
+            OrderWiseIcon(iconColor: myColor)
         ],
       ),
     );
@@ -528,56 +324,12 @@ class OrderWiseIcon extends ConsumerWidget {
                   color: gameIcon.iconColor(iconColor),
                 ),
           loading: () => Container(),
-          error: (Object error, StackTrace? stackTrace) {
-            print(error);
-            print(stackTrace);
-            return Container();
-          },
+          error: (Object error, StackTrace? stackTrace) => Container(),
         ),
       ),
     );
   }
 }
-
-/*class SelectedIcons extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final gameIcon = context.read(gameIconProvider);
-    final notifier = context.read(onlineBoardNotifier);
-    return Flexible(
-      flex: 2,
-      child: AnimatedList(
-        key: _selectedListKey,
-        scrollDirection: Axis.horizontal,
-        initialItemCount: 0,
-        itemBuilder:
-            (BuildContext context, int index, Animation<double> animation) =>
-                SlideTransition(
-          position: animation.drive(
-            Tween<Offset>(
-              begin: const Offset(-0.5, 0.0),
-              end: const Offset(0.5, 0.0),
-            ),
-          ),
-          child: FadeTransition(
-            opacity: animation.drive(Tween(begin: 0, end: 1)),
-            child: Container(
-              padding: PaddingTheme.all4,
-              child: FittedBox(
-                child: Icon(
-                  gameIcon.gameIcon(notifier.selectedIcons[index].iconCode),
-                  size: 48,
-                  color:
-                      gameIcon.iconColor(notifier.selectedIcons[index].color),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}*/
 
 class PlayerName extends ConsumerWidget {
   const PlayerName({Key? key}) : super(key: key);
@@ -585,7 +337,7 @@ class PlayerName extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ScopedReader watch) {
     final notifier = watch(onlineBoardNotifier);
-    final iconProvider = watch(gameIconProvider);
+    //final iconProvider = watch(gameIconProvider);
     final LocalPlayer? player = notifier.currentPlayer;
     final bool isItYou = player == notifier.myPlayer;
     return Flexible(
@@ -601,26 +353,10 @@ class PlayerName extends ConsumerWidget {
             },
           );
         },
-        child: Container(
-          padding: PaddingTheme.all8,
-          alignment: Alignment.centerLeft,
-          child: AnimatedSwitcher(
-            duration: DurationCount.m500,
-            child: FittedBox(
-              child: OutlineBorderText(
-                strokeColor: Colors.white70,
-                strokeWidth: 5,
-                child: Text(
-                  isItYou ? "Your Turn" : player!.name!,
-                  key: ValueKey(notifier.currentIndex),
-                  style: TextStyleFontTheme.luckiestGuy.copyWith(
-                    color: iconProvider.iconColor(player!.color),
-                    fontSize: MediaQuery.of(context).size.height * 0.075,
-                  ),
-                ),
-              ),
-            ),
-          ),
+        child: PlayerNameState(
+          player: player!,
+          keyValue: notifier.currentIndex,
+          isItYou: isItYou,
         ),
       ),
     );

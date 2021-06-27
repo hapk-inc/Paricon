@@ -3,9 +3,9 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/models/profile.dart';
-import 'package:paricon/models/roomDetails.dart';
-import 'package:paricon/screens/common/snackBarTheme.dart';
+import '/models/profile.dart';
+import '/models/roomDetails.dart';
+import 'common/snackBarTheme.dart';
 
 import 'common/durationCount.dart';
 import 'common/paddingTheme.dart';
@@ -277,7 +277,7 @@ class PlayersWidget extends ConsumerWidget {
             final int maxCount =
                 room.details.maxCount > 4 ? room.details.maxCount : 4;
 
-            Profile init = Profile.fromMap(snapshot.value);
+            Profile init = Profile.onlyName(snapshot.value);
             AsyncValue<Profile> profile =
                 watch(otherProfileProvider!(snapshot.key!));
             return FadeTransition(
@@ -311,7 +311,7 @@ class PlayersWidget extends ConsumerWidget {
                                       flex: 2,
                                       child: FittedBox(
                                         child: Text(
-                                          value.name!,
+                                          value.name,
                                           style: TextStyleFontTheme.luckiestGuy
                                               .copyWith(
                                                   fontSize:
@@ -372,7 +372,7 @@ class PlayersWidget extends ConsumerWidget {
                           ),
                         );
                       },
-                      loading: () => ListTile(title: Text(init.name!)),
+                      loading: () => ListTile(title: Text(init.name)),
                       error: (error, stackTrace) {
                         error.toString();
                         stackTrace.toString();

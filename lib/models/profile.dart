@@ -5,11 +5,11 @@ import 'package:collection/collection.dart';
 import 'stats.dart';
 
 class Profile {
-  String? name;
+  String name;
   int? userID;
   List<Stats>? stats;
 
-  Profile({required this.name, required this.userID, required this.stats});
+  Profile({required this.name, this.userID, this.stats});
 
   Profile copyWith({String? name, int? userID, List<Stats>? stats}) => Profile(
         name: name ?? this.name,
@@ -17,26 +17,35 @@ class Profile {
         stats: stats ?? this.stats,
       );
 
-  Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toMap() =>
+      {
         'name': name,
         'userID': userID,
-        'stats': stats?.map((x) => x.toMap()).toList(growable: false),
+        'stats': stats!.map((x) => x.toMap()).toList(growable: false),
       };
 
   factory Profile.fromMap(Map fromSnapshot) {
     Map<String, dynamic> map = Map<String, dynamic>.from(fromSnapshot);
 
-    return Profile(
+    final profile = Profile(
       name: map['name'],
-      userID: map['userID'] ?? null,
-      stats: map['stats'] == null
-          ? null
-          : List.from(
-              const ['easy', 'medium', 'hard'].map(
-                (e) => Stats.fromMap(map['stats'][e]),
-              ),
-            ),
+      userID: map['userID'],
+      stats: List.from(
+        const ['easy', 'medium', 'hard'].map(
+          (e) => Stats.fromMap(map['stats'][e]),
+        ),
+      ),
     );
+
+    return profile;
+  }
+
+  factory Profile.onlyName(Map fromSnapshot) {
+    Map<String, dynamic> map = Map<String, dynamic>.from(fromSnapshot);
+
+    final profile = Profile(name: map['name']);
+
+    return profile;
   }
 
   String toJson() => json.encode(toMap());

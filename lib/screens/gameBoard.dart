@@ -1,6 +1,12 @@
+//import 'package:confetti/confetti.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:confetti/confetti.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lottie/lottie.dart';
+import 'common/textTheme.dart';
 import '/models/enumFiles.dart';
 import '/models/localIcon.dart';
 import '/models/localPlayer.dart';
@@ -22,10 +28,10 @@ class GameBoard extends ConsumerWidget {
   const GameBoard({Key? key}) : super(key: key);
 
   static MaterialPage get toMaterialPage => MaterialPage(
-        child: GameBoard(),
-        name: '/gameBoard',
-        key: ValueKey('gameBoard'),
-      );
+    child: GameBoard(),
+    name: '/gameBoard',
+    key: ValueKey('gameBoard'),
+  );
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
@@ -70,11 +76,11 @@ class InitBoard extends ConsumerWidget {
             gradient: LinearGradient(
               colors: List.from(
                 List.generate(
-                      7,
+                  6,
                       (_) => mColor.withOpacity(0.4),
                     ) +
                     List.generate(
-                      3,
+                      4,
                       (_) => cColor.withOpacity(0.2),
                     ),
               ),
@@ -90,10 +96,13 @@ class InitBoard extends ConsumerWidget {
                 return Stack(
                   children: [
                     ConfettiWidget(
-                      confettiController: notifier.confetiController,
+                      confettiController: notifier.confettiController,
                       blastDirectionality: BlastDirectionality.explosive,
                       // don't specify a direction, blast randomly
-                      colors: notifier.confettiColors,
+                      //colors: notifier.confettiColors,
+                      colors: context
+                          .read(gameIconProvider)
+                          .confettiColors(notifier.confettiColors),
                       // manually specify
                       numberOfParticles: 25, // the colors to be used
                       //createParticlePath: drawStar,
@@ -111,17 +120,97 @@ class InitBoard extends ConsumerWidget {
               },
               loading: () {
                 notifier.init();
-                return Container();
+                return BoardLoading();
               },
-              error: (error, stackTrace) {
-                print("Board Error");
-                print(error);
-                print(stackTrace);
-                return Container();
+              error: (err, StackTrace? stackTrace) {
+                final error = err as Error;
+                FirebaseCrashlytics.instance.recordError(error, stackTrace,
+                    reason: 'entering Board Error', fatal: true);
+                return ErrorGameBoard(error: error);
               },
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class BoardLoading extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => Center(
+        child: Lottie.asset(
+          'assets/lottie/square-loading.json',
+          height: MediaQuery.of(context).size.height * 0.4,
+          width: MediaQuery.of(context).size.width * 0.4,
+          fit: BoxFit.contain,
+        ),
+      );
+}
+
+class ErrorGameBoard extends StatelessWidget {
+  final Error error;
+
+  const ErrorGameBoard({Key? key, required this.error}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Flexible(
+            child: Lottie.asset(
+              'assets/lottie/sad.json',
+              height: MediaQuery.of(context).size.height * 0.4,
+              width: MediaQuery.of(context).size.width * 0.4,
+              fit: BoxFit.contain,
+            ),
+          ),
+          Flexible(
+            child: AutoSizeText.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: "Sorry",
+                    style: TextStyleFontTheme.poppins.copyWith(
+                      color: Colors.black54,
+                      fontSize: 20,
+                    ),
+                  ),
+                  TextSpan(
+                    text: "..seems we have some issue\n",
+                  ),
+                  TextSpan(
+                    text: "Kindly reopen the app\n",
+                  ),
+                  TextSpan(
+                    text: "Re-enter",
+                    style: TextStyleFontTheme.poppins.copyWith(
+                        color: Colors.black54,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  TextSpan(
+                    text: " the same Room code",
+                  ),
+                  /*TextSpan(
+                    text: "try again",
+                    style: TextStyleFontTheme.poppins.copyWith(
+                        color: Colors.black54,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600),
+                  ),*/
+                ],
+              ),
+              style: TextStyleFontTheme.poppins.copyWith(
+                color: Colors.black38,
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          )
+        ],
       ),
     );
   }
@@ -137,7 +226,7 @@ class OnlinePlayer extends StatelessWidget {
         provider: localPlayerProvider(id),
         onChange: (BuildContext context, AsyncValue<LocalPlayer> asyncValue) {
           asyncValue.whenData(
-            (_player) {
+                (_player) {
               final firebaseUser = context.read(firebaseUserProvider!);
               final _notifier = context.read(onlineBoardNotifier);
               if (firebaseUser.uid == id) _notifier.myPlayer = _player;
@@ -174,24 +263,34 @@ class CardIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final notifier = context.read(onlineBoardNotifier);
-    final gameIcon = context.read(gameIconProvider);
+
     return ProviderListener(
       provider: iconProvider(id),
       onChange: (BuildContext context, AsyncValue<LocalIcon> async) {
         async.whenData(
-          (_icon) async {
+              (_icon) async {
+            if (!notifier.icons.contains(_icon)) {
+              print("Loading ${_icon.audio}");
+              AudioCache().load('audios/${_icon.audio}.wav');
+            }
             notifier.replaceIcon(_icon);
             /*if (!_icon.checkFound() && notifier.type == GameType.orderWise)
               context.refresh(currentIconProvider);*/
+            if (_icon.isCheck) {
+              AudioCache().play('audios/${_icon.audio}.wav');
+            }
             if (_icon.isFound) {
               /*if (notifier.type == GameType.orderWise)
                 context.refresh(currentIconProvider);*/
-              notifier.confettiColors = gameIcon.confettiColors(_icon.color);
-              notifier.confetiController.play();
+              notifier.confettiColors = _icon.color;
+              //context.refresh(confettiProvider);
+              // context.read(confettiProvider).play();
+
+              notifier.confettiController.play();
+
               final bool allFound =
                   notifier.icons.every((element) => element.isFound);
               if (allFound) {
-                print("All Found $allFound");
                 //final analytics = context.read(firebaseAnalyticsProvider);
                 await context.read(updateStatsProvider.future);
                 //analytics.setCurrentScreen(screenName: "game_results_screen");
@@ -225,13 +324,13 @@ class CardIcon extends StatelessWidget {
                 icon: _icon,
                 iconTap: yourTurn && !ctxNotifier.loading
                     ? () async {
-                        ctxNotifier.loading = true;
-                        await context
-                            .read(btnClickProvider(id).future)
-                            .whenComplete(
-                              () => ctxNotifier.loading = false,
-                            );
-                      }
+                  ctxNotifier.loading = true;
+                  await context
+                      .read(btnClickProvider(id).future)
+                      .whenComplete(
+                        () => ctxNotifier.loading = false,
+                  );
+                }
                     : null,
                 yourTurn: yourTurn,
                 iconColor: iconBoxColor,
@@ -254,23 +353,23 @@ class BoardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Flexible(
-        flex: 2,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Flexible(
-              flex: 3,
-              child: Column(
-                children: [
-                  PlayerName(),
-                  //if (level != "easy") SelectedIcons(),
-                ],
-              ),
-            ),
-            GameLoader(),
-          ],
+    flex: 2,
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Flexible(
+          flex: 3,
+          child: Column(
+            children: [
+              PlayerName(),
+              //if (level != "easy") SelectedIcons(),
+            ],
+          ),
         ),
-      );
+        GameLoader(),
+      ],
+    ),
+  );
 }
 
 class GameLoader extends StatelessWidget {
@@ -318,11 +417,11 @@ class OrderWiseIcon extends ConsumerWidget {
           data: (_iconCode) => _iconCode.isEmpty
               ? Container()
               : Icon(
-                  gameIcon.gameIcon(_iconCode),
-                  key: ValueKey(_iconCode),
-                  size: 48,
-                  color: gameIcon.iconColor(iconColor),
-                ),
+            gameIcon.gameIcon(_iconCode),
+            key: ValueKey(_iconCode),
+            size: 48,
+            color: gameIcon.iconColor(iconColor),
+          ),
           loading: () => Container(),
           error: (Object error, StackTrace? stackTrace) => Container(),
         ),
@@ -346,7 +445,7 @@ class PlayerName extends ConsumerWidget {
         provider: currentIDProvider,
         onChange: (BuildContext context, AsyncValue<String> asyncID) {
           asyncID.whenData(
-            (_id) async {
+                (_id) async {
               final board = await context.read(boardProvider.future);
               final int currentIndex = board.players.indexOf(_id);
               context.read(onlineBoardNotifier).currentIndex = currentIndex;

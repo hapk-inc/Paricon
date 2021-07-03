@@ -39,24 +39,39 @@ class GameIconProvider {
     }
   }
 
-  List<String> getIcons(String level) {
+  List<InitIcon> getIcons(String level) {
     final int count = iconCount(level) ~/ 2;
 
     final icons = List.from(GameIcons.values)..shuffle();
 
-    List<String> setIcons =
+    final sounds = List.from(iconSounds)..shuffle();
+
+    List<InitIcon> initIcons = List.generate(
+      count,
+      (index) => InitIcon(
+        GameIconExt(icons[index]).name,
+        sounds[index],
+      ),
+    );
+
+    /*List<String> setIcons =
         icons.take(count).map((e) => GameIconExt(e).name).toList();
-    return (setIcons + setIcons)..shuffle();
+    return (setIcons + setIcons)..shuffle();*/
+    return (initIcons + initIcons)..shuffle();
   }
 
   List<LocalIcon> generateIcons(String level) {
     final int _count = iconCount(level);
     final _icons = getIcons(level);
-    List<LocalIcon> a = List.generate(
+    /*List<LocalIcon> a = List.generate(
       _count,
-      (i) => LocalIcon(iconCode: _icons[i], iconNo: i + 1, isFound: false),
+      (i) => LocalIcon(iconCode: _icons[i].icon, iconNo: i + 1,audio: _icons[i].audio ),
     );
-    return a;
+    return a;*/
+    return List.generate(
+        _count,
+        (i) => LocalIcon(
+            iconCode: _icons[i].icon, iconNo: i + 1, audio: _icons[i].audio));
   }
 
   IconData? gameIcon(String? _gameIcon) => GameIconExt.displayIcon(_gameIcon);

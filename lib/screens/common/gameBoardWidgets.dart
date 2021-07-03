@@ -40,10 +40,67 @@ class GridIcons extends StatelessWidget {
           final practice = context.read(practiceProvider);
           return LocalIconCard(
             icon: icons[index],
-            iconTap:
-                !practice.loading ? () => practice.validateIcons(index) : null,
+            iconTap: !practice.loading
+                ? () async {
+                    bool validate = await practice.validateIcons(index);
+                    if (validate)
+                      practice.controller.animateTo(
+                          practice.rotationSize * practice.rotationPosition,
+                          duration: DurationCount.m250,
+                          curve: Curves.easeIn);
+                  }
+                : null,
           );
         },
+      ),
+    );
+  }
+}
+
+class PlayerListWheel extends StatelessWidget {
+  final List players;
+  final bool isOnline;
+
+  const PlayerListWheel({required this.players, this.isOnline = true, Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final int maxSize = players.length > 4 ? 4 : players.length;
+    final double positionedWidth =
+        MediaQuery.of(context).size.width / (maxSize - 0.5);
+    context.read(practiceProvider).rotationSize = positionedWidth;
+    return Flexible(
+      flex: 2,
+      child: RotatedBox(
+        quarterTurns: -1,
+        child: Consumer(
+          builder: (_, watch, c) => ListWheelScrollView.useDelegate(
+            itemExtent: positionedWidth,
+            controller: watch(practiceProvider).controller,
+            //physics: NeverScrollableScrollPhysics(),
+            childDelegate: ListWheelChildLoopingListDelegate(
+              children: List<Widget>.from(
+                players.map(
+                  (e) {
+                    final practice = context.read(practiceProvider);
+                    return RotatedBox(
+                      quarterTurns: 1,
+                      child: isOnline
+                          ? OnlinePlayer(id: e)
+                          : CardLocalPlayer(
+                              player: e,
+                              yourTurn:
+                                  e == practice.players[practice.currentIndex],
+                            ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            diameterRatio: 2,
+          ),
+        ),
       ),
     );
   }

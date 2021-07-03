@@ -17,8 +17,7 @@ class Profile {
         stats: stats ?? this.stats,
       );
 
-  Map<String, dynamic> toMap() =>
-      {
+  Map<String, dynamic> toMap() => {
         'name': name,
         'userID': userID,
         'stats': stats!.map((x) => x.toMap()).toList(growable: false),

@@ -158,7 +158,7 @@ class PlayerTable extends StatelessWidget {
                           .map(
                             (e) => Icon(
                               gameIcon.gameIcon(e.iconCode),
-                              size: 24,
+                              size: 16,
                               color: gameIcon.iconColor(e.color),
                             ),
                           )

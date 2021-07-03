@@ -91,7 +91,11 @@ class GameTypeButtons extends StatelessWidget {
   Widget build(BuildContext context) => Flexible(
         flex: 2,
         child: Row(
-          children: ["normal", if (isGameOnline) "closed", "orderWise"]
+          children: [
+            "normal",
+            if (isGameOnline) "closed",
+            if (isGameOnline) "orderWise"
+          ]
               .map(
                 (_type) => Flexible(
                   child: TextButton(

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/enumFiles.dart';
-import 'package:paricon/screens/common/textTheme.dart';
-import 'package:paricon/screens/providers/authProvider.dart';
+import 'common/textTheme.dart';
+import 'gameBoard.dart';
 
 import 'common/snackBarTheme.dart';
 import 'gameRoom.dart';
 import 'providers/pageProvider.dart';
 
-//import 'providers/roomNotifierProvider.dart';
 import 'providers/roomProvider.dart';
 
 class EnterRoomCode extends StatelessWidget {
@@ -21,34 +20,35 @@ class EnterRoomCode extends StatelessWidget {
       if (text.isNotEmpty && text.length == 6) {
         //context.read(roomNotifierProvider).loading = true;
         await context.read(roomCheckProvider!(text).future).then(
-          (value) async {
-            if (value is String) {
-              await context.read(joinRoomProvider.future);
-              final analytics = context.read(firebaseAnalyticsProvider);
-              analytics.setCurrentScreen(screenName: "game_room_screen");
-              context
-                  .read(pageProvider)
-                  .replace(GameRoom.toMaterialPage(id: value));
-            } else {
-              final status = value as RoomStatus;
-              String msg = "";
-              switch (status) {
-                case RoomStatus.houseFull:
-                  msg = "Room is full already";
-                  break;
-                case RoomStatus.notExists:
-                  msg = "Room not exists";
-                  break;
-                case RoomStatus.alreadyStarted:
-                  msg = "Game already Started";
-                  break;
-                case RoomStatus.duplicateCode:
-                  msg = "Try with some other code";
-                  break;
-              }
+          (validate) async {
+            String msg = "";
+            const String tryOthers = "Try with some other roomCode";
+            switch (validate.status) {
+              case RoomStatus.houseFull:
+                msg = "Room is Full already. $tryOthers";
+                break;
+              case RoomStatus.notExists:
+                msg = "Room doesn't exists. $tryOthers";
+                break;
+              case RoomStatus.alreadyStarted:
+                if (validate.alreadyIn)
+                  context.read(pageProvider).replace(GameBoard.toMaterialPage);
+                else
+                  msg = "Game Already Started. $tryOthers";
+                break;
+              case RoomStatus.duplicateCode:
+                msg = tryOthers;
+                break;
+              case RoomStatus.available:
+                context.read(pageProvider).replace(GameRoom.toMaterialPage());
+                break;
+              case RoomStatus.alreadyOver:
+                msg = "Game Already Over";
+                break;
+            }
+            if (msg.isNotEmpty)
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBarThemeStyle.roomCodeError(msg));
-            }
           },
         );
       } else

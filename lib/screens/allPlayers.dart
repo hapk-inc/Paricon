@@ -108,7 +108,6 @@ class LevelPlayers extends ConsumerWidget {
                 final stats = value[index].stats![levels.indexOf(level)];
                 final tileColor =
                     Colors.primaries[Random().nextInt(Colors.primaries.length)];
-                print(profile.toString());
                 return LimitedBox(
                   maxHeight: MediaQuery.of(context).size.height *
                       (index == 0 ? 0.2 : 0.125),
@@ -160,7 +159,7 @@ class LevelPlayers extends ConsumerWidget {
                               width: MediaQuery.of(context).size.width * 0.1,
                               height: MediaQuery.of(context).size.height * 0.05,
                               child: Lottie.asset(
-                                'assets/ribbon.json',
+                                'assets/lottie/ribbon.json',
                                 fit: BoxFit.fill,
                               ),
                             ),

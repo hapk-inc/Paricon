@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_update/in_app_update.dart';
+//import 'package:paricon/screens/providers/packageInfoProvider.dart';
 import 'screens/appUpdate.dart';
 import 'screens/common/circularProgressTheme.dart';
 import 'screens/common/durationCount.dart';
@@ -28,19 +29,22 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: AnimatedSwitcher(
         duration: DurationCount.m500,
-        child: kDebugMode
-            ? FirebaseInit()
-            : Consumer(
-                builder: (context, watch, child) =>
-                    watch(inAppUpdateProvider).when(
-                  data: (value) => value.updateAvailability ==
-                          UpdateAvailability.updateAvailable
-                      ? AppUpdate()
-                      : FirebaseInit(),
-                  loading: () => Splash(),
-                  error: (err, stk) => CircularProgressTheme.pinkIndicator,
-                ),
-              ),
+        child: Consumer(
+          builder: (context, watch, child) =>
+              watch(debugAndAppNameProvider).maybeWhen(
+            orElse: () => CircularProgressTheme.pinkIndicator,
+            data: (check) => check
+                ? FirebaseInit()
+                : watch(inAppUpdateProvider).when(
+                    data: (value) => value.updateAvailability ==
+                            UpdateAvailability.updateAvailable
+                        ? AppUpdate()
+                        : FirebaseInit(),
+                    loading: () => Splash(),
+                    error: (err, stk) => CircularProgressTheme.pinkIndicator,
+                  ),
+          ),
+        ),
       ),
     );
   }

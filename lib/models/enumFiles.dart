@@ -9,4 +9,6 @@ enum RoomStatus {
   notExists,
   alreadyStarted,
   duplicateCode,
+  available,
+  alreadyOver
 }

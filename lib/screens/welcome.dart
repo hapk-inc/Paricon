@@ -25,7 +25,7 @@ class Welcome extends StatelessWidget {
                 child: FractionallySizedBox(
                   widthFactor: 0.8,
                   child: Image.asset(
-                    'assets/title_red.png',
+                    'assets/img/title_red.png',
                     fit: BoxFit.cover,
                   ),
                 ),

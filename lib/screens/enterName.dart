@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/screens/providers/authProvider.dart';
 
 import 'common/textTheme.dart';
 import 'providers/newNameProvider.dart';
@@ -20,8 +19,8 @@ class EnterName extends StatelessWidget {
     _onSubmitted() {
       //if (FocusScope.of(context).hasFocus) FocusScope.of(context).unfocus();
       if (_controller.text.isNotEmpty) {
-        final anaytics = context.read(firebaseAnalyticsProvider);
-        anaytics.setCurrentScreen(screenName: "select_auth_screen");
+        // final anaytics = context.read(firebaseAnalyticsProvider);
+        //anaytics.setCurrentScreen(screenName: "select_auth_screen");
         context
           ..read(newNameNotifier.notifier).state = capsFirst(_controller.text)
           ..read(pageProvider).addNext(SelectAuth.toMaterialPage);

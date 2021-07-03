@@ -4,6 +4,7 @@ class LocalIcon {
   final bool isCheck;
   final bool isFound;
   final String color;
+  final String audio;
 
   LocalIcon({
     required this.iconCode,
@@ -11,6 +12,7 @@ class LocalIcon {
     this.color = "",
     this.isCheck = false,
     this.isFound = false,
+    this.audio = "",
   });
 
   LocalIcon copyWith({
@@ -25,6 +27,7 @@ class LocalIcon {
           iconNo: iconNo,
           isCheck: isCheck ?? this.isCheck,
           isFound: isFound ?? this.isFound,
+          audio: audio,
           color: color ?? "");
 
   Map<String, dynamic> toMap(String id) => {
@@ -32,27 +35,30 @@ class LocalIcon {
           'iconCode': iconCode,
           'iconNo': iconNo,
           'isCheck': isCheck,
-          'isFound': isFound
+          'isFound': isFound,
+          'audio': audio
         }
       };
 
-  Map<String, dynamic> get updateIcon => <String, dynamic>{
+  Map<String, dynamic> get updateIcon =>
+      <String, dynamic>{
         'iconCode': iconCode,
         'iconNo': iconNo,
         'isCheck': isCheck,
         'isFound': isFound,
         'color': color,
+        'audio': audio,
       };
 
   factory LocalIcon.fromMap(Map fromSnapshot) {
     final map = Map<String, dynamic>.from(fromSnapshot);
     return LocalIcon(
-      iconCode: map['iconCode'],
-      iconNo: map['iconNo'],
-      isCheck: map['isCheck'] ?? false,
-      isFound: map['isFound'] ?? false,
-      color: map['color'] ?? "",
-    );
+        iconCode: map['iconCode'],
+        iconNo: map['iconNo'],
+        isCheck: map['isCheck'] ?? false,
+        isFound: map['isFound'] ?? false,
+        color: map['color'] ?? "",
+        audio: map['audio']);
   }
 
   @override
@@ -68,7 +74,8 @@ class LocalIcon {
         other.iconCode == iconCode &&
         other.iconNo == iconNo &&
         other.isCheck == isCheck &&
-        other.isFound == isFound;
+        other.isFound == isFound &&
+        other.audio == audio;
   }
 
   bool checkIconCode(Object other) {
@@ -86,21 +93,11 @@ class LocalIcon {
   }
 
   bool checkFound() => this.isCheck || this.isFound;
-
-  LocalIcon setCheck(bool value) =>
-      LocalIcon(iconCode: this.iconCode, iconNo: this.iconNo, isCheck: value);
-
-  LocalIcon setFoundTrue(String color) => LocalIcon(
-      iconCode: this.iconCode,
-      color: color,
-      iconNo: this.iconNo,
-      isFound: true,
-      isCheck: false);
 }
 
-class IconInfo {
-  final String? icon;
-  final String? iconCode;
+class InitIcon {
+  final String icon;
+  final String audio;
 
-  IconInfo(this.icon, this.iconCode);
+  InitIcon(this.icon, this.audio);
 }

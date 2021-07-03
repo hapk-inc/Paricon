@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:paricon/models/enumFiles.dart';
+
 import 'roomDetails.dart';
 
 class Room {
@@ -36,5 +38,32 @@ class Room {
       Room(
         isGameStarted: false,
         details: RoomDetails.createDetails(level, maxCount, uid, type),
+      );
+}
+
+class ValidateRoom {
+  final String id;
+  final RoomStatus status;
+  final bool alreadyIn;
+
+  ValidateRoom({this.id = "", required this.status, this.alreadyIn = false});
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is ValidateRoom &&
+        other.id == id &&
+        other.alreadyIn == alreadyIn &&
+        other.status == status;
+  }
+
+  @override
+  int get hashCode => id.hashCode ^ alreadyIn.hashCode ^ status.hashCode;
+
+  ValidateRoom copyWith({required RoomStatus roomStatus}) => ValidateRoom(
+        id: id,
+        status: roomStatus,
+        alreadyIn: alreadyIn,
       );
 }

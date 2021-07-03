@@ -7,7 +7,9 @@ import 'package:paricon/models/localIcon.dart';
 import 'package:paricon/models/localPlayer.dart';
 
 final onlineBoardNotifier =
-ChangeNotifierProvider<OnlineBoardNotifier>((_) => OnlineBoardNotifier());
+    ChangeNotifierProvider.autoDispose<OnlineBoardNotifier>(
+  (_) => OnlineBoardNotifier(),
+);
 
 class OnlineBoardNotifier extends ChangeNotifier {
   List<LocalPlayer> _players = List.empty(growable: true);
@@ -16,9 +18,10 @@ class OnlineBoardNotifier extends ChangeNotifier {
   int _currentIndex = 0;
   GameType _type = GameType.normal;
   bool _orderWiseIcon = true;
-  ConfettiController _confetiController =
+  ConfettiController _confettiController =
       ConfettiController(duration: Duration(milliseconds: 500));
-  List<Color>? _confettiColors;
+
+  /*List<Color>? _confettiColors;
 
   List<Color>? get confettiColors => _confettiColors;
 
@@ -28,9 +31,19 @@ class OnlineBoardNotifier extends ChangeNotifier {
     print(_confettiColors);
 
     notifyListeners();
-  }
+  }*/
 
-  ConfettiController get confetiController => _confetiController;
+  ConfettiController get confettiController => _confettiController;
+
+  String _confettiColors = "";
+
+  String get confettiColors => _confettiColors;
+
+  set confettiColors(String value) {
+    if (_confettiColors == value) return;
+    _confettiColors = value;
+    notifyListeners();
+  }
 
   bool get orderWiseIcon => _orderWiseIcon;
 
@@ -68,8 +81,8 @@ class OnlineBoardNotifier extends ChangeNotifier {
   String get level => _icons.length == 16
       ? "easy"
       : _icons.length == 42
-      ? "medium"
-      : "hard";
+          ? "medium"
+          : "hard";
 
   double get myAvg {
     final int totalPts = icons.length ~/ 2;

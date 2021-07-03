@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/screens/common/snackBarTheme.dart';
+import 'common/snackBarTheme.dart';
 
 import 'common/paddingTheme.dart';
 import 'common/setGameWidgets.dart';
@@ -76,7 +76,7 @@ class SetPractice extends StatelessWidget {
                           }
 
                           final xIcons = ctx.read(gameIconProvider);
-                          notifier.createBoard(
+                          notifier.createPracticeBoard(
                               xIcons.generateIcons(notifier.level));
 
                           ctx

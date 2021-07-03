@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:paricon/models/enumFiles.dart';
+import 'package:paricon/screens/providers/packageInfoProvider.dart';
 import '/models/localIcon.dart';
 import '/models/room.dart';
 
@@ -28,8 +30,7 @@ final AutoDisposeFutureProvider<String>? createRoomProvider =
   },
 );
 
-final AutoDisposeFutureProvider<Null> joinRoomProvider =
-    FutureProvider.autoDispose(
+final AutoDisposeFutureProvider joinRoomProvider = FutureProvider.autoDispose(
   (ref) async {
     final roomDatabase = ref.read(roomDatabaseProvider!);
 
@@ -49,15 +50,26 @@ final AutoDisposeFutureProvider<Room> roomProvider =
   name: 'roomProvider',
 );
 
-final AutoDisposeFutureProviderFamily<dynamic, String>? roomCheckProvider =
-    FutureProvider.family.autoDispose<dynamic, String>(
+final AutoDisposeFutureProviderFamily<ValidateRoom, String>? roomCheckProvider =
+    FutureProvider.family.autoDispose<ValidateRoom, String>(
   (ref, roomCode) async {
     final roomDatabase = ref.read(roomDatabaseProvider!);
-    return await roomDatabase.checkRoom(roomCode).then(
-      (id) {
-        if (id is String) ref.read(idNotifier.notifier).state = id;
-
-        return id;
+    final user = ref.read(firebaseUserProvider!);
+    return await roomDatabase.checkRoom(roomCode, user.uid).then(
+      (vRoom) async {
+        if (vRoom.status == RoomStatus.available || vRoom.alreadyIn) {
+          ref.read(idNotifier.notifier).state = vRoom.id;
+          if (vRoom.alreadyIn) {
+            final boardDatabase = ref.read(boardDatabaseProvider!);
+            final bool isGameOver = await boardDatabase.isGameOver;
+            print("IsGameOver $isGameOver");
+            if (isGameOver) return ValidateRoom(status: RoomStatus.alreadyOver);
+          }
+        }
+        return vRoom;
+        // if (id is String) ref.read(idNotifier.notifier).state = id;
+        //if (validateRoom.status == RoomStatus.alreadyStarted) {}
+        //return ValidateRoom(status: RoomStatus.available);
       },
     );
   },
@@ -88,7 +100,9 @@ final AutoDisposeFutureProvider<bool> createBoardProvider =
     final Map playersProvider = await ref.read(roomPlayersProvider!.future);
 
     if (!kDebugMode) {
-      if (playersProvider.length == 1) return false;
+      final package = await ref.read(packageInfoProvider!.future);
+      if (!package.appName.contains("Dev")) if (playersProvider.length == 1)
+        return false;
     }
 
     final boardDatabase = ref.read(boardDatabaseProvider!);

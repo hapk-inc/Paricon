@@ -1,26 +1,37 @@
-import 'dart:math';
-
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '/models/localIcon.dart';
 import '/models/localPlayer.dart';
 import 'setGameProvider.dart';
 
-final practiceProvider = ChangeNotifierProvider((_) => PracticeNotifier());
-
-/*final AutoDisposeFutureProviderFamily<String?, String> prevTimeRecordProvider =
-    FutureProvider.autoDispose.family<String?, String>(
-  (ref, level) async {
-    final auth = ref.read(firebaseUserProvider!);
-    final playerDatabase = ref.read(playerDatabaseProvider!(auth.uid));
-    return playerDatabase.fetchPrevRecord(level);
-  },
-);*/
+final practiceProvider =
+    ChangeNotifierProvider.autoDispose((_) => PracticeNotifier());
 
 class PracticeNotifier extends SetGameNotifier {
   late List<LocalIcon> _icons;
   late List<LocalPlayer> _players;
   int _currentIndex = 0;
-  bool _isGameOver = true;
+  late bool _isGameOver;
+  ScrollController _controller = ScrollController();
+
+  late double _rotationSize = 0.0;
+  late num _rotationPosition = 0;
+
+  double get rotationSize => _rotationSize;
+
+  set rotationSize(double value) {
+    if (_rotationSize == value) return;
+    _rotationSize = value;
+  }
+
+  num get rotationPosition => _rotationPosition;
+
+  set rotationPosition(num value) {
+    if (_rotationPosition == value) return;
+    _rotationPosition = value;
+  }
+
+  ScrollController get controller => _controller;
 
   bool get isGameOver => _isGameOver;
 
@@ -39,13 +50,17 @@ class PracticeNotifier extends SetGameNotifier {
     'orange'
   ]..shuffle();
 
-  String get winner {
-    LocalPlayer player =
-        players.reduce((curr, next) => curr.pts > next.pts ? curr : next);
-    return player.name!;
+  List<LocalPlayer> get winners {
+    /*LocalPlayer player =
+        players.reduce((curr, next) => curr.pts > next.pts ? curr : next);*/
+    _players.sort((a, b) => b.pts.compareTo(a.pts));
+
+    return _players
+        .where((element) => element.pts == _players[0].pts)
+        .toList(growable: false);
   }
 
-  createBoard(List<LocalIcon> icons) {
+  createPracticeBoard(List<LocalIcon> icons) {
     _icons = icons;
     _players = List.generate(
       this.playerCount,
@@ -56,9 +71,18 @@ class PracticeNotifier extends SetGameNotifier {
         playerNo: index + 1,
       ),
     );
+    init();
+    notifyListeners();
   }
 
-  validateIcons(int index) async {
+  init() {
+    rotationPosition = 0;
+    rotationSize = 0.0;
+    _isGameOver = false;
+    _currentIndex = 0;
+  }
+
+  Future<bool> validateIcons(int index) async {
     this.loading = true;
     icons[index] = icons[index].copyWith(isCheck: true);
     notifyListeners();
@@ -66,21 +90,22 @@ class PracticeNotifier extends SetGameNotifier {
     final validateIcons = icons.where((element) => element.isCheck).toList();
     if (validateIcons.length == 2) {
       if (validateIcons.first.checkIconCode(validateIcons.last)) {
-        /*icons.where((element) => element.isCheck).map((e) => e.copyWith(
-            isCheck: false, isFound: true, color: players[currentIndex].color));*/
-        await Future.delayed(Duration(milliseconds: 500), () {
-          validateIcons.forEach(
-            (element) {
-              icons[element.iconNo! - 1] = element.copyWith(
-                  isCheck: false,
-                  isFound: true,
-                  color: players[currentIndex].color);
-            },
-          );
-          players[currentIndex].pts++;
-          _isGameOver =
-              icons.every((element) => element.isFound && !element.isCheck);
-        });
+        await Future.delayed(
+          Duration(milliseconds: 500),
+          () {
+            validateIcons.forEach(
+              (element) {
+                icons[element.iconNo! - 1] = element.copyWith(
+                    isCheck: false,
+                    isFound: true,
+                    color: players[currentIndex].color);
+              },
+            );
+            players[currentIndex].pts++;
+            _isGameOver =
+                icons.every((element) => element.isFound && !element.isCheck);
+          },
+        );
       } else {
         await Future.delayed(
           Duration(milliseconds: 500),
@@ -91,56 +116,17 @@ class PracticeNotifier extends SetGameNotifier {
               },
             );
             _currentIndex++;
+
             if (_players.length == _currentIndex) _currentIndex = 0;
+            _rotationPosition++;
           },
         );
       }
     }
     this.loading = false;
     notifyListeners();
+    return true;
   }
-
-/*void validateIcons(LocalIcon icon) async {
-    if (!_isFirstClick && _recordTime) timeStart();
-
-    replaceIcon(icon.setCheck(true));
-
-    if (_compareIcon!.isEmpty) {
-      _compareIcon = icon.iconCode;
-      _boardLoading = false;
-      notifyListeners();
-      return;
-    }
-
-    final bool validate = _compareIcon == icon.iconCode;
-
-    await Future.delayed(
-      const Duration(milliseconds: 500),
-      () {
-        if (validate) {
-          _icons = _icons
-              .map((e) =>
-                  e.isCheck ? e.setFoundTrue(_players[_currentID].color) : e)
-              .toList(growable: false);
-          _players[_currentID].pts = (_players[_currentID].pts) + 1;
-
-          gameOver = _icons.every((element) => element.isFound);
-        } else {
-          _icons = _icons
-              .map((e) => e.isCheck ? e.setCheck(false) : e)
-              .toList(growable: false);
-          if (!_recordTime) {
-            _currentID++;
-            if (_players.length == _currentID) _currentID = 0;
-          }
-        }
-      },
-    );
-
-    _compareIcon = "";
-    _boardLoading = false;
-    notifyListeners();
-  }*/
 }
 
 /*class PracticeNotifier extends ChangeNotifier {

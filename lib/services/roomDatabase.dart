@@ -112,7 +112,7 @@ class RoomDatabase extends MyDatabase {
 
   Future get removeData => roomRef.remove();
 
-  Future<dynamic> checkRoom(String roomCode) async {
+  Future<ValidateRoom> checkRoom(String roomCode, String user) async {
     num _roomCode = num.parse(roomCode);
     return roomRef
         .orderByChild("details/roomCode")
@@ -120,15 +120,23 @@ class RoomDatabase extends MyDatabase {
         .once()
         .then(
       (snapshot) {
-        if (snapshot.value == null) return RoomStatus.notExists;
-        Map map = snapshot.value;
-        if (map.length != 1) return RoomStatus.duplicateCode;
-        final Room _room = Room.fromMap(map.values.first);
-        if (_room.details.maxCount > _room.players!.length) {
-          final String id = map.keys.first;
-          return id;
-        } else
-          return RoomStatus.houseFull;
+        if (snapshot.value == null)
+          return ValidateRoom(status: RoomStatus.notExists);
+        final Map map = snapshot.value;
+        if (map.length != 1)
+          return ValidateRoom(status: RoomStatus.duplicateCode);
+        final Room room = Room.fromMap(map.values.first);
+        if (room.details.maxCount < room.players!.length)
+          return ValidateRoom(status: RoomStatus.houseFull);
+        if (room.isGameStarted) {
+          return ValidateRoom(
+            status: RoomStatus.alreadyStarted,
+            id: map.keys.first,
+            alreadyIn: room.players!.any((element) => element == user),
+          );
+        }
+
+        return ValidateRoom(status: RoomStatus.available, id: map.keys.first);
       },
     );
   }

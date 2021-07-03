@@ -11,7 +11,7 @@ class Splash extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(40.0),
           child: Image.asset(
-            'assets/title_red.png',
+            'assets/img/title_red.png',
             fit: BoxFit.cover,
           ),
         ),

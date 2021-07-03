@@ -16,7 +16,7 @@ final AutoDisposeFutureProvider<Board> boardProvider =
     FutureProvider.autoDispose<Board>(
   (ref) async {
     final boardDatabase = ref.read(boardDatabaseProvider!);
-    return boardDatabase.board;
+    return Future.delayed(DurationCount.sec1, () => boardDatabase.board);
   },
 );
 

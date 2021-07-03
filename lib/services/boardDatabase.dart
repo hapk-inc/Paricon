@@ -25,6 +25,11 @@ class BoardDatabase extends MyDatabase {
 
   DatabaseReference get boardCurrentIconRef => boardRef.child("currentIcon");
 
+  Future<bool> get isGameOver =>
+      boardIconRef.orderByChild("isFound").equalTo(false).once().then(
+            (snapshot) => snapshot.value == null,
+          );
+
   Future createBoard(Map board) async => await boardRef.set(board);
 
   Future<Board> get board async =>

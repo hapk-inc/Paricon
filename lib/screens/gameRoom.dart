@@ -88,7 +88,7 @@ class GameRoom extends ConsumerWidget {
                       return context.read(gameStartProvider);
                     else
                       ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBarThemeStyle.waitForOthers());
+                          .showSnackBar(SnackBarThemeStyle.waitForOthers);
                   },
                 ),
                 /*.catchError(
@@ -161,13 +161,13 @@ class DetailsWidget extends ConsumerWidget {
                     Flexible(
                       flex: 2,
                       child: MediaQuery.of(context).orientation ==
-                          Orientation.landscape
+                              Orientation.landscape
                           ? Column(
-                        children: <Widget>[Point5SpaceWidget()] +
+                              children: <Widget>[Point5SpaceWidget()] +
                                   detailList(room.details),
                             )
                           : Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: detailList(room.details),
                             ),
                     ),

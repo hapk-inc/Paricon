@@ -18,10 +18,10 @@ class PracticeBoard extends StatelessWidget {
   const PracticeBoard({Key? key}) : super(key: key);
 
   static MaterialPage get toMaterialPage => MaterialPage(
-    child: PracticeBoard(),
-    key: ValueKey('practiceBoard'),
-    name: '/practiceBoard',
-  );
+        child: PracticeBoard(),
+        key: ValueKey('practiceBoard'),
+        name: '/practiceBoard',
+      );
 
   @override
   Widget build(BuildContext context) {

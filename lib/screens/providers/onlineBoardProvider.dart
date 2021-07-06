@@ -144,7 +144,7 @@ class OnlineBoardNotifier extends ChangeNotifier {
     List<LocalIcon> mlist = [];
     final a = icons.where((element) => element.color == color).toList();
     a.forEach(
-          (element) {
+      (element) {
         if (!mlist.any((_list) => _list.iconCode == element.iconCode))
           mlist.add(element);
       },

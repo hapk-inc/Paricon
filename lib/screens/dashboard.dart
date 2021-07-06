@@ -141,7 +141,7 @@ class DashButtons extends StatelessWidget {
               break;
             default:
               ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBarThemeStyle.comingSoon());
+                  .showSnackBar(SnackBarThemeStyle.comingSoon);
           }
         },
       ),

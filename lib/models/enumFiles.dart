@@ -10,5 +10,5 @@ enum RoomStatus {
   alreadyStarted,
   duplicateCode,
   available,
-  alreadyOver
+  alreadyOver,
 }

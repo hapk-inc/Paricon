@@ -5,7 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/enumFiles.dart';
-import 'package:paricon/screens/providers/packageInfoProvider.dart';
+import 'packageInfoProvider.dart';
 import '/models/localIcon.dart';
 import '/models/room.dart';
 
@@ -18,6 +18,16 @@ import 'setGameProvider.dart';
 final AutoDisposeFutureProvider<String>? createRoomProvider =
     FutureProvider.autoDispose<String>(
   (ref) async {
+    /*if (!kDebugMode) {
+      final package = await ref.read(packageInfoProvider!.future);
+      if (!package.appName.contains("Dev")) {
+        final appUpdate = await ref.read(inAppUpdateProvider.future);
+        if (appUpdate.updateAvailability ==
+                UpdateAvailability.updateAvailable &&
+            appUpdate.immediateUpdateAllowed) return "UPDATE";
+      }
+    }*/
+
     final setGame = ref.read(setGameProvider);
     final roomDatabase = ref.read(roomDatabaseProvider!);
     final User user = ref.read(firebaseUserProvider!);
@@ -186,7 +196,7 @@ final AutoDisposeStreamProvider<bool>? sGameStartProvider =
 );
 
 final AutoDisposeFutureProvider gameStartProvider = FutureProvider.autoDispose(
-      (ref) async {
+  (ref) async {
     try {
       final roomDatabase = ref.read(roomDatabaseProvider!);
       await roomDatabase.gameStart(true);
@@ -195,7 +205,7 @@ final AutoDisposeFutureProvider gameStartProvider = FutureProvider.autoDispose(
 );
 
 final leavingRoomProvider = FutureProvider.autoDispose(
-      (ref) async {
+  (ref) async {
     final roomDatabase = ref.read(roomDatabaseProvider!);
     final firebaseUser = ref.read(firebaseUserProvider!);
 

@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_update/in_app_update.dart';
-//import 'package:paricon/screens/providers/packageInfoProvider.dart';
 import 'screens/appUpdate.dart';
 import 'screens/common/circularProgressTheme.dart';
 import 'screens/common/durationCount.dart';

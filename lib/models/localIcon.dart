@@ -40,8 +40,7 @@ class LocalIcon {
         }
       };
 
-  Map<String, dynamic> get updateIcon =>
-      <String, dynamic>{
+  Map<String, dynamic> get updateIcon => <String, dynamic>{
         'iconCode': iconCode,
         'iconNo': iconNo,
         'isCheck': isCheck,

@@ -40,6 +40,7 @@ class EnterRoomCode extends StatelessWidget {
                 msg = tryOthers;
                 break;
               case RoomStatus.available:
+                await context.read(joinRoomProvider.future);
                 context.read(pageProvider).replace(GameRoom.toMaterialPage());
                 break;
               case RoomStatus.alreadyOver:

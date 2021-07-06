@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/screens/common/snackBarTheme.dart';
+
+import 'common/snackBarTheme.dart';
 
 import 'common/durationCount.dart';
 import 'common/paddingTheme.dart';
 import 'common/setGameWidgets.dart';
-import 'common/textTheme.dart';
+
 import 'gameRoom.dart';
 import 'providers/pageProvider.dart';
 import 'providers/roomProvider.dart';
@@ -30,7 +31,10 @@ class SetGame extends ConsumerWidget {
         children: [
           Flexible(
             flex: 2,
-            child: SetGameLevel(level: notifier.level, title: "Game Level"),
+            child: SetGameLevel(
+              level: notifier.level,
+              title: "Game Level",
+            ),
           ),
           Flexible(
             flex: 2,
@@ -69,46 +73,7 @@ class SetGame extends ConsumerWidget {
                     child: CircularProgressIndicator(),
                   ),
                 ),
-                Flexible(
-                  child: Container(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        notifier.loading = true;
-                        if (notifier.level.isEmpty) {
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBarThemeStyle.chooseGameLevel);
-                          notifier.loading = false;
-                          return;
-                        }
-                        context
-                            .read(createRoomProvider!.future)
-                            .then(
-                              (value) async {
-                                await context.read(joinRoomProvider.future);
-                                context.read(pageProvider).replace(
-                                    GameRoom.toMaterialPage(id: value));
-                              },
-                            )
-                            .whenComplete(() => notifier.loading = false)
-                            .catchError(
-                              (error) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'There is some issue while creating room',
-                                      style: TextStyleFontTheme.poppins,
-                                    ),
-                                    duration: DurationCount.sec1,
-                                  ),
-                                );
-                              },
-                            );
-                      },
-                      child: StartGameText(),
-                    ),
-                  ),
-                ),
+                StartGameButton(),
               ],
             ),
           )
@@ -116,4 +81,48 @@ class SetGame extends ConsumerWidget {
       ),
     );
   }
+}
+
+class StartGameButton extends StatelessWidget {
+  const StartGameButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => Flexible(
+        child: Container(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () {
+              final setGame = context.read(setGameProvider);
+              setGame.loading = true;
+              if (setGame.level.isEmpty) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBarThemeStyle.chooseGameLevel);
+                setGame.loading = false;
+                return;
+              }
+              context
+                  .read(createRoomProvider!.future)
+                  .then((value) async {
+                    /* if (value == "UPDATE") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBarThemeStyle.appUpdate,
+                      );
+                    } else {*/
+                    await context.read(joinRoomProvider.future);
+                    context
+                        .read(pageProvider)
+                        .replace(GameRoom.toMaterialPage(id: value));
+                    //}
+                  })
+                  .whenComplete(() => setGame.loading = false)
+                  .catchError((error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBarThemeStyle.creatingRoomIssue,
+                    );
+                  });
+            },
+            child: StartGameText(),
+          ),
+        ),
+      );
 }

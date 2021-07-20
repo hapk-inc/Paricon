@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/localPlayer.dart';
 import 'package:paricon/screens/providers/practiceProvider.dart';
-import '/screens/gameBoard.dart';
 
 import '/models/enumFiles.dart';
-import '/screens/providers/gameIconProvider.dart';
 import '/models/localIcon.dart';
+import '/screens/gameBoard.dart';
+import '/screens/providers/gameIconProvider.dart';
 import 'durationCount.dart';
 import 'outlineBorder.dart';
 import 'paddingTheme.dart';
@@ -22,39 +22,37 @@ class GridIcons extends StatelessWidget {
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Flexible(
-      flex: 6,
-      child: GridView.builder(
-        itemCount: icons.length,
-        padding: icons.length == 16 ? PaddingTheme.all16 : PaddingTheme.all8,
-        physics: NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount:
-              context.read(gameIconProvider).crossAxisCount(icons.length),
-          crossAxisSpacing: 1.0,
-          mainAxisSpacing: 1.0,
+  Widget build(BuildContext context) => Flexible(
+        flex: 6,
+        child: GridView.builder(
+          itemCount: icons.length,
+          padding: icons.length == 16 ? PaddingTheme.all16 : PaddingTheme.all8,
+          physics: NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount:
+                context.read(gameIconProvider).crossAxisCount(icons.length),
+            crossAxisSpacing: 1.0,
+            mainAxisSpacing: 1.0,
+          ),
+          itemBuilder: (context, index) {
+            if (isOnline) return CardIcon(id: icons[index]);
+            final practice = context.read(practiceProvider);
+            return LocalIconCard(
+              icon: icons[index],
+              iconTap: !practice.loading
+                  ? () async {
+                      bool validate = await practice.validateIcons(index);
+                      if (validate)
+                        practice.controller.animateTo(
+                            practice.rotationSize * practice.rotationPosition,
+                            duration: DurationCount.m250,
+                            curve: Curves.easeIn);
+                    }
+                  : null,
+            );
+          },
         ),
-        itemBuilder: (context, index) {
-          if (isOnline) return CardIcon(id: icons[index]);
-          final practice = context.read(practiceProvider);
-          return LocalIconCard(
-            icon: icons[index],
-            iconTap: !practice.loading
-                ? () async {
-                    bool validate = await practice.validateIcons(index);
-                    if (validate)
-                      practice.controller.animateTo(
-                          practice.rotationSize * practice.rotationPosition,
-                          duration: DurationCount.m250,
-                          curve: Curves.easeIn);
-                  }
-                : null,
-          );
-        },
-      ),
-    );
-  }
+      );
 }
 
 class PlayerListWheel extends StatelessWidget {
@@ -119,7 +117,7 @@ class PlayerList extends StatelessWidget {
     return Flexible(
       flex: 2,
       child: ListView.builder(
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         itemCount: players.length,
         scrollDirection: Axis.horizontal,
         shrinkWrap: true,
@@ -291,15 +289,23 @@ class PlayerNameState extends StatelessWidget {
           duration: DurationCount.m500,
           child: FittedBox(
             child: OutlineBorderText(
-              strokeColor: Colors.white70,
+              strokeColor: player.name!.contains("SomeOne")
+                  ? Colors.black38
+                  : Colors.white70,
               strokeWidth: 5,
               child: Text(
                 isItYou ? "Your Turn" : player.name!,
                 key: ValueKey(keyValue),
-                style: TextStyleFontTheme.luckiestGuy.copyWith(
-                  color: context.read(gameIconProvider).iconColor(player.color),
-                  fontSize: MediaQuery.of(context).size.height * 0.075,
-                ),
+                style: player.name!.contains("SomeOne")
+                    ? TextStyleFontTheme.poppins.copyWith(
+                        fontSize: MediaQuery.of(context).size.height * 0.05,
+                      )
+                    : TextStyleFontTheme.luckiestGuy.copyWith(
+                        color: context
+                            .read(gameIconProvider)
+                            .iconColor(player.color),
+                        fontSize: MediaQuery.of(context).size.height * 0.075,
+                      ),
               ),
             ),
           ),

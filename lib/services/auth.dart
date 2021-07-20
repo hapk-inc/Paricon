@@ -13,8 +13,28 @@ class Auth {
     _auth = FirebaseAuth.instanceFor(app: app);
   }
 
-  Stream<bool> get userCheck =>
-      _auth.authStateChanges().map((event) => event != null);
+  Stream<bool> get userCheck => _auth.authStateChanges().map(
+        (event) => event != null,
+      );
+
+  /*Stream<bool> get userCheck {
+    late BehaviorSubject<bool> behaviorSubject;
+    behaviorSubject = BehaviorSubject(
+      onListen: () => _auth.authStateChanges().listen(
+        (event) {
+          if (event == null) behaviorSubject.add(false);
+          final user = event;
+          /*print("User Available");
+          print(user);
+          //UserInfo userInfo = user!.providerData[0];
+          print(DateTime.now());*/
+          //user!.providerData.add(UserInfo());
+          behaviorSubject.add(true);
+        },
+      ),
+    );
+    return behaviorSubject.stream;
+  }*/
 
   User? get currentUser => _auth.currentUser;
 

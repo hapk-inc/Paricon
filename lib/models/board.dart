@@ -3,8 +3,6 @@ import 'dart:convert';
 
 import 'enumFiles.dart';
 
-//import 'package:collection/collection.dart';
-
 class Board {
   final List players;
   final List icons;
@@ -12,8 +10,6 @@ class Board {
   final GameType type;
   final String currentIcon;
 
-  //final bool isGameOver;
-  //final int iconsFound;
   Board(
       {required this.players,
       required this.icons,
@@ -62,24 +58,4 @@ class Board {
   String toString() {
     return 'Board(players: $players, icons: $icons, currentID: $currentID)';
   }
-
-/*@override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    final listEquals = const DeepCollectionEquality().equals;
-
-    return other is Board &&
-        listEquals(other.players, players) &&
-        listEquals(other.icons, icons) &&
-        other.currentID == currentID;
-    //other.isGameOver == isGameOver;
-    //other.iconsFound == iconsFound;
-  }*/
-
-/*@override
-  int get hashCode {
-    return players.hashCode ^ icons.hashCode ^ currentID.hashCode;
-    //isGameOver.hashCode;
-    //iconsFound.hashCode;
-  }*/
 }

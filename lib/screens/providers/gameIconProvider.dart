@@ -39,42 +39,54 @@ class GameIconProvider {
     }
   }
 
-  List<InitIcon> getIcons(String level) {
-    final int count = iconCount(level) ~/ 2;
+  List<InitIcon> getIcons(String? level) {
+    final int count = iconCount(level ?? "hard") ~/ 2;
 
-    final icons = List.from(GameIcons.values)..shuffle();
+    final icons = level == null
+        ? List.from([
+            ...actionIcons.keys, /*...alertIcons.keys*/
+          ])
+        : List.from(GameIcons.values)
+      ..shuffle();
 
     final sounds = List.from(iconSounds)..shuffle();
 
     List<InitIcon> initIcons = List.generate(
       count,
       (index) => InitIcon(
-        GameIconExt(icons[index]).name,
+        level == null ? icons[index] : GameIconExt(icons[index]).name,
         sounds[index],
       ),
     );
 
-    /*List<String> setIcons =
-        icons.take(count).map((e) => GameIconExt(e).name).toList();
-    return (setIcons + setIcons)..shuffle();*/
     return (initIcons + initIcons)..shuffle();
   }
 
   List<LocalIcon> generateIcons(String level) {
     final int _count = iconCount(level);
     final _icons = getIcons(level);
-    /*List<LocalIcon> a = List.generate(
-      _count,
-      (i) => LocalIcon(iconCode: _icons[i].icon, iconNo: i + 1,audio: _icons[i].audio ),
-    );
-    return a;*/
     return List.generate(
         _count,
         (i) => LocalIcon(
             iconCode: _icons[i].icon, iconNo: i + 1, audio: _icons[i].audio));
   }
 
+  List<LocalIcon> get tournamentIcons {
+    final _icons = getIcons(null);
+    return List.generate(
+      iconCount("hard"),
+      (i) => LocalIcon(
+          iconCode: _icons[i].icon, iconNo: i + 1, audio: _icons[i].audio),
+    );
+  }
+
   IconData? gameIcon(String? _gameIcon) => GameIconExt.displayIcon(_gameIcon);
+
+  IconData? tournamentGameIcons(String gameIcon) {
+    final Map<String, IconData> map = actionIcons;
+    final a = map[gameIcon];
+    return a;
+  }
 
   Color iconColor(String color) {
     switch (color) {
@@ -94,7 +106,8 @@ class GameIconProvider {
         return Colors.blue;
       case 'pink':
         return Colors.pink;
-
+      case 'blueGrey':
+        return Colors.blueGrey;
       default:
         return Colors.white70;
     }

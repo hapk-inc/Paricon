@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:paricon/models/enumFiles.dart';
-import 'package:paricon/models/room.dart';
+import '/models/enumFiles.dart';
+import '/models/room.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'database.dart';

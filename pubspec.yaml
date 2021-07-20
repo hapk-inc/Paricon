@@ -46,6 +46,7 @@ dependencies:
   confetti: ^0.6.0-nullsafety
   lottie: ^1.0.1
   audioplayers: ^0.19.1
+  google_mobile_ads: ^0.13.2
 
 dev_dependencies:
   flutter_test:

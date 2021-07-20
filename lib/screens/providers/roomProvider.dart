@@ -4,7 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/models/enumFiles.dart';
+import 'package:in_app_update/in_app_update.dart';
+import '/models/enumFiles.dart';
 import 'packageInfoProvider.dart';
 import '/models/localIcon.dart';
 import '/models/room.dart';
@@ -14,11 +15,12 @@ import 'databaseProvider.dart';
 import 'gameIconProvider.dart';
 import 'roomIDProvider.dart';
 import 'setGameProvider.dart';
+import 'updateProvider.dart';
 
 final AutoDisposeFutureProvider<String>? createRoomProvider =
     FutureProvider.autoDispose<String>(
   (ref) async {
-    /*if (!kDebugMode) {
+    if (!kDebugMode) {
       final package = await ref.read(packageInfoProvider!.future);
       if (!package.appName.contains("Dev")) {
         final appUpdate = await ref.read(inAppUpdateProvider.future);
@@ -26,7 +28,7 @@ final AutoDisposeFutureProvider<String>? createRoomProvider =
                 UpdateAvailability.updateAvailable &&
             appUpdate.immediateUpdateAllowed) return "UPDATE";
       }
-    }*/
+    }
 
     final setGame = ref.read(setGameProvider);
     final roomDatabase = ref.read(roomDatabaseProvider!);

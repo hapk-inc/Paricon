@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:paricon/screens/setPractice.dart';
-
-import 'common/paddingTheme.dart';
-
-import 'startGame.dart';
-
 import 'allPlayers.dart';
 import 'common/buttonStyleTheme.dart';
+import 'common/paddingTheme.dart';
 import 'common/snackBarTheme.dart';
 import 'common/textTheme.dart';
 import 'profile.dart';
 import 'providers/pageProvider.dart';
+import 'setPractice.dart';
+import 'startGame.dart';
+import 'tournamentLeaderBoard.dart';
 
 class Dashboard extends ConsumerWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -30,20 +28,27 @@ class Dashboard extends ConsumerWidget {
           subtitle: "Play in One Phone",
           isLeftAligned: true,
         ),
-        Spacer(),
+        //Point5Gap(),
         DashButtons(
           btnColor: Colors.indigo,
           title: "Play Online",
           subtitle: "Play with your friends",
           isLeftAligned: false,
         ),
-        Spacer(),
+        //Point5Gap(),
         DashButtons(
           btnColor: Colors.green,
           title: "Friends and Strangers",
           subtitle: "Check out other players",
           isLeftAligned: true,
         ),
+        //Point5Gap(),
+        DashButtons(
+          btnColor: Colors.orange,
+          title: "Play competitive",
+          subtitle: "Today's tournament",
+          isLeftAligned: false,
+        )
       ];
 
   @override
@@ -55,16 +60,19 @@ class Dashboard extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               DashboardHeader(),
-              Spacer(),
+
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: LayoutBuilder(
-                    builder: (context, constraints) =>
-                        MediaQuery.of(context).orientation ==
-                                Orientation.portrait
-                            ? Column(children: buttonList)
-                            : Row(children: buttonList),
+                    builder: (context, constraints) => MediaQuery.of(context)
+                                .orientation ==
+                            Orientation.portrait
+                        ? Column(
+                            children: buttonList,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          )
+                        : Row(children: buttonList),
                   ),
                 ),
                 flex: 7,
@@ -77,76 +85,98 @@ class Dashboard extends ConsumerWidget {
 }
 
 class DashButtons extends StatelessWidget {
-  final String? title, subtitle;
-  final Color? btnColor;
-  final bool? isLeftAligned;
-  const DashButtons(
-      {Key? key, this.title, this.subtitle, this.btnColor, this.isLeftAligned})
-      : super(key: key);
+  final String title, subtitle;
+  final Color btnColor;
+  final bool isLeftAligned;
+  const DashButtons({
+    Key? key,
+    required this.title,
+    required this.subtitle,
+    required this.btnColor,
+    this.isLeftAligned = false,
+  }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Flexible(
-      flex: 6,
-      child: ElevatedButton(
-        style: ButtonStyleTheme.buildDashboardButtonStyle(btnColor: btnColor),
-        child: Container(
-          padding: const EdgeInsets.all(8.0),
-          alignment: Alignment.centerLeft,
-          child: Column(
-            //mainAxisAlignment: MainAxisAlignment.spaceAround,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            textDirection: TextDirection.ltr,
-            children: [
-              Flexible(
-                child: FittedBox(
-                  child: Text(
-                    title!,
-                    style: TextStyleFontTheme.poppins.copyWith(fontSize: 24),
-                    textScaleFactor: 1,
-                  ),
+  Widget build(BuildContext context) => Flexible(
+        flex: 4,
+        child: FractionallySizedBox(
+          heightFactor: 0.9,
+          child: Container(
+            child: ElevatedButton(
+              style: ButtonStyleTheme.buildDashboardButtonStyle(
+                  btnColor: btnColor),
+              child: Container(
+                padding: const EdgeInsets.all(8.0),
+                alignment: isLeftAligned
+                    ? Alignment.centerLeft
+                    : Alignment.centerRight,
+                child: Column(
+                  //mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  textDirection: TextDirection.ltr,
+                  children: [
+                    Flexible(
+                      child: FittedBox(
+                        child: Text(
+                          title,
+                          style:
+                              TextStyleFontTheme.poppins.copyWith(fontSize: 24),
+                          textScaleFactor: 1,
+                        ),
+                      ),
+                    ),
+                    Flexible(
+                      flex: 2,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          subtitle,
+                          style: TextStyleFontTheme.luckiestGuy
+                              .copyWith(fontSize: 36),
+                          maxLines: 3,
+                          //textScaleFactor: 3,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Flexible(
-                flex: 2,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    subtitle!,
-                    style:
-                        TextStyleFontTheme.luckiestGuy.copyWith(fontSize: 36),
-                    maxLines: 3,
-                    //textScaleFactor: 3,
-                  ),
-                ),
-              ),
-            ],
+              onPressed: () {
+                //final analytics = context.read(firebaseAnalyticsProvider);
+                switch (title) {
+                  case "Play Online":
+                    {
+                      //analytics.setCurrentScreen(screenName: "play_online_screen");
+                      context
+                          .read(pageProvider)
+                          .addNext(StartGame.toMaterialPage);
+                      break;
+                    }
+                  case "Play Local Game":
+                    context
+                        .read(pageProvider)
+                        .addNext(SetPractice.toMaterialPage);
+                    break;
+                  case "Friends and Strangers":
+                    context
+                        .read(pageProvider)
+                        .addNext(AllPlayers.toMaterialPage);
+                    break;
+                  case "Play competitive":
+                    context
+                        .read(pageProvider)
+                        .addNext(TournamentLeaderBoard.toMaterialPage);
+                    break;
+                  default:
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBarThemeStyle.comingSoon);
+                }
+              },
+            ),
           ),
         ),
-        onPressed: () {
-          //final analytics = context.read(firebaseAnalyticsProvider);
-          switch (title!) {
-            case "Play Online":
-              {
-                //analytics.setCurrentScreen(screenName: "play_online_screen");
-                context.read(pageProvider).addNext(StartGame.toMaterialPage);
-                break;
-              }
-            case "Play Local Game":
-              context.read(pageProvider).addNext(SetPractice.toMaterialPage);
-              break;
-            case "Friends and Strangers":
-              context.read(pageProvider).addNext(AllPlayers.toMaterialPage);
-              break;
-            default:
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBarThemeStyle.comingSoon);
-          }
-        },
-      ),
-    );
-  }
+      );
 }
 
 class DashboardHeader extends StatelessWidget {

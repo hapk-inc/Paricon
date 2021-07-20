@@ -73,10 +73,17 @@ class OnlineBoardNotifier extends ChangeNotifier {
   bool _alreadyClicked = false;
 
   bool get alreadyClicked => _alreadyClicked;
-
-  LocalPlayer get currentPlayer => players.isEmpty
-      ? LocalPlayer(name: "Someone", color: "", pts: 0, playerNo: 0)
-      : players[currentIndex.toInt()];
+  //static const List<String> colors = ["red", "blue", "green", "", "blueGrey"];
+  LocalPlayer get currentPlayer {
+    try {
+      return players.isEmpty //|| players.length>=currentIndex.toInt()
+          ? LocalPlayer(name: "Someone", color: "", pts: 0, playerNo: 0)
+          : players[currentIndex.toInt()];
+      //: players[6];
+    } on RangeError catch (_) {
+      return LocalPlayer(name: "Someone", color: "blueGrey", playerNo: 0);
+    }
+  }
 
   String get level => _icons.length == 16
       ? "easy"
@@ -174,4 +181,29 @@ class OnlineBoardNotifier extends ChangeNotifier {
     _myPlayer = null;
     //notifyListeners();
   }
+}
+
+final wheelListProvider =
+    ChangeNotifierProvider.autoDispose((ref) => WheelListNotifier());
+
+class WheelListNotifier extends ChangeNotifier {
+  ScrollController _controller = ScrollController();
+  late double _rotationSize = 0.0;
+  late num _rotationPosition = 0;
+
+  double get rotationSize => _rotationSize;
+
+  set rotationSize(double value) {
+    if (_rotationSize == value) return;
+    _rotationSize = value;
+  }
+
+  num get rotationPosition => _rotationPosition;
+
+  set rotationPosition(num value) {
+    if (_rotationPosition == value) return;
+    _rotationPosition = value;
+  }
+
+  ScrollController get controller => _controller;
 }

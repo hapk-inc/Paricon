@@ -5,9 +5,10 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/screens/providers/packageInfoProvider.dart';
-import 'package:paricon/services/auth.dart';
+import 'packageInfoProvider.dart';
+import '/services/auth.dart';
 
+import 'databaseProvider.dart';
 import 'newNameProvider.dart';
 
 final firebaseAppProvider = FutureProvider<FirebaseApp>(
@@ -85,5 +86,14 @@ final AutoDisposeFutureProvider<Null>? signOutProvider =
   (ref) async {
     final auth = ref.read(authProvider);
     await auth.signOut;
+  },
+);
+
+final AutoDisposeFutureProvider updateMetaDataProvider =
+    FutureProvider.autoDispose(
+  (ref) async {
+    final firebaseUser = ref.read(firebaseUserProvider!);
+    final playerDatabase = ref.read(playerDatabaseProvider!(firebaseUser.uid));
+    await playerDatabase.updateMetaData;
   },
 );

@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paricon/services/boardDatabase.dart';
-import 'package:paricon/services/playerDatabase.dart';
-import 'package:paricon/services/roomDatabase.dart';
+import '/services/boardDatabase.dart';
+import '/services/playerDatabase.dart';
+import '/services/roomDatabase.dart';
+import '/services/tournamentDatabase.dart';
 
 import 'authProvider.dart';
 import 'roomIDProvider.dart';
@@ -32,5 +33,14 @@ final AutoDisposeProvider<BoardDatabase>? boardDatabaseProvider =
     //final id = ref.read(onlineBoardNotifier).roomID;
     final app = ref.read(firebaseAppProvider).data!.value;
     return BoardDatabase(app, id: id);
+  },
+);
+
+final AutoDisposeProvider<TournamentDatabase>? tournamentDatabaseProvider =
+    Provider.autoDispose<TournamentDatabase>(
+  (ref) {
+    final app = ref.read(firebaseAppProvider).data!.value;
+    final firebaseUser = ref.read(firebaseUserProvider!);
+    return TournamentDatabase(app, uid: firebaseUser.uid);
   },
 );

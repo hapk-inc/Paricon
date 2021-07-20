@@ -32,4 +32,9 @@ class PageNotifier extends ChangeNotifier {
     notifyListeners();
     return success;
   }
+
+  remove() {
+    _pages.removeLast();
+    notifyListeners();
+  }
 }

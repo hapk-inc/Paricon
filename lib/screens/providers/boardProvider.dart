@@ -24,6 +24,7 @@ final AutoDisposeStreamProviderFamily<LocalIcon, String> iconProvider =
     StreamProvider.family.autoDispose<LocalIcon, String>(
   (ref, icon) {
     final boardDatabase = ref.read(boardDatabaseProvider!);
+    ref.maintainState = false;
     return boardDatabase.localIcon(icon);
   },
 );

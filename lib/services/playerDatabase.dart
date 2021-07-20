@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
+import 'package:paricon/models/playerMeta.dart';
 import '/models/profile.dart';
 import '/models/stats.dart';
 
@@ -93,4 +94,35 @@ class PlayerDatabase extends MyDatabase {
           return _list.reversed.toList();
         },
       );
+
+  Future<bool> get updateMetaData async {
+    final DatabaseReference _ref = playerRef.child('metadata');
+    final TransactionResult transactionResult =
+        await _ref.runTransaction((mutableData) async {
+      if (mutableData.value == null) {
+        mutableData.value = PlayerMetaData(currentTime: DateTime.now()).toMap();
+      } else {
+        final Map map = mutableData.value;
+        final PlayerMetaData metaData = PlayerMetaData.fromMap(map);
+        mutableData.value = metaData.updateNow().toMap();
+      }
+      return mutableData;
+    });
+    return transactionResult.committed;
+  }
+  /* Future<bool> updateStats(String level, Stats stats) async {
+    final DatabaseReference _ref =
+        playerRef.child('profile').child("stats").child(level);
+    final TransactionResult transactionResult = await _ref.runTransaction(
+      (MutableData mutableData) async {
+        Map map = mutableData.value ?? null;
+        Stats oldStats = Stats.fromMap(map);
+        Stats newStats = oldStats + stats;
+        mutableData.value = newStats.toMap();
+
+        return mutableData;
+      },
+    );
+    return transactionResult.committed;
+  }*/
 }

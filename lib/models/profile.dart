@@ -6,10 +6,10 @@ import 'stats.dart';
 
 class Profile {
   String name;
-  int? userID;
+  int userID;
   List<Stats>? stats;
 
-  Profile({required this.name, this.userID, this.stats});
+  Profile({required this.name, this.userID = 0, this.stats});
 
   Profile copyWith({String? name, int? userID, List<Stats>? stats}) => Profile(
         name: name ?? this.name,

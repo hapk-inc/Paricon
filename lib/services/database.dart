@@ -13,4 +13,7 @@ class MyDatabase {
   DatabaseReference get roomRef => _firebaseDatabase.reference().child("rooms");
   DatabaseReference get boardRef =>
       _firebaseDatabase.reference().child("boards");
+
+  DatabaseReference get tournamentRef =>
+      _firebaseDatabase.reference().child("tournament");
 }

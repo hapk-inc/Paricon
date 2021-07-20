@@ -69,11 +69,12 @@ class FirebaseInit extends ConsumerWidget {
               final analytics = context.read(firebaseAnalyticsProvider);
 
               asyncValue.whenData(
-                (userAvailable) {
+                (userAvailable) async {
                   analytics.logAppOpen();
-                  if (userAvailable)
+                  if (userAvailable) {
+                    context.read(updateMetaDataProvider);
                     pageCtx.replaceAll(Dashboard.toMaterialPage);
-                  else {
+                  } else {
                     pageCtx.replaceAll(Welcome.toMaterialPage);
                   }
                 },

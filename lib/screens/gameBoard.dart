@@ -6,17 +6,18 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 //import 'package:google_mobile_ads/google_mobile_ads.dart';
+//import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:lottie/lottie.dart';
-//import 'package:paricon/screens/providers/adStateProvider.dart';
-import 'common/textTheme.dart';
+
 import '/models/enumFiles.dart';
 import '/models/localIcon.dart';
 import '/models/localPlayer.dart';
-
 import 'common/durationCount.dart';
 import 'common/gameBoardWidgets.dart';
 import 'common/popup.dart';
-
+//import 'package:paricon/screens/providers/adStateProvider.dart';
+import 'common/textTheme.dart';
+//import 'providers/adStateProvider.dart';
 import 'providers/authProvider.dart';
 import 'providers/boardProvider.dart';
 import 'providers/gameIconProvider.dart';
@@ -63,8 +64,8 @@ class InitBoard extends StatefulWidget {
 }
 
 class _InitBoardState extends State<InitBoard> {
-  // BannerAd? _bannerAd;
-  /*@override
+  /* BannerAd? _bannerAd;
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final adState = context.read(adStateProvider);
@@ -131,7 +132,7 @@ class _InitBoardState extends State<InitBoard> {
                                 .confettiColors(notifier.confettiColors),
                             // manually specify
                             numberOfParticles: 25, // the colors to be used
-                            //createParticlePath: drawStar,
+                            //createParticlePath: dtrawStar,
                           ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -139,19 +140,18 @@ class _InitBoardState extends State<InitBoard> {
                               BoardHeader(level: notifier.level),
                               GridIcons(icons: _board.icons),
                               PlayerList(players: _board.players),
-                              Flexible(
+                              //PlayerListWheel(players: _board.players),
+                              /*Flexible(
                                 child: FractionallySizedBox(
                                   heightFactor: 0.5,
-                                  child:
-                                      Container() /*AnimatedSwitcher(
+                                  child: AnimatedSwitcher(
                                     duration: DurationCount.m500,
                                     child: _bannerAd == null
                                         ? Container()
                                         : AdWidget(ad: _bannerAd!),
-                                  )*/
-                                  ,
+                                  ),
                                 ),
-                              ),
+                              ),*/
                             ],
                           ),
                         ],
@@ -164,8 +164,11 @@ class _InitBoardState extends State<InitBoard> {
                     error: (err, StackTrace? stackTrace) {
                       final error = err as Error;
                       FirebaseCrashlytics.instance.recordError(
-                          error, stackTrace,
-                          reason: 'entering Board Error', fatal: true);
+                        error,
+                        stackTrace,
+                        reason: 'Board Error',
+                        fatal: true,
+                      );
                       return ErrorGameBoard(error: error);
                     },
                   ),
@@ -175,6 +178,12 @@ class _InitBoardState extends State<InitBoard> {
           ),
         ),
       );
+
+  @override
+  void dispose() {
+    super.dispose();
+    // _bannerAd?.dispose();
+  }
 }
 
 class BoardLoading extends StatelessWidget {
@@ -312,7 +321,7 @@ class CardIcon extends StatelessWidget {
           (_icon) async {
             if (!notifier.icons.contains(_icon)) {
               print("Loading ${_icon.audio}");
-              AudioCache().load('audios/${_icon.audio}.wav');
+              // AudioCache().load('audios/${_icon.audio}.wav');
             }
             notifier.replaceIcon(_icon);
             /*if (!_icon.checkFound() && notifier.type == GameType.orderWise)

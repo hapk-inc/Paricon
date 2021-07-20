@@ -42,6 +42,8 @@ enum GameIcons {
   grade,
 }
 
+enum TournamentIcons { home, Settings }
+
 const List<String> iconSounds = [
   "anklung",
   "boltJingle",
@@ -177,3 +179,69 @@ extension GameIconExt on GameIcons {
     }
   }
 }
+
+/*extension TournamentIconsExt on TournamentIcons{
+  String get name => describeEnum(this);
+
+  static IconData? displayIcon(String? icon) {
+    switch (icon) {
+      case "accessibility":
+        return Icons.accessibility;
+      case "home":
+        return Icons.home;
+        case ""
+      default:
+        return Icons.cancel;
+    }
+  }
+}*/
+
+const Map<String, IconData> actionIcons = <String, IconData>{
+  "home": Icons.home,
+  "done": Icons.done,
+  "shopping cart": Icons.shopping_cart,
+  "visibility": Icons.visibility,
+  "face": Icons.face,
+  "description": Icons.description,
+  "favorite border": Icons.favorite_border,
+  "lock": Icons.lock,
+  "thumb up": Icons.thumb_up,
+  "verified": Icons.verified,
+  "lightbulb": Icons.lightbulb,
+  "question answer": Icons.question_answer,
+  "verified user": Icons.verified_user,
+  "print": Icons.print,
+  "work": Icons.work,
+  "pets": Icons.pets,
+  "room": Icons.room,
+  "explore": Icons.explore,
+  "done all": Icons.done_all,
+  "supervisor account": Icons.supervisor_account,
+  "pending": Icons.pending,
+  "view in Ar": Icons.view_in_ar,
+  "pan tool": Icons.pan_tool,
+  "flight takeoff": Icons.flight_takeoff,
+  "get app": Icons.get_app,
+  "label": Icons.label,
+  "translate": Icons.translate,
+  "loyalty": Icons.loyalty,
+  "nightlight round": Icons.nightlight_round,
+  "sensors": Icons.sensors,
+  "copyright": Icons.copyright,
+  "bookmarks": Icons.bookmarks,
+  "invert colors": Icons.invert_colors,
+  "important devices": Icons.important_devices,
+  "theaters": Icons.theaters,
+  "opacity": Icons.opacity,
+  "tour": Icons.tour,
+  "http": Icons.http,
+  "wifi protected setup": Icons.wifi_protected_setup,
+  "polymer": Icons.polymer
+};
+
+/*const Map<String, IconData> alertIcons = <String, IconData>{
+  "warning": Icons.warning,
+  "notification important": Icons.notification_important
+};*/
+
+const Map<String, IconData> audioVideoIcons = <String, IconData>{};

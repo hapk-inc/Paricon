@@ -16,8 +16,6 @@ class LocalIcon {
   });
 
   LocalIcon copyWith({
-    /*String? iconCode,
-    int? iconNo,*/
     bool? isCheck,
     bool? isFound,
     String? color,

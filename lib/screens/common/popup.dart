@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lottie/lottie.dart';
+import '/screens/providers/tournamentProvider.dart';
+import '/models/localPlayer.dart';
+import '/screens/dashboard.dart';
+import '/screens/providers/gameIconProvider.dart';
+import '/screens/providers/pageProvider.dart';
+import '/screens/providers/practiceProvider.dart';
 import '/screens/providers/authProvider.dart';
 import '/screens/providers/playerProvider.dart';
 
@@ -86,8 +93,6 @@ class ExitPractice extends StatelessWidget {
           ),
         ),
         content: FractionallySizedBox(
-            //constraints: BoxConstraints.expand(),
-
             heightFactor: 0.1,
             child: FittedBox(
               fit: BoxFit.scaleDown,
@@ -113,6 +118,57 @@ class ExitPractice extends StatelessWidget {
             )
             .toList(),
       );
+}
+
+class ExitTournament extends StatelessWidget {
+  const ExitTournament({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.blue[800],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      actionsPadding: PaddingTheme.all4,
+      titleTextStyle: TextStyleFontTheme.poppins
+          .copyWith(color: Colors.white70, fontSize: 24),
+      title: Text(
+        "Exit Game",
+        style: TextStyleFontTheme.poppins.copyWith(
+          color: Colors.white54,
+          fontSize: 16,
+        ),
+      ),
+      content: FractionallySizedBox(
+          heightFactor: 0.1,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              "Leaving at middle of the Game?",
+              style: TextStyleFontTheme.poppins.copyWith(fontSize: 20),
+              maxLines: 2,
+            ),
+          )),
+      actions: const ["yes", "no"]
+          .map(
+            (e) => TextButton(
+              onPressed: () async {
+                //context.read(practiceProvider).dispose();
+                if (e.contains("yes"))
+                  context.read(tournamentNotifierProvider).stopTime();
+                Navigator.pop(context, e.contains("yes"));
+              },
+              child: Text(
+                e.toUpperCase(),
+                style: TextStyleFontTheme.poppins
+                    .copyWith(color: Colors.white54, fontSize: 14),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
 }
 
 class EditNamePopUp extends StatelessWidget {
@@ -179,6 +235,173 @@ class EditNamePopUp extends StatelessWidget {
                 e.toUpperCase(),
                 style: TextStyleFontTheme.poppins
                     .copyWith(color: Colors.white54, fontSize: 14),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class WinPopUp extends StatelessWidget {
+  final List<LocalPlayer> winners;
+
+  const WinPopUp({Key? key, required this.winners}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        backgroundColor: Colors.indigo[800],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4.0),
+        ),
+        actionsPadding: PaddingTheme.all4,
+        titleTextStyle: TextStyleFontTheme.luckiestGuy.copyWith(
+          color: Colors.white70,
+          fontSize: 24,
+          letterSpacing: 2,
+        ),
+        title: Center(
+          child: Text("Congratulations"),
+        ),
+        content: FractionallySizedBox(
+          heightFactor: 0.5,
+          child: Container(
+            child: Column(
+              children: [
+                Flexible(
+                  flex: 4,
+                  child: Container(
+                    padding: PaddingTheme.all16,
+                    child: Lottie.asset(
+                      'assets/lottie/trophy.json',
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                ),
+                Flexible(
+                  child: Container(
+                    padding: PaddingTheme.all8,
+                    constraints: BoxConstraints.expand(),
+                    child: FittedBox(
+                      child: Text(
+                        strConversion(winners),
+                        style:
+                            TextStyleFontTheme.poppins.copyWith(fontSize: 24),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read(pageProvider).replaceAll(Dashboard.toMaterialPage);
+            },
+            child: Text(
+              "Exit Game".toUpperCase(),
+              style: TextStyleFontTheme.poppins.copyWith(
+                fontSize: 16,
+                color: Colors.white38,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              final xIcons = context.read(gameIconProvider);
+              final practice = context.read(practiceProvider);
+              practice.createPracticeBoard(
+                xIcons.generateIcons(practice.level),
+              );
+              Navigator.pop(context, true);
+            },
+            child: Text(
+              "PLAY AGAIN",
+              style: TextStyleFontTheme.poppins.copyWith(
+                fontSize: 20,
+                color: Colors.white54,
+              ),
+            ),
+          ),
+        ],
+      );
+
+  String strConversion(List<LocalPlayer> winners) => winners.length == 1
+      ? winners.first.name.toString()
+      : winners.fold(
+          "",
+          (previousValue, element) => previousValue.isEmpty
+              ? element.name.toString() + ", "
+              : previousValue +
+                  (element != winners.last
+                      ? element.name.toString() + ", "
+                      : "and ${element.name.toString()}"),
+        );
+}
+
+class TournamentGameWinPopUp extends StatelessWidget {
+  final bool newRecord;
+  const TournamentGameWinPopUp({Key? key, required this.newRecord})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final duration = context.read(tournamentNotifierProvider).duration;
+    return AlertDialog(
+      backgroundColor: Colors.blue[800],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      titleTextStyle: TextStyleFontTheme.poppins.copyWith(
+        color: Colors.white70,
+        fontSize: 24,
+      ),
+      title: Text(
+        "Yeah..That's a new Record",
+        style: TextStyleFontTheme.poppins.copyWith(
+          color: Colors.white54,
+          fontSize: 16,
+        ),
+      ),
+      content: FractionallySizedBox(
+        heightFactor: 0.2,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Flexible(
+              child: Text(
+                "${duration.inMinutes}.${duration.inSeconds}",
+                style: TextStyleFontTheme.luckiestGuy
+                    .copyWith(fontSize: 40, color: Colors.white60),
+              ),
+            ),
+            Flexible(
+                child: Text(
+              "Way to go man",
+              style: TextStyleFontTheme.poppins,
+            ))
+          ],
+        ),
+      ),
+      actions: const ["EXIT GAME"]
+          .map(
+            (e) => TextButton(
+              onPressed: () async {
+                //context.refresh(tournamentNotifierProvider);
+                Navigator.pop(context);
+                context.refresh(myParticipantProvider);
+                context.read(pageProvider).remove();
+                //Navigator.pop(context, e.contains("yes"));
+              },
+              child: Text(
+                e,
+                style: TextStyleFontTheme.poppins.copyWith(
+                  color: e.contains("PLAY") ? Colors.white70 : Colors.white54,
+                  fontSize: e.contains("PLAY") ? 16 : 14,
+                ),
               ),
             ),
           )

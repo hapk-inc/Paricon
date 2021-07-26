@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:paricon/models/tournament.dart';
 import 'package:paricon/screens/common/textTheme.dart';
 
 import '/models/localIcon.dart';
-import '/models/tournament.dart';
 import 'common/durationCount.dart';
 import 'common/paddingTheme.dart';
 import 'common/popup.dart';
@@ -32,43 +32,30 @@ class TournamentBoard extends StatelessWidget {
           child: SafeArea(
             child: ProviderListener(
               provider: tournamentNotifierProvider,
-              onChange:
-                  (BuildContext context, TournamentNotifier notifier) async {
+              onChange: (_, TournamentNotifier notifier) async {
                 if (notifier.isGameOver) {
-                  print(notifier.duration);
-                  final duration = notifier.duration;
-                  bool _newRecord = false;
-                  final double newDuration = double.parse(
-                      "${(duration.inMinutes * 60) + duration.inSeconds}.${duration.inMilliseconds}");
-                  Participant? oldParticipant =
+                  //bool _newRecord = false;
+                  Participant _p;
+                  final Participant? oldParticipant =
                       context.read(myParticipantProvider).data!.value;
                   if (oldParticipant == null) {
-                    _newRecord = true;
-                    final profile = await context.read(profileProvider!.future);
-                    Participant p = Participant(
-                      name: profile.name,
-                      id: profile.userID.toString(),
-                      duration: newDuration,
-                    );
-                    await context.read(updateParticipantProvider(p).future);
-                    //context.refresh(myParticipantProvider);
-                  } else {
-                    if (oldParticipant.duration > newDuration) {
-                      print("New Record");
-                      _newRecord = true;
-                      print(oldParticipant.duration);
-                      final newP =
-                          oldParticipant.copyWith(duration: newDuration);
-                      print(newP.duration);
-                      await context
-                          .read(updateParticipantProvider(newP).future);
-                      //context.refresh(myParticipantProvider);
-                    }
-                  }
+                    //_newRecord = true;
+                    final pro = await context.read(profileProvider!.future);
+                    _p = Participant(
+                        name: pro.name,
+                        id: "${pro.userID}",
+                        duration: notifier.timeDoubleConversion,
+                        gamesPlayed: 1);
+                  } else
+                    _p = notifier.updateParticipant(oldParticipant);
+
+                  final bool newRecord =
+                      await context.read(updateParticipantProvider(_p).future);
                   showDialog(
                     context: context,
+                    barrierDismissible: true,
                     builder: (_) => TournamentGameWinPopUp(
-                      newRecord: _newRecord,
+                      newRecord: newRecord,
                     ),
                   );
                 }
@@ -119,7 +106,7 @@ class TournamentBoard extends StatelessWidget {
 }
 
 const String _firstGame = "Play your First Game";
-const String _prevScore = "YOUR PREVIOUS SCORE IS ";
+const String _prevScore = "Your Previous Score is ";
 
 class ShowPrevScore extends StatelessWidget {
   const ShowPrevScore({Key? key}) : super(key: key);
@@ -132,10 +119,41 @@ class ShowPrevScore extends StatelessWidget {
             builder: (_, watch, __) => AnimatedSwitcher(
               duration: DurationCount.m250,
               child: watch(myParticipantProvider).when(
-                data: (value) => Text(
-                  value == null ? _firstGame : _prevScore + "${value.duration}",
-                  style: TextStyleFontTheme.poppins
-                      .copyWith(color: Colors.black54, fontSize: 16),
+                data: (value) => RichText(
+                  text: TextSpan(
+                      children: [
+                        if (value == null)
+                          TextSpan(text: _firstGame)
+                        else
+                          TextSpan(
+                            text: _prevScore,
+                            children: [
+                              TextSpan(
+                                text: value.duration.inMinutes.toString(),
+                                children: [
+                                  TextSpan(
+                                    text: " min ",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  TextSpan(
+                                    text: "${value.duration.inSeconds}",
+                                    style: TextStyle(fontSize: 24),
+                                  ),
+                                  TextSpan(
+                                    text: " seconds",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                                style: TextStyleFontTheme.luckiestGuy.copyWith(
+                                  fontSize: 32,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                            ],
+                          )
+                      ],
+                      style: TextStyleFontTheme.poppins
+                          .copyWith(color: Colors.black54)),
                 ),
                 loading: () => Container(),
                 error: (error, stackTrace) => Container(),
@@ -172,7 +190,7 @@ class TimerClock extends StatelessWidget {
                                 ),
                               )
                             : AnimatedSwitcher(
-                                duration: DurationCount.m500,
+                                duration: DurationCount.m250,
                                 child: Text(
                                   e,
                                   key: ValueKey(e),

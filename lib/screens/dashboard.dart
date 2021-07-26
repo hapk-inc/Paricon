@@ -53,32 +53,35 @@ class Dashboard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ScopedReader watch) => Scaffold(
-        backgroundColor: Colors.purple[100],
+        backgroundColor: Colors.grey[200],
         body: SafeArea(
           minimum: PaddingTheme.all8,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              DashboardHeader(),
+          child: Container(
+            color: Colors.white60,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                DashboardHeader(),
 
-              Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) => MediaQuery.of(context)
-                                .orientation ==
-                            Orientation.portrait
-                        ? Column(
-                            children: buttonList,
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          )
-                        : Row(children: buttonList),
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) => MediaQuery.of(context)
+                                  .orientation ==
+                              Orientation.portrait
+                          ? Column(
+                              children: buttonList,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            )
+                          : Row(children: buttonList),
+                    ),
                   ),
+                  flex: 7,
                 ),
-                flex: 7,
-              ),
-              //Spacer()
-            ],
+                //Spacer()
+              ],
+            ),
           ),
         ),
       );

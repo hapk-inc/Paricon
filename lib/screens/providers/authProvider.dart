@@ -5,11 +5,11 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'packageInfoProvider.dart';
-import '/services/auth.dart';
 
+import '/services/auth.dart';
 import 'databaseProvider.dart';
 import 'newNameProvider.dart';
+import 'packageInfoProvider.dart';
 
 final firebaseAppProvider = FutureProvider<FirebaseApp>(
   (_) async => await Future.delayed(
@@ -95,5 +95,8 @@ final AutoDisposeFutureProvider updateMetaDataProvider =
     final firebaseUser = ref.read(firebaseUserProvider!);
     final playerDatabase = ref.read(playerDatabaseProvider!(firebaseUser.uid));
     await playerDatabase.updateMetaData;
+    final now = DateTime.now();
+    print("Day is ${now.day}");
+    if (now.day == 1) {}
   },
 );

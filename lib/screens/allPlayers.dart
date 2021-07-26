@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
@@ -28,9 +27,10 @@ class AllPlayers extends StatelessWidget {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: Colors.white60,
+        backgroundColor: Colors.white70,
         body: SafeArea(
           child: Container(
+            //color: Colors.green[50],
             child: Column(
               children: [
                 Flexible(
@@ -89,95 +89,94 @@ class LevelPlayers extends ConsumerWidget {
   const LevelPlayers({Key? key, required this.level}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader watch) {
-    //final List tileColor = List.from(Colors.primaries)..shuffle();
-
-    return watch(allPlayerProvider(level)).when(
-      data: (value) => value == null
-          ? Container(
-              alignment: Alignment.center,
-              child: Text(
-                "No Data..",
-                style: TextStyleFontTheme.bangers.copyWith(fontSize: 24),
-              ),
-            )
-          : ListView.builder(
-              itemCount: value.length,
-              itemBuilder: (context, index) {
-                final profile = value[index];
-                final stats = value[index].stats![levels.indexOf(level)];
-                final tileColor =
-                    Colors.primaries[Random().nextInt(Colors.primaries.length)];
-                return LimitedBox(
-                  maxHeight: MediaQuery.of(context).size.height *
-                      (index == 0 ? 0.2 : 0.125),
-                  child: Card(
-                    elevation: 8,
-                    color: index == 0 ? tileColor.shade50 : tileColor.shade400,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
-                    child: Stack(
-                      children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              child: TitleSubTitle(
-                                strTitle: profile.name,
-                                strSubTitle: "${profile.userID}",
+  Widget build(BuildContext context, ScopedReader watch) =>
+      watch(allPlayerProvider(level)).when(
+        data: (value) => value == null
+            ? Container(
+                alignment: Alignment.center,
+                child: Text(
+                  "No Data..",
+                  style: TextStyleFontTheme.bangers.copyWith(fontSize: 24),
+                ),
+              )
+            : ListView.builder(
+                itemCount: value.length,
+                itemBuilder: (context, index) {
+                  final profile = value[index];
+                  final stats = value[index].stats![levels.indexOf(level)];
+                  final tileColor = Colors
+                      .primaries[Random().nextInt(Colors.primaries.length)];
+                  return LimitedBox(
+                    maxHeight: MediaQuery.of(context).size.height *
+                        (index == 0 ? 0.2 : 0.125),
+                    child: Card(
+                      elevation: 8,
+                      color:
+                          index == 0 ? tileColor.shade50 : tileColor.shade400,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.0)),
+                      child: Stack(
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                child: TitleSubTitle(
+                                  strTitle: profile.name,
+                                  strSubTitle: "${profile.userID}",
+                                ),
+                                flex: 7,
                               ),
-                              flex: 7,
-                            ),
-                            Flexible(
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    child: TitleSubTitle(
-                                        strTitle: "${stats.played}",
-                                        strSubTitle: "Games"),
-                                  ),
-                                  Flexible(
-                                    child: TitleSubTitle(
-                                        strTitle: "${stats.win}",
-                                        strSubTitle: "Wins"),
-                                  ),
-                                  Flexible(
-                                    child: TitleSubTitle(
-                                        strTitle: "${stats.avg}",
-                                        strSubTitle: "Avg. Score"),
-                                  ),
-                                ],
-                              ),
-                              flex: 13,
-                            )
-                          ],
-                        ),
-                        if (index == 0)
-                          Positioned(
-                            right: -5,
-                            top: -5,
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.1,
-                              height: MediaQuery.of(context).size.height * 0.05,
-                              child: Lottie.asset(
-                                'assets/lottie/ribbon.json',
-                                fit: BoxFit.fill,
-                              ),
-                            ),
+                              Flexible(
+                                child: Row(
+                                  children: [
+                                    Flexible(
+                                      child: TitleSubTitle(
+                                          strTitle: "${stats.played}",
+                                          strSubTitle: "Games"),
+                                    ),
+                                    Flexible(
+                                      child: TitleSubTitle(
+                                          strTitle: "${stats.win}",
+                                          strSubTitle: "Wins"),
+                                    ),
+                                    Flexible(
+                                      child: TitleSubTitle(
+                                          strTitle: "${stats.avg}",
+                                          strSubTitle: "Avg. Score"),
+                                    ),
+                                  ],
+                                ),
+                                flex: 13,
+                              )
+                            ],
                           ),
-                      ],
+                          if (index == 0)
+                            Positioned(
+                              right: -5,
+                              top: -5,
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.1,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.05,
+                                child: Lottie.asset(
+                                  'assets/lottie/ribbon.json',
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-      loading: () => Center(child: CircularProgressTheme.pinkIndicator),
-      error: (error, stackTrace) {
-        print(error);
-        print(stackTrace);
-        return CircularProgressIndicator();
-      },
-    );
-  }
+                  );
+                },
+              ),
+        loading: () => Center(child: CircularProgressTheme.pinkIndicator),
+        error: (error, stackTrace) {
+          print(error);
+          print(stackTrace);
+          return CircularProgressIndicator();
+        },
+      );
 }
 
 class TitleSubTitle extends StatelessWidget {

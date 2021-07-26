@@ -84,7 +84,6 @@ final btnClickProvider = FutureProvider.family.autoDispose<bool, String>(
   (ref, _icon) async {
     final boardDatabase = ref.read(boardDatabaseProvider!);
     final notifier = ref.read(onlineBoardNotifier);
-    //final boardNotifier = ref.read(onlineBoardNotifier);
     final firebaseUser = ref.read(firebaseUserProvider!);
 
     final board = ref.read(boardProvider).data!.value;
@@ -200,42 +199,6 @@ final AutoDisposeFutureProvider nextPlayerProvider = FutureProvider.autoDispose(
   },
 );
 
-/*final AutoDisposeFutureProvider<Null>? checkNextPlayerProvider =
-    FutureProvider.autoDispose(
-  (ref) async {
-    final firebaseUser = ref.read(firebaseUserProvider!);
-    final boardDatabase = ref.read(boardDatabaseProvider!);
-    return boardDatabase.boardPlayers.then(
-      (fromSnapshot) {
-        final map = Map<String, dynamic>.from(fromSnapshot);
-        final sortMap = SplayTreeMap.from(
-          map,
-          (a, b) => map[a]["playerNo"].compareTo(map[b]["playerNo"]),
-        );
-        final List players = sortMap.keys.toList(growable: false);
-        int yourNo = players.indexOf(firebaseUser.uid);
-        yourNo++;
-        if (yourNo == players.length) yourNo = 0;
-        if (players[yourNo] != firebaseUser.uid) {
-          boardDatabase.setCurrentID(players[yourNo]);
-        }
-      } /*as FutureOr<Never> Function(dynamic)*/,
-    );
-  } /*as Future<Never> Function(AutoDisposeProviderReference)*/,
-);*/
-
-/*final AutoDisposeStreamProvider<int>? allIconsFoundProvider =
-    StreamProvider.autoDispose<int>(
-  (ref) {
-    try {
-      final boardDatabase = ref.read(boardDatabaseProvider!);
-      return boardDatabase.sIconsFound;
-    } catch (e) {
-      return Stream.error(e);
-    }
-  },
-);*/
-
 final AutoDisposeFutureProvider updateStatsProvider =
     FutureProvider.autoDispose(
   (ref) async {
@@ -252,39 +215,6 @@ final AutoDisposeFutureProvider updateStatsProvider =
     await playerDatabase.updateStats(notifier.level, stats);
   },
 );
-/*final AutoDisposeFutureProvider<bool>? updateStatsProvider =
-    FutureProvider.autoDispose<bool>(
-  (ref) async {
-    final boardDatabase = ref.read(boardDatabaseProvider!);
-    final firebaseUser = ref.read(firebaseUserProvider!);
-    final playerDatabase = ref.read(playerDatabaseProvider!(firebaseUser.uid));
-    final gameIcon = ref.read(gameIconProvider!);
-    final room = await ref.read(roomProvider!.future);
-    final Map fromSnapshot = await (boardDatabase.boardPlayers);
-    final Map<String, dynamic> map = Map<String, dynamic>.from(fromSnapshot);
-    final sortMap = SplayTreeMap.from(
-      map,
-      (a, b) => map[b]["pts"].compareTo(map[a]["pts"]),
-    );
-    final int yourPts = sortMap[firebaseUser.uid]['pts'];
-    final bool isWinner = sortMap.keys.first == firebaseUser.uid ||
-        sortMap.values.first['pts'] == sortMap[firebaseUser.uid]['pts'];
-    final bool isDraw =
-        sortMap.values.first['pts'] == sortMap[firebaseUser.uid]['pts'];
-
-    final String level = room.details.level!;
-    final int totalPts = gameIcon.iconCount(level) ~/ 2;
-
-    final double _avg = (yourPts / totalPts) * 100;
-    final double avg = double.parse(_avg.toStringAsFixed(2));
-
-    final Stats stats = Stats(played: 1, win: isWinner ? 1 : 0, avg: avg);
-    ref.read(prevStatsProvider).setStats(level, yourPts, avg, isWinner, isDraw);
-    final bool isUpdated =
-        await playerDatabase.updateStats(level.toLowerCase(), stats);
-    return isUpdated;
-  },
-);*/
 
 /*final leavingBoardProvider = FutureProvider.autoDispose(
   (ref) async {
@@ -307,39 +237,3 @@ final AutoDisposeFutureProvider updateStatsProvider =
     }
   },
 );*/
-
-/*final AutoDisposeFutureProvider<List<LocalPlayer>>? allBoardPlayersProvider =
-    FutureProvider.autoDispose<List<LocalPlayer>>(
-  (ref) async {
-    final boardDatabase = ref.read(boardDatabaseProvider!);
-    final Map fromSnapshot = await (boardDatabase.allBoardPlayers);
-    final map = Map<String, dynamic>.from(fromSnapshot);
-    final sortMap = SplayTreeMap.from(
-      map,
-      (a, b) => map[a]["playerNo"].compareTo(map[b]["playerNo"]),
-    );
-    final List players = sortMap.values
-        .map((e) => LocalPlayer.fromMap(e))
-        .toList(growable: false);
-    return players as FutureOr<List<LocalPlayer>>;
-  },
-);*/
-
-/*final AutoDisposeFutureProvider<String> yourColorProvider =
-    AutoDisposeFutureProvider<String>(
-  (ref) async {
-    final firebaseUser = ref.read(firebaseUserProvider!);
-    final boardDatabase = ref.read(boardDatabaseProvider!);
-    return boardDatabase.playerColor(firebaseUser.uid);
-  },
-);
-
-final AutoDisposeFutureProvider<String> currentPlayerColor =
-    AutoDisposeFutureProvider<String>(
-  (ref) async {
-    final currentPlayer = await ref.watch(currentIDProvider.last);
-    final boardDatabase = ref.read(boardDatabaseProvider!);
-    return boardDatabase.playerColor(currentPlayer);
-  },
-);
-*/

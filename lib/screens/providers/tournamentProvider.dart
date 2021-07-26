@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:math';
 
 import 'package:firebase_database/firebase_database.dart';
@@ -9,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '/models/localIcon.dart';
 import '/models/tournament.dart';
+import 'authProvider.dart';
 import 'databaseProvider.dart';
 import 'gameIconProvider.dart';
 
@@ -21,48 +21,125 @@ final AutoDisposeProvider<Query>? participantsQueryProvider =
 );
 
 final AutoDisposeStreamProvider<bool> participantsAvailableProvider =
-    StreamProvider.autoDispose<bool>((ref) {
-  final tournamentDatabase = ref.read(tournamentDatabaseProvider!);
-  return tournamentDatabase.participantsAvailable;
-});
+    StreamProvider.autoDispose<bool>(
+  (ref) {
+    final tournamentDatabase = ref.read(tournamentDatabaseProvider!);
+    return tournamentDatabase.participantsAvailable;
+  },
+);
 
-final AutoDisposeStreamProvider<List<Participant>> participantsProvider =
+/*final AutoDisposeStreamProvider<List<Participant>> participantsProvider =
     StreamProvider.autoDispose<List<Participant>>(
   (ref) {
     final tournamentDatabase = ref.read(tournamentDatabaseProvider!);
     return tournamentDatabase.participants;
   },
-);
+);*/
 
-final AutoDisposeStreamProvider<double> allTimeRecordProvider =
-    StreamProvider.autoDispose<double>(
+//change to AutoDispose --not working
+final allTimeRecordProvider = StreamProvider<Participant?>(
   (ref) {
     final tournamentDatabase = ref.read(tournamentDatabaseProvider!);
     return tournamentDatabase.allTimeRecord;
   },
 );
 
-final AutoDisposeStreamProvider<Participant?> todayWinnerProvider =
-    StreamProvider.autoDispose<Participant>(
+//change to autoDispose --not working
+final StreamProvider<String?> todayWinnerProvider = StreamProvider<String?>(
   (ref) {
     final tournamentDatabase = ref.read(tournamentDatabaseProvider!);
-    return Stream.value(
-        Participant(name: "Unknown", id: "000", duration: 4123.34));
+
+    return tournamentDatabase.todayWinner;
   },
 );
 
-final FutureProvider<Participant?> myParticipantProvider = FutureProvider(
+final AutoDisposeFutureProvider<Participant?> todayParticipantProvider =
+    FutureProvider.autoDispose<Participant?>(
+  (ref) async {
+    final tournamentDatabase = ref.read(tournamentDatabaseProvider!);
+    final String? id = await ref.watch(todayWinnerProvider.last);
+    print(id);
+    if (id == null) return null;
+    //if (id == null)
+    //  return Participant(name: "Unknown", id: "3433343", duration: 232.43);
+    print("From todayID provider $id");
+    return tournamentDatabase.todayParticipant(id);
+  },
+);
+
+/*final AutoDisposeFutureProviderFamily<bool, double> checkWinnerProvider =
+    FutureProvider.autoDispose.family<bool, double>(
+  (ref, value) async {
+    final tournamentDatabase = ref.read(tournamentDatabaseProvider!);
+
+    final bool isWinner = await tournamentDatabase.checkWinner(value);
+    print("isWinner check-73 $isWinner");
+    if (isWinner) tournamentDatabase.setTodayWinner;
+    return isWinner;
+  },
+);*/
+
+/*final AutoDisposeFutureProviderFamily<void, Participant>
+    updateAllTimeCheckProvider =
+    FutureProvider.autoDispose.family<void, Participant>(
+  (ref, p) async {
+    final tournamentDatabase = ref.read(tournamentDatabaseProvider!);
+    tournamentDatabase.updateAllTimeRecord(p);
+  },
+);*/
+
+/*final AutoDisposeStreamProvider<Participant?> todayWinnerProvider =
+    StreamProvider.autoDispose<Participant>(
+  (ref) =>
+      Stream.value(Participant(name: "Unknown", id: "000", duration: 4123.34)),
+);*/
+
+final AutoDisposeFutureProvider<Participant?> myParticipantProvider =
+    FutureProvider.autoDispose(
   (ref) {
     final tournamentDatabase = ref.read(tournamentDatabaseProvider!);
     return tournamentDatabase.myScore;
   },
 );
-final AutoDisposeFutureProviderFamily<void, Participant>
+final AutoDisposeFutureProviderFamily<bool, Participant>
     updateParticipantProvider =
-    FutureProvider.autoDispose.family<void, Participant>(
+    FutureProvider.autoDispose.family<bool, Participant>(
   (ref, participant) async {
     final tournamentDatabase = ref.read(tournamentDatabaseProvider!);
-    tournamentDatabase.updateDuration(participant);
+
+    bool _newWinner = false;
+    bool _newRecord = false;
+
+    final winnerID = await ref.read(todayWinnerProvider.last);
+    if (winnerID == null)
+      _newWinner = true;
+    else {
+      final firebaseUser = ref.read(firebaseUserProvider!);
+      _newWinner = firebaseUser.uid != winnerID;
+    }
+
+    if (_newWinner) {
+      final allTimeRecord = await ref.read(allTimeRecordProvider.last);
+      if (allTimeRecord == null)
+        _newRecord = true;
+      else {
+        if (participant.duration < allTimeRecord.duration) {
+          _newRecord = true;
+        }
+      }
+    }
+    print("newWinner $_newWinner");
+    print("newRecord $_newRecord");
+
+    await Future.wait(
+      [
+        tournamentDatabase.updateDuration(participant),
+        if (_newWinner) tournamentDatabase.setTodayWinner,
+        if (_newRecord) tournamentDatabase.updateAllTimeRecord(participant)
+      ],
+    );
+
+    return _newWinner;
   },
 );
 
@@ -77,6 +154,10 @@ final tournamentNotifierProvider =
 
 extension TimeConversion on TimeOfDay {
   double get doubleConversion => this.hour + (this.minute / 60);
+  bool validTime({int start = 9, int end = 21}) =>
+      TimeOfDay(hour: start, minute: 0).doubleConversion <
+          this.doubleConversion &&
+      this.doubleConversion < TimeOfDay(hour: end, minute: 0).doubleConversion;
 }
 
 extension DoubleTimeConversion on double {
@@ -88,88 +169,51 @@ extension DoubleTimeConversion on double {
   }
 
   String get inHHMM => "${this.inMinutes} : ${this.inSeconds}";
-
-  String get inHoursMinutes => "${this.inMinutes} : ${this.inSeconds} ";
 }
 
-final checkTournamentTimeProvider = Provider.autoDispose<bool>(
+/*final checkTournamentTimeProvider = Provider.autoDispose<bool>(
   (_) {
     final TimeOfDay start = TimeOfDay(hour: 9, minute: 0);
     final TimeOfDay end = TimeOfDay(hour: 21, minute: 0);
     final TimeOfDay now = TimeOfDay.now();
+
     return kDebugMode ||
         (start.doubleConversion < now.doubleConversion &&
             now.doubleConversion < end.doubleConversion);
   },
+);*/
+
+final tournamentPlayedProvider = FutureProvider.autoDispose<Duration?>(
+  (ref) async {
+    final firebaseUser = ref.read(firebaseUserProvider!);
+    final playerDatabase = ref.read(playerDatabaseProvider!(firebaseUser.uid));
+    final Duration? duration = await playerDatabase.checkTournamentPlayed;
+    if (duration == null)
+      await playerDatabase.updateTournamentPlayed;
+    else {
+      final int timeGap = ref.read(timeGapProvider);
+      if (duration.inMinutes > timeGap)
+        await playerDatabase.updateTournamentPlayed;
+    }
+    return duration;
+  },
 );
 
-final liveTimeProvider =
-    StreamProvider.autoDispose<TimeOfDay>((_) => liveTime2);
+final timeGapProvider = Provider<int>((_) => 9);
 
-/*Stream<TimeOfDay> get liveTime1 {
-  late BehaviorSubject<TimeOfDay> subject;
+final liveTimeProvider = StreamProvider.autoDispose<TimeOfDay>(
+  (_) => updateGameTime,
+);
 
-  subject = BehaviorSubject<TimeOfDay>(
-    onListen: () => Stream.periodic(
-      Duration(seconds: 1),
-      (_) {
-        final time = TimeOfDay.now();
-        subject.add(time);
-        //  if (time.minute == 21) subject.close();
-      },
-    ).listen((e) {
-      print(e);
-      print("Streeeemmm");
-    }),
-  );
-  return subject.stream;
-}*/
-
-Stream<TimeOfDay> get liveTime2 async* {
+Stream<TimeOfDay> get updateGameTime async* {
   yield TimeOfDay.now();
   yield* Stream.periodic(Duration(minutes: 1), (_) => TimeOfDay.now());
 }
-
-/*Stream<TimeOfDay> get liveTimeStream async* {
-  Stream.periodic(
-    Duration(seconds: 1),
-    (_) => TimeOfDay.now(),
-  );
-}*/
 
 TimeOfDay fromString(String s) => TimeOfDay(
       hour: int.parse(s.split(":")[0]),
       minute: int.parse(s.split(":")[1]),
     );
-
-/*Stream<TimeOfDay> getTime() async* {
-  TimeOfDay currentTime = TimeOfDay.now();
-  while (true) {
-    await Future.delayed(Duration(seconds: 1));
-    yield currentTime;
-  }
-}*/
-
-/*final leaderBoardNotifierProvider =
-    ChangeNotifierProvider((_) => LeaderBoardNotifier());*/
-
-/*class LeaderBoardNotifier extends ChangeNotifier {
-  late bool _startTime, _endTime;
-
-  /*LeaderBoardNotifier({int start = 9, int end = 21}) {
-    TimeOfDay startTime = TimeOfDay(hour: 9, minute: 00);
-    TimeOfDay endTime = TimeOfDay(hour: 0, minute: 26);
-
-    _startTime = TimeOfDay.now().doubleConversion > startTime.doubleConversion;
-
-    _endTime = TimeOfDay.now().doubleConversion < endTime.doubleConversion;
-    notifyListeners();
-  }*/
-
-  bool get endTime => _endTime;
-
-  bool get startTime => _startTime;
-}*/
 
 class TournamentNotifier extends ChangeNotifier {
   late List<LocalIcon> _icons;
@@ -178,7 +222,6 @@ class TournamentNotifier extends ChangeNotifier {
   bool _isGameOver = false;
 
   bool get isGameOver => _isGameOver;
-
   Stopwatch? _stopwatch;
   late Timer _timer;
   Duration _duration = Duration.zero;
@@ -203,12 +246,7 @@ class TournamentNotifier extends ChangeNotifier {
 
   validateIcons(int index) async {
     _loading = true;
-    print(icons[index].iconCode);
-    print(DateTime.now());
-    print(Timeline.now);
-    print(TimeOfDay.now());
 
-    print(DateTime.now().day);
     icons[index] = icons[index].copyWith(isCheck: true);
     notifyListeners();
 
@@ -229,8 +267,12 @@ class TournamentNotifier extends ChangeNotifier {
             );
 
             //_isGameOver = true;
-            _isGameOver =
-                icons.every((element) => element.isFound && !element.isCheck);
+            //_isGameOver =
+            //    icons.every((element) => element.isFound && !element.isCheck);
+            final check10 = icons
+                .where((element) => element.isFound && !element.isCheck)
+                .toList();
+            _isGameOver = check10.length == 10;
             if (_isGameOver) stopTime();
           },
         );
@@ -256,5 +298,24 @@ class TournamentNotifier extends ChangeNotifier {
     _stopwatch!.stop();
     _duration = _stopwatch!.elapsed;
     notifyListeners();
+  }
+
+  double get timeDoubleConversion {
+    print(duration.inMinutes);
+    print(duration.inSeconds);
+    print(duration.inMilliseconds);
+    return double.parse("${(duration.inMinutes * 60) + duration.inSeconds}."
+        "${duration.inMilliseconds}");
+  }
+
+  Participant updateParticipant(Participant participant) {
+    late Participant p;
+    if (participant.duration > timeDoubleConversion) {
+      p = participant.copyWith(
+          duration: timeDoubleConversion,
+          gamesPlayed: participant.gamesPlayed + 1);
+    } else
+      p = participant.copyWith(gamesPlayed: participant.gamesPlayed + 1);
+    return p;
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 class Tournament {
   final List<String> participants;
@@ -68,30 +69,35 @@ class Participant {
   final String name, id;
   final double duration;
   final num gamesPlayed;
+  final DateTime? dateTime;
   Participant({
     required this.name,
     required this.id,
     required this.duration,
     this.gamesPlayed = 0,
+    this.dateTime,
   });
 
-  Map<String, dynamic> toMap() => <String, dynamic>{
+  Map<String, dynamic> toMap({bool newGame = false}) => <String, dynamic>{
         'name': name,
         'id': id,
         'duration': duration.toStringAsFixed(2),
+        'gamesPlayed': newGame ? 1 : gamesPlayed,
+        'date': DateFormat.yMMMd().format(DateTime.now())
       };
 
   factory Participant.fromMap(Map fromSnapshot) {
     final map = Map<String, dynamic>.from(fromSnapshot);
 
     return Participant(
-        name: map['name'],
-        id: map['id'],
-        //duration: map['duration'] as double,
-        duration: map['duration'] is double
-            ? map['duration']
-            : double.parse(map['duration'] as String),
-        gamesPlayed: map['gamesPlayed'] ?? 0);
+      name: map['name'],
+      id: map['id'] is int ? map['id'].toString() : map['id'],
+      //duration: map['duration'] as double,
+      duration: map['duration'] is double
+          ? map['duration']
+          : double.parse(map['duration'] as String),
+      gamesPlayed: map['gamesPlayed'] ?? 0,
+    );
   }
 
   Participant copyWith(

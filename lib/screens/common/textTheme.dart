@@ -14,9 +14,9 @@ class TextStyleFontTheme {
     fontFamily: 'Bangers',
   );
 
-  static const originalSurfer = TextStyle(
+  /*static const originalSurfer = TextStyle(
     fontFamily: 'OriginalSurfer',
-  );
+  );*/
 
   static const meriendaOne = TextStyle(
     fontFamily: 'MeriendaOne',

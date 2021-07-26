@@ -5,9 +5,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:paricon/models/playerMeta.dart';
+
 import '/models/profile.dart';
 import '/models/stats.dart';
-
 import 'database.dart';
 
 class PlayerDatabase extends MyDatabase {
@@ -22,6 +22,8 @@ class PlayerDatabase extends MyDatabase {
       : super.playerRef.child(uid!);
 
   DatabaseReference get profileRef => playerRef.child('profile');
+
+  DatabaseReference get metadataRef => playerRef.child('metadata');
 
   Future<Profile> get profile => profileRef.once().then(
         (snapshot) => Profile.fromMap(snapshot.value),
@@ -96,9 +98,9 @@ class PlayerDatabase extends MyDatabase {
       );
 
   Future<bool> get updateMetaData async {
-    final DatabaseReference _ref = playerRef.child('metadata');
+    //final DatabaseReference _ref = metadataRef;
     final TransactionResult transactionResult =
-        await _ref.runTransaction((mutableData) async {
+        await metadataRef.runTransaction((mutableData) async {
       if (mutableData.value == null) {
         mutableData.value = PlayerMetaData(currentTime: DateTime.now()).toMap();
       } else {
@@ -110,19 +112,40 @@ class PlayerDatabase extends MyDatabase {
     });
     return transactionResult.committed;
   }
-  /* Future<bool> updateStats(String level, Stats stats) async {
-    final DatabaseReference _ref =
-        playerRef.child('profile').child("stats").child(level);
-    final TransactionResult transactionResult = await _ref.runTransaction(
-      (MutableData mutableData) async {
-        Map map = mutableData.value ?? null;
-        Stats oldStats = Stats.fromMap(map);
-        Stats newStats = oldStats + stats;
-        mutableData.value = newStats.toMap();
 
-        return mutableData;
+  /*Future<bool> get tournamentPlayed async {
+    final DatabaseReference _ref = metadataRef.child("lastTournamentPlayed");
+    final TransactionResult result = await _ref.runTransaction(
+      (mutableData) async {
+        if (mutableData.value == null) {
+          mutableData.value = DateTime.now().toIso8601String();
+          return mutableData;
+        } else {
+          final DateTime prevDateTime = DateTime.parse(mutableData.value);
+          final DateTime now = DateTime.now();
+          Duration diff = now.difference(prevDateTime);
+          if (diff.inMinutes < 30) {
+            mutableData.value = DateTime.now().toIso8601String();
+          }
+          return mutableData;
+        }
       },
     );
-    return transactionResult.committed;
+    return result.committed;
   }*/
+
+  Future get updateTournamentPlayed => metadataRef
+      .child("lastTournamentPlayed")
+      .set(DateTime.now().toIso8601String());
+
+  Future<Duration?> get checkTournamentPlayed =>
+      metadataRef.child("lastTournamentPlayed").once().then(
+        (snapshot) async {
+          if (snapshot.value == null) return null;
+          final DateTime prevDateTime = DateTime.parse(snapshot.value);
+          final DateTime now = DateTime.now();
+          Duration diff = now.difference(prevDateTime);
+          return diff;
+        },
+      );
 }

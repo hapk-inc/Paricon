@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:paricon/screens/common/textTheme.dart';
 import 'package:paricon/screens/enterRoomCode.dart';
@@ -31,10 +32,11 @@ class StartGame extends StatelessWidget {
                           child: Container(
                             padding: PaddingTheme.all4,
                             constraints: BoxConstraints.expand(),
-                            child: FittedBox(
-                              child: Text(
+                            child: Center(
+                              child: AutoSizeText(
                                 e,
-                                style: TextStyleFontTheme.poppins,
+                                style: TextStyleFontTheme.poppins.copyWith(
+                                    fontWeight: FontWeight.w100, fontSize: 20),
                               ),
                             ),
                           ),

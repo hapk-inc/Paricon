@@ -74,15 +74,20 @@ class Participant {
     required this.name,
     required this.id,
     required this.duration,
-    this.gamesPlayed = 0,
+    this.gamesPlayed = 1,
     this.dateTime,
   });
 
-  Map<String, dynamic> toMap({bool newGame = false}) => <String, dynamic>{
+  Map<String, dynamic> toMap({bool newGame = false, bool increment = false}) =>
+      <String, dynamic>{
         'name': name,
         'id': id,
         'duration': duration.toStringAsFixed(2),
-        'gamesPlayed': newGame ? 1 : gamesPlayed,
+        'gamesPlayed': newGame
+            ? 1
+            : increment
+                ? gamesPlayed + 1
+                : gamesPlayed,
         'date': DateFormat.yMMMd().format(DateTime.now())
       };
 

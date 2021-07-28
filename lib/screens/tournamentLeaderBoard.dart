@@ -273,7 +273,11 @@ class ParticipantsList extends StatelessWidget {
         itemBuilder: (_, snapshot, animation, index) {
           final id = snapshot.key;
           final firebaseUser = context.read(firebaseUserProvider!);
+
           final participant = Participant.fromMap(snapshot.value);
+
+          /*if (firebaseUser.uid == id)
+            context.read(meParticipantProvider.notifier).state = participant;*/
           return FadeTransition(
             opacity: animation,
             child: AnimatedSwitcher(

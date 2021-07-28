@@ -12,7 +12,7 @@ class TournamentDatabase extends MyDatabase {
 
   final String _today = DateFormat.yMMMd().format(DateTime.now());
 
-  DatabaseReference get tournamentPlayerRef => super
+  DatabaseReference get myTournamentPlayerRef => super
       .tournamentRef
       .child("participants/$uid")
       .orderByChild("date")
@@ -74,10 +74,36 @@ class TournamentDatabase extends MyDatabase {
 
   Future get setTodayWinner async => todayWinnerRef.set(uid);
 
-  Future<Participant?> get myScore => tournamentPlayerRef.once().then(
+  /*Future<Participant?> get myScore => super
+          .tournamentRef
+          .child("participants/$uid")
+          .orderByChild("date")
+          .equalTo(_today)
+          .reference()
+          .once()
+          .then(
         (DataSnapshot snapshot) {
+          print("TD-80, ${snapshot.value}");
           if (snapshot.value == null) return null;
+
           final map = snapshot.value;
+          if (map['date'] != _today) return null;
+          final Participant participant = Participant.fromMap(map);
+          return participant;
+        },
+      );*/
+  Stream<Participant?> get myScore => super
+          .tournamentRef
+          .child("participants/$uid")
+          .equalTo(_today, key: 'date')
+          .reference()
+          .onValue
+          .map(
+        (event) {
+          if (event.snapshot.value == null) return null;
+          final map = event.snapshot.value;
+          print("TD-184 $map");
+          if (map['date'] != _today) return null;
           final Participant participant = Participant.fromMap(map);
           return participant;
         },
@@ -101,18 +127,27 @@ class TournamentDatabase extends MyDatabase {
     return behaviorSubject.stream;
   }
 
-  Future<bool> updateDuration(Participant participant) async {
+  Future<bool> updateDuration(Participant newP) async {
     final TransactionResult transactionResult =
-        await tournamentPlayerRef.runTransaction(
+        await myTournamentPlayerRef.runTransaction(
       (mutableData) async {
-        print("Updating duration runTransaction");
         if (mutableData.value == null)
-          mutableData.value = participant.toMap(newGame: true);
+          mutableData.value = newP.toMap(newGame: true);
         else {
-          //final Map map = mutableData.value;
-          //final Participant _participant = Participant.fromMap(map);
-          // if (participant.duration < _participant.duration)
-          mutableData.value = participant.toMap();
+          final Map map = mutableData.value;
+          if (map['date'] != _today) {
+            mutableData.value = newP.toMap(newGame: true);
+          } else {
+            final Participant old = Participant.fromMap(map);
+            if (newP.duration < old.duration)
+              mutableData.value = newP.toMap();
+            else {
+              mutableData.value = old.toMap(increment: true);
+            }
+            /* else {
+              mutableData.value = participant.toMap();
+            }*/
+          }
         }
         return mutableData;
       },

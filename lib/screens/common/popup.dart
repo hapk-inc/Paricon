@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
-import '/screens/providers/tournamentProvider.dart';
+
 import '/models/localPlayer.dart';
 import '/screens/dashboard.dart';
+import '/screens/providers/authProvider.dart';
 import '/screens/providers/gameIconProvider.dart';
 import '/screens/providers/pageProvider.dart';
-import '/screens/providers/practiceProvider.dart';
-import '/screens/providers/authProvider.dart';
 import '/screens/providers/playerProvider.dart';
-
+import '/screens/providers/practiceProvider.dart';
 import '/screens/providers/roomIDProvider.dart';
 import '/screens/providers/roomProvider.dart';
-
+import '/screens/providers/tournamentProvider.dart';
 import 'paddingTheme.dart';
 import 'textTheme.dart';
 
@@ -349,63 +348,97 @@ class TournamentGameWinPopUp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final duration = context.read(tournamentNotifierProvider).duration;
+    //final duration = context.read(tournamentNotifierProvider).duration;
     return AlertDialog(
-      backgroundColor: Colors.blue[800],
+      backgroundColor: Colors.blue,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(16.0),
       ),
-      titleTextStyle: TextStyleFontTheme.poppins.copyWith(
+      titleTextStyle: TextStyleFontTheme.luckiestGuy.copyWith(
+        fontSize: 36,
         color: Colors.white70,
-        fontSize: 24,
       ),
-      title: Text(
-        "Yeah..That's a new Record",
-        style: TextStyleFontTheme.poppins.copyWith(
-          color: Colors.white54,
-          fontSize: 16,
+      title: RichText(
+        text: TextSpan(
+          text: "Yeah",
+          children: [
+            if (!newRecord)
+              TextSpan(
+                text: "..but",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white60,
+                  letterSpacing: 0,
+                ),
+              )
+          ],
+          style: TextStyleFontTheme.luckiestGuy.copyWith(
+            fontSize: 36,
+            letterSpacing: 2,
+          ),
         ),
+        textAlign: TextAlign.center,
       ),
       content: FractionallySizedBox(
-        heightFactor: 0.2,
+        heightFactor: 0.5,
+        widthFactor: 1,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Flexible(
-              child: Text(
-                "${duration.inMinutes}.${duration.inSeconds}",
-                style: TextStyleFontTheme.luckiestGuy
-                    .copyWith(fontSize: 40, color: Colors.white60),
+              flex: 8,
+              child: Lottie.asset(
+                newRecord
+                    ? 'assets/lottie/star-happy.json'
+                    : 'assets/lottie/star-sad.json',
+                fit: BoxFit.contain,
               ),
             ),
+            Spacer(),
             Flexible(
-                child: Text(
-              "Way to go man",
-              style: TextStyleFontTheme.poppins,
-            ))
-          ],
-        ),
-      ),
-      actions: const ["EXIT GAME"]
-          .map(
-            (e) => TextButton(
-              onPressed: () async {
-                //context.refresh(tournamentNotifierProvider);
-                Navigator.pop(context);
-                context.refresh(myParticipantProvider);
-                context.read(pageProvider).remove();
-                //Navigator.pop(context, e.contains("yes"));
-              },
-              child: Text(
-                e,
-                style: TextStyleFontTheme.poppins.copyWith(
-                  color: e.contains("PLAY") ? Colors.white70 : Colors.white54,
-                  fontSize: e.contains("PLAY") ? 16 : 14,
+              child: FittedBox(
+                child: RichText(
+                  text: newRecord
+                      ? TextSpan(
+                          text: "That's a new record",
+                          style: TextStyleFontTheme.bangers.copyWith(
+                            fontSize: 24,
+                          ),
+                        )
+                      : TextSpan(
+                          text: "doesn't beat your",
+                          children: [
+                            TextSpan(
+                              text: " previous",
+                              style: TextStyle(fontSize: 24),
+                            ),
+                            TextSpan(text: " score"),
+                          ],
+                          style: TextStyleFontTheme.poppins.copyWith(
+                            fontSize: 16,
+                          ),
+                        ),
                 ),
               ),
             ),
-          )
-          .toList(),
+          ],
+        ),
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+            context.read(pageProvider).remove();
+          },
+          style: ButtonStyle(
+            foregroundColor: MaterialStateProperty.all(Colors.white70),
+            textStyle: MaterialStateProperty.all(
+              TextStyleFontTheme.luckiestGuy.copyWith(fontSize: 24),
+            ),
+            elevation: MaterialStateProperty.all(12),
+          ),
+          child: Text("EXIT GAME"),
+        )
+      ],
     );
   }
 }

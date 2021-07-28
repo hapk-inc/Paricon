@@ -94,13 +94,20 @@ final AutoDisposeFutureProvider<Participant?> todayParticipantProvider =
       Stream.value(Participant(name: "Unknown", id: "000", duration: 4123.34)),
 );*/
 
-final AutoDisposeFutureProvider<Participant?> myParticipantProvider =
-    FutureProvider.autoDispose(
+/*final FutureProvider<Participant?> myParticipantProvider = FutureProvider(
+  (ref) {
+    final tournamentDatabase = ref.read(tournamentDatabaseProvider!);
+    return tournamentDatabase.myScore;
+  },
+);*/
+
+final myParticipantProvider = StreamProvider.autoDispose<Participant?>(
   (ref) {
     final tournamentDatabase = ref.read(tournamentDatabaseProvider!);
     return tournamentDatabase.myScore;
   },
 );
+
 final AutoDisposeFutureProviderFamily<bool, Participant>
     updateParticipantProvider =
     FutureProvider.autoDispose.family<bool, Participant>(
@@ -115,19 +122,23 @@ final AutoDisposeFutureProviderFamily<bool, Participant>
       _newWinner = true;
     else {
       final firebaseUser = ref.read(firebaseUserProvider!);
-      _newWinner = firebaseUser.uid != winnerID;
-    }
-
-    if (_newWinner) {
-      final allTimeRecord = await ref.read(allTimeRecordProvider.last);
-      if (allTimeRecord == null)
-        _newRecord = true;
-      else {
-        if (participant.duration < allTimeRecord.duration) {
-          _newRecord = true;
-        }
+      if (firebaseUser.uid != winnerID) {
+        final winnerParticipant =
+            await tournamentDatabase.todayParticipant(winnerID);
+        if (winnerParticipant!.duration > participant.duration)
+          _newWinner = true;
       }
     }
+
+    final allTimeRecord = await ref.read(allTimeRecordProvider.last);
+    if (allTimeRecord == null)
+      _newRecord = true;
+    else {
+      if (participant.duration < allTimeRecord.duration) {
+        _newRecord = true;
+      }
+    }
+
     print("newWinner $_newWinner");
     print("newRecord $_newRecord");
 
@@ -210,6 +221,8 @@ Stream<TimeOfDay> get updateGameTime async* {
   yield* Stream.periodic(Duration(minutes: 1), (_) => TimeOfDay.now());
 }
 
+//final meParticipantProvider = StateProvider<Participant?>((_) => null);
+
 TimeOfDay fromString(String s) => TimeOfDay(
       hour: int.parse(s.split(":")[0]),
       minute: int.parse(s.split(":")[1]),
@@ -266,13 +279,16 @@ class TournamentNotifier extends ChangeNotifier {
               },
             );
 
-            //_isGameOver = true;
-            //_isGameOver =
-            //    icons.every((element) => element.isFound && !element.isCheck);
-            final check10 = icons
-                .where((element) => element.isFound && !element.isCheck)
-                .toList();
-            _isGameOver = check10.length == 10;
+            if (kDebugMode) {
+              final check10 = icons
+                  .where((element) => element.isFound && !element.isCheck)
+                  .toList();
+              _isGameOver = check10.length == 4;
+            } else {
+              _isGameOver =
+                  icons.every((element) => element.isFound && !element.isCheck);
+            }
+
             if (_isGameOver) stopTime();
           },
         );
@@ -304,8 +320,10 @@ class TournamentNotifier extends ChangeNotifier {
     print(duration.inMinutes);
     print(duration.inSeconds);
     print(duration.inMilliseconds);
-    return double.parse("${(duration.inMinutes * 60) + duration.inSeconds}."
-        "${duration.inMilliseconds}");
+    final double value = double.parse("${duration.inSeconds}."
+        "${duration.inMilliseconds % 1000}");
+    print(value);
+    return value;
   }
 
   Participant updateParticipant(Participant participant) {

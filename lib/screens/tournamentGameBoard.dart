@@ -34,28 +34,36 @@ class TournamentBoard extends StatelessWidget {
               provider: tournamentNotifierProvider,
               onChange: (_, TournamentNotifier notifier) async {
                 if (notifier.isGameOver) {
-                  //bool _newRecord = false;
-                  Participant _p;
-                  final Participant? oldParticipant =
-                      context.read(myParticipantProvider).data!.value;
-                  if (oldParticipant == null) {
-                    //_newRecord = true;
-                    final pro = await context.read(profileProvider!.future);
-                    _p = Participant(
-                        name: pro.name,
-                        id: "${pro.userID}",
-                        duration: notifier.timeDoubleConversion,
-                        gamesPlayed: 1);
-                  } else
-                    _p = notifier.updateParticipant(oldParticipant);
+                  bool _newScore = false;
+                  late Participant participant;
+                  final me = context.read(myParticipantProvider).data!.value;
 
-                  final bool newRecord =
-                      await context.read(updateParticipantProvider(_p).future);
+                  if (me == null) {
+                    _newScore = true;
+                    final pro = await context.read(profileProvider!.future);
+                    participant = Participant(
+                      name: pro.name,
+                      id: "${pro.userID}",
+                      duration: notifier.timeDoubleConversion,
+                    );
+                  } else {
+                    _newScore = me.duration > notifier.timeDoubleConversion;
+                    participant = me.copyWith(
+                      duration: _newScore
+                          ? notifier.timeDoubleConversion
+                          : me.duration,
+                      gamesPlayed: me.gamesPlayed + 1,
+                    );
+                    print(participant.gamesPlayed);
+                  }
+                  await context
+                      .read(updateParticipantProvider(participant).future);
+
                   showDialog(
                     context: context,
-                    barrierDismissible: true,
+                    barrierDismissible: false,
                     builder: (_) => TournamentGameWinPopUp(
-                      newRecord: newRecord,
+                      newRecord: _newScore,
                     ),
                   );
                 }

@@ -2,6 +2,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,10 +13,15 @@ import 'newNameProvider.dart';
 import 'packageInfoProvider.dart';
 
 final firebaseAppProvider = FutureProvider<FirebaseApp>(
-  (_) async => await Future.delayed(
+  (ref) async => await Future.delayed(
     const Duration(milliseconds: 500),
     () async {
       final app = await Firebase.initializeApp();
+      //final remoteConfig = ref.read(remoteConfigProvider);
+      /*await remoteConfig.setConfigSettings(RemoteConfigSettings(
+        fetchTimeout: const Duration(seconds: 10),
+        minimumFetchInterval: const Duration(seconds: 1),
+      ));*/
       FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
       return app;
@@ -44,6 +50,25 @@ final authProvider = Provider<Auth>(
   (ref) {
     final app = ref.read(firebaseAppProvider).data!.value;
     return Auth(app);
+  },
+);
+
+final remoteConfigProvider = Provider<RemoteConfig>(
+  (ref) {
+    final app = ref.read(firebaseAppProvider).data!.value;
+    final RemoteConfig remoteConfig = RemoteConfig.instanceFor(app: app);
+    /*await remoteConfig.setConfigSettings(
+      RemoteConfigSettings(
+        fetchTimeout: const Duration(seconds: 10),
+        minimumFetchInterval: const Duration(hours: 1),
+      ),
+    );*/
+    /*await remoteConfig.setDefaults(<String, dynamic>{
+      'welcome': 'default welcome',
+      'hello': 'default hello',
+    });*/
+    //RemoteConfigValue(null, ValueSource.valueStatic);
+    return remoteConfig;
   },
 );
 
@@ -97,6 +122,10 @@ final AutoDisposeFutureProvider updateMetaDataProvider =
     await playerDatabase.updateMetaData;
     final now = DateTime.now();
     print("Day is ${now.day}");
-    if (now.day == 1) {}
+    final remoteConfig = ref.read(remoteConfigProvider);
+    await remoteConfig.fetchAndActivate();
+    final updateDate = remoteConfig.getInt('update_stats_date');
+    print("update_stats_date $updateDate");
+    //Text('Welcome ${remoteConfig.getString('welcome_message')}')
   },
 );

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:paricon/models/playerMeta.dart';
 
 import '/models/profile.dart';
@@ -14,6 +15,9 @@ class PlayerDatabase extends MyDatabase {
   final String? uid;
 
   PlayerDatabase(FirebaseApp app, {this.uid}) : super(app);
+
+  //final String _today = DateFormat.yMMMd().format(DateTime.now());
+  final String _today = DateFormat.yMMMd().format(DateTime.now());
 
   @override
   // TODO: implement playerRef
@@ -76,17 +80,26 @@ class PlayerDatabase extends MyDatabase {
   Future<List<Profile>?> allPlayers(String level) async => playerRef
           .orderByChild("profile/stats/$level/played")
           .startAt(kDebugMode
-              ? 5
+              ? 0
               : level == "easy"
-                  ? 5
-                  : 10)
+                  ? 2
+                  : 5)
           //.limitToLast(10)
           .once()
           .then(
         (snapshot) {
           if (snapshot.value == null) return null;
           final Map map = snapshot.value;
-
+          //print('PD-96 $map');
+          map.removeWhere(
+            (key, value) {
+              if (value['metadata'] == null) return true;
+              PlayerMetaData metaData =
+                  PlayerMetaData.fromMap(value['metadata']);
+              //print(' PD-182 ${metaData.currentTime}');
+              return metaData.currentTime.month != DateTime.now().month;
+            },
+          );
           List<Profile> _list = map.values
               .map(
                 (e) => Profile.fromMap(e['profile']),
@@ -97,20 +110,35 @@ class PlayerDatabase extends MyDatabase {
         },
       );
 
-  Future<bool> get updateMetaData async {
-    //final DatabaseReference _ref = metadataRef;
+  Future<bool> updateMetaData({User? user}) async {
+    late bool _a;
+
     final TransactionResult transactionResult =
         await metadataRef.runTransaction((mutableData) async {
       if (mutableData.value == null) {
         mutableData.value = PlayerMetaData(currentTime: DateTime.now()).toMap();
+
+        _a = user!.metadata.creationTime!.month != DateTime.now().month;
+        //if()
       } else {
         final Map map = mutableData.value;
         final PlayerMetaData metaData = PlayerMetaData.fromMap(map);
-        mutableData.value = metaData.updateNow().toMap();
+        final newMetaData = metaData.updateNow();
+
+        if (kDebugMode) {
+          _a = newMetaData.currentTime.month != DateTime.august;
+        } else {
+          _a = newMetaData.currentTime.month != newMetaData.lastOpened!.month;
+        }
+
+        mutableData.value = newMetaData.toMap();
       }
       return mutableData;
     });
-    return transactionResult.committed;
+    if (transactionResult.committed)
+      return _a;
+    else
+      return false;
   }
 
   /*Future<bool> get tournamentPlayed async {
@@ -148,4 +176,55 @@ class PlayerDatabase extends MyDatabase {
           return diff;
         },
       );
+
+  Future updatePrevStats(String level) async {
+    final _ref = profileRef.child('stats/$level');
+    _ref.runTransaction(
+      (mutableData) async {
+        Map map = mutableData.value ?? null;
+        //print('PD-175 $map');
+
+        Stats stats = Stats.fromMap(map);
+        if (stats.prevStats == null) {
+          final f = {
+            ...Stats.toZero(),
+            ...{
+              'prevStats': {_today: "${stats.played}-${stats.win}-${stats.avg}"}
+            }
+          };
+          //print('PD-185, $f');
+          mutableData.value = f;
+        } else {
+          stats.prevStats![_today] =
+              "${stats.played}-${stats.win}-${stats.avg}";
+          mutableData.value = {
+            ...Stats.toZero(),
+            ...{'prevStats': stats.prevStats!},
+          };
+        }
+
+        return mutableData;
+      },
+    );
+/* final Map map = {
+      ...{"players": players},
+      ...{"icons": icons},
+      ...currentPlayer,
+      ...{"type": details.type},
+      if (_currentIcon.isNotEmpty) ...{"currentIcon": _currentIcon},
+      //...{"iconsFound": 0},
+    };*/
+    /*   final DatabaseReference _ref =
+        playerRef.child('profile').child("stats").child(level);
+    final TransactionResult transactionResult = await _ref.runTransaction(
+      (MutableData mutableData) async {
+        Map map = mutableData.value ?? null;
+        Stats oldStats = Stats.fromMap(map);
+        Stats newStats = oldStats + stats;
+        mutableData.value = newStats.toMap();
+
+        return mutableData;
+      },
+    );*/
+  }
 }

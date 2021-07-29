@@ -132,7 +132,7 @@ class _InitBoardState extends State<InitBoard> {
                                 .confettiColors(notifier.confettiColors),
                             // manually specify
                             numberOfParticles: 25, // the colors to be used
-                            //createParticlePath: dtrawStar,
+                            //createParticlePath: drawStar,
                           ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -141,6 +141,7 @@ class _InitBoardState extends State<InitBoard> {
                               GridIcons(icons: _board.icons),
                               PlayerList(players: _board.players),
                               //PlayerListWheel(players: _board.players),
+                              Spacer()
                               /*Flexible(
                                 child: FractionallySizedBox(
                                   heightFactor: 0.5,
@@ -320,7 +321,7 @@ class CardIcon extends StatelessWidget {
         async.whenData(
           (_icon) async {
             if (!notifier.icons.contains(_icon)) {
-              print("Loading ${_icon.audio}");
+              //print("Loading ${_icon.audio}");
               // AudioCache().load('audios/${_icon.audio}.wav');
             }
             notifier.replaceIcon(_icon);

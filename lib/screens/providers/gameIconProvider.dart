@@ -137,7 +137,7 @@ class GameIconProvider {
   }
 
   List<Color>? confettiColors(String color) {
-    print("confetti colors $color");
+    // print("confetti colors $color");
     switch (color) {
       case 'red':
         return const [

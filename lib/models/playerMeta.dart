@@ -3,13 +3,11 @@ import 'dart:convert';
 class PlayerMetaData {
   final DateTime? lastOpened, lastTournamentPlayed;
   final DateTime currentTime;
-  final List<String>? prevStats;
 
   PlayerMetaData({
     this.lastOpened,
     this.lastTournamentPlayed,
     required this.currentTime,
-    this.prevStats,
   });
 
   Map<String, dynamic> toMap() => <String, dynamic>{
@@ -18,7 +16,7 @@ class PlayerMetaData {
         if (this.lastTournamentPlayed != null)
           "lastTournamentPlayed": this.lastTournamentPlayed!.toIso8601String(),
         "currentTime": this.currentTime.toIso8601String(),
-        if (this.prevStats != null) "prevStats": prevStats,
+        //if (this.prevStats != null) "prevStats": prevStats,
       };
 
   factory PlayerMetaData.fromMap(Map fromSnapshot) {
@@ -44,21 +42,21 @@ class PlayerMetaData {
 
     return other is PlayerMetaData &&
         other.lastOpened == lastOpened &&
-        other.prevStats == prevStats &&
+        //other.prevStats == prevStats &&
         other.currentTime == currentTime &&
         other.lastTournamentPlayed == lastTournamentPlayed;
   }
 
   @override
   int get hashCode =>
-      lastOpened.hashCode ^
-      lastTournamentPlayed.hashCode ^
-      currentTime.hashCode ^
-      prevStats.hashCode;
+      lastOpened.hashCode ^ lastTournamentPlayed.hashCode ^ currentTime.hashCode
+      //^ prevStats.hashCode
+      ;
 
   PlayerMetaData updateNow() => PlayerMetaData(
-      currentTime: DateTime.now(),
-      lastOpened: this.currentTime,
-      lastTournamentPlayed: this.lastTournamentPlayed,
-      prevStats: this.prevStats);
+        currentTime: DateTime.now(),
+        lastOpened: this.currentTime,
+        lastTournamentPlayed: this.lastTournamentPlayed,
+        //prevStats: this.prevStats
+      );
 }

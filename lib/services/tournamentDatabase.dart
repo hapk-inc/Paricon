@@ -48,7 +48,7 @@ class TournamentDatabase extends MyDatabase {
           if (event.snapshot.value == null) return null;
 
           final Map map = event.snapshot.value;
-          print("tD-49 $map");
+          //print("tD-49 $map");
 
           final Participant participant = Participant.fromMap(map.values.first);
           return participant;
@@ -66,7 +66,7 @@ class TournamentDatabase extends MyDatabase {
 
   Stream<String?> get todayWinner => todayWinnerRef.onValue.map(
         (event) {
-          print("todayWinner ID ${event.snapshot.value}");
+          //print("todayWinner ID ${event.snapshot.value}");
           if (event.snapshot.value == null) return null;
           return event.snapshot.value as String;
         },
@@ -102,7 +102,7 @@ class TournamentDatabase extends MyDatabase {
         (event) {
           if (event.snapshot.value == null) return null;
           final map = event.snapshot.value;
-          print("TD-184 $map");
+          //print("TD-184 $map");
           if (map['date'] != _today) return null;
           final Participant participant = Participant.fromMap(map);
           return participant;
@@ -158,7 +158,7 @@ class TournamentDatabase extends MyDatabase {
   Future updateAllTimeRecord(Participant participant) async =>
       await allTimeRecordRef.runTransaction(
         (mutableData) async {
-          print("updateAllTime Record runTransaction");
+          // print("updateAllTime Record runTransaction");
           if (mutableData.value == null)
             mutableData.value = <String, dynamic>{
               uid!: participant.toMap(),

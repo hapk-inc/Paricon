@@ -128,7 +128,7 @@ class OnlineBoardNotifier extends ChangeNotifier {
     }
     if (_icons[icon.iconNo! - 1] == icon) return;
 
-    print("Replacing Icon ${icon.iconNo} ${icon.iconCode}");
+    //print("Replacing Icon ${icon.iconNo} ${icon.iconCode}");
     _icons[icon.iconNo! - 1] = icon;
     notifyListeners();
   }
@@ -136,7 +136,7 @@ class OnlineBoardNotifier extends ChangeNotifier {
   replacePlayer(LocalPlayer player) {
     if (_players.length < player.playerNo.toInt()) {
       _players.add(player);
-      print(_players);
+      // print(_players);
       return;
     }
     if (_players[player.playerNo - 1] == player) return;

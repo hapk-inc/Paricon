@@ -58,11 +58,11 @@ final AutoDisposeFutureProvider<Participant?> todayParticipantProvider =
   (ref) async {
     final tournamentDatabase = ref.read(tournamentDatabaseProvider!);
     final String? id = await ref.watch(todayWinnerProvider.last);
-    print(id);
+    //print(id);
     if (id == null) return null;
     //if (id == null)
     //  return Participant(name: "Unknown", id: "3433343", duration: 232.43);
-    print("From todayID provider $id");
+    //print("From todayID provider $id");
     return tournamentDatabase.todayParticipant(id);
   },
 );
@@ -139,8 +139,8 @@ final AutoDisposeFutureProviderFamily<bool, Participant>
       }
     }
 
-    print("newWinner $_newWinner");
-    print("newRecord $_newRecord");
+    //print("newWinner $_newWinner");
+    //print("newRecord $_newRecord");
 
     await Future.wait(
       [
@@ -317,12 +317,12 @@ class TournamentNotifier extends ChangeNotifier {
   }
 
   double get timeDoubleConversion {
-    print(duration.inMinutes);
-    print(duration.inSeconds);
-    print(duration.inMilliseconds);
+    //print(duration.inMinutes);
+    //print(duration.inSeconds);
+    //print(duration.inMilliseconds);
     final double value = double.parse("${duration.inSeconds}."
         "${duration.inMilliseconds % 1000}");
-    print(value);
+    //print(value);
     return value;
   }
 

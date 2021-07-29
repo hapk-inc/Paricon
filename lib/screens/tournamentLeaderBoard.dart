@@ -219,7 +219,7 @@ class AllTimeRecord extends StatelessWidget {
               );
             },
             error: (error, stackTrace) {
-              print(stackTrace);
+              //print(stackTrace);
               return Container();
             },
             loading: () => Container(),
@@ -346,7 +346,7 @@ class ParticipantsList extends StatelessWidget {
                               maxLines: 2,
                             ),
                           ),
-                          flex: 6,
+                          flex: 7,
                         ),
                         ParticipantDuration(duration: participant.duration),
                       ],

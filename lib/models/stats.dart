@@ -4,12 +4,13 @@ class Stats {
   final int? played;
   final int? win;
   final double? avg;
+  final Map? prevStats;
 
-  Stats({
-    required this.played,
-    required this.win,
-    required this.avg,
-  });
+  Stats(
+      {required this.played,
+      required this.win,
+      required this.avg,
+      this.prevStats});
 
   Stats copyWith({
     int? played,
@@ -34,17 +35,20 @@ class Stats {
       'played': played,
       'win': win,
       'avg': avg,
+      if (prevStats != null) 'prevStats': prevStats
     };
   }
 
   factory Stats.fromMap(Map fromSnapshot) {
     Map<String, dynamic> map = Map<String, dynamic>.from(fromSnapshot);
-
+    //print('stats-43 ${map['prevStats']}');
     return Stats(
-      played: map['played'],
-      win: map['win'],
-      avg: map['avg'] is int ? double.parse(map['avg'].toString()) : map['avg'],
-    );
+        played: map['played'],
+        win: map['win'],
+        avg: map['avg'] is int
+            ? double.parse(map['avg'].toString())
+            : map['avg'],
+        prevStats: map['prevStats']);
   }
 
   String toJson() => json.encode(toMap());
@@ -73,6 +77,9 @@ class Stats {
     _avg = this.avg! + _avg;
     _avg = double.parse(_avg.toStringAsFixed(2));
     return Stats(
-        played: (this.played! + 1), win: (this.win! + stats.win!), avg: _avg);
+        played: (this.played! + 1),
+        win: (this.win! + stats.win!),
+        avg: _avg,
+        prevStats: this.prevStats ?? null);
   }
 }

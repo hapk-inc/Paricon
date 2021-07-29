@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:paricon/models/stats.dart';
 
 import 'common/durationCount.dart';
 import 'common/paddingTheme.dart';
@@ -50,7 +51,6 @@ class ProfileScreen extends ConsumerWidget {
                         Flexible(
                           flex: 2,
                           child: AutoSizeText(
-                            //name /*+ "\nasdf"*/ ?? "NoOne",
                             name ?? "NoOne",
                             maxFontSize: 64,
                             wrapWords: false,
@@ -122,7 +122,7 @@ class ProfileScreen extends ConsumerWidget {
                         ? Column(
                             children: [
                               Flexible(
-                                flex: 3,
+                                flex: 4,
                                 child: Row(
                                   children: profileNameIdList(
                                     name: value.name,
@@ -132,39 +132,27 @@ class ProfileScreen extends ConsumerWidget {
                               ),
                               LevelTabs(),
                               Flexible(
-                                flex: 3,
+                                flex: 4,
                                 child: TabBarView(
                                   children: value.stats!
                                       .map(
                                         (e) => Card(
                                           color: Colors.pink[100],
                                           elevation: 4,
-                                          child: e.played == 0
-                                              ? NotYetPlayedWidget()
-                                              : Padding(
-                                                  padding: PaddingTheme.all8,
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceAround,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.end,
-                                                    children: [
-                                                      StatsValue(
-                                                        value: e.played,
-                                                        header: "GAMES",
-                                                      ),
-                                                      StatsValue(
-                                                        value: e.win,
-                                                        header: "WINS",
-                                                      ),
-                                                      StatsValue(
-                                                        value: e.avg,
-                                                        header: "AVG. SCORE",
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: [
+                                              Flexible(
+                                                  child: e.played == 0
+                                                      ? NotYetPlayedWidget()
+                                                      : MyLevelStats(stats: e)),
+                                              if (e.prevStats != null)
+                                                PrevStatsList(
+                                                  prevStats: e.prevStats!,
+                                                )
+                                            ],
+                                          ),
                                         ),
                                       )
                                       .toList(growable: false),
@@ -274,6 +262,45 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
+class PrevStatsList extends StatelessWidget {
+  final Map prevStats;
+  const PrevStatsList({Key? key, required this.prevStats}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => Flexible(
+        child: Container(
+          child: Text(
+            "Previous Stats will be displayed here \nin the next update",
+            style: TextStyleFontTheme.poppins.copyWith(
+              color: Colors.black54,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+}
+
+class MyLevelStats extends StatelessWidget {
+  final Stats stats;
+  const MyLevelStats({Key? key, required this.stats}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: PaddingTheme.all8,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          StatsValue(value: stats.played, header: "GAMES"),
+          StatsValue(value: stats.win, header: "WINS"),
+          StatsValue(value: stats.avg, header: "AVG. SCORE"),
+        ],
+      ),
+    );
+  }
+}
+
 class AnonymousUserWidget extends StatelessWidget {
   const AnonymousUserWidget({Key? key}) : super(key: key);
 
@@ -297,20 +324,17 @@ class NotYetPlayedWidget extends StatelessWidget {
   const NotYetPlayedWidget({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(4.0),
-      alignment: Alignment.center,
-      child: Text(
-        "Never played yet",
-        textScaleFactor: 2.5,
-        style: TextStyleFontTheme.bangers.copyWith(
-          color: Colors.brown,
-          letterSpacing: 1.5,
+  Widget build(BuildContext context) => Container(
+        margin: const EdgeInsets.all(4.0),
+        alignment: Alignment.center,
+        child: Text(
+          "This season not started",
+          style: TextStyleFontTheme.bangers.copyWith(
+            color: Colors.brown,
+            fontSize: 24,
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class LevelTabs extends StatelessWidget {

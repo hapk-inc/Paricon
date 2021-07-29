@@ -5,14 +5,14 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_update/in_app_update.dart';
+
 import '/models/enumFiles.dart';
-import 'packageInfoProvider.dart';
 import '/models/localIcon.dart';
 import '/models/room.dart';
-
 import 'authProvider.dart';
 import 'databaseProvider.dart';
 import 'gameIconProvider.dart';
+import 'packageInfoProvider.dart';
 import 'roomIDProvider.dart';
 import 'setGameProvider.dart';
 import 'updateProvider.dart';
@@ -74,7 +74,7 @@ final AutoDisposeFutureProviderFamily<ValidateRoom, String>? roomCheckProvider =
           if (vRoom.alreadyIn) {
             final boardDatabase = ref.read(boardDatabaseProvider!);
             final bool isGameOver = await boardDatabase.isGameOver;
-            print("IsGameOver $isGameOver");
+            //print("IsGameOver $isGameOver");
             if (isGameOver) return ValidateRoom(status: RoomStatus.alreadyOver);
           }
         }
@@ -133,7 +133,7 @@ final AutoDisposeFutureProvider<bool> createBoardProvider =
     if (details.type == "orderWise") {
       final localIcon = localIcons[Random.secure().nextInt(localIcons.length)];
       _currentIcon = localIcon.iconCode;
-      print("Current Icon is $_currentIcon");
+      // print("Current Icon is $_currentIcon");
     }
 
     final Map currentPlayer = {"currentID": players.keys.first};

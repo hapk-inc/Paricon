@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lottie/lottie.dart';
 
 import 'common/circularProgressTheme.dart';
 import 'common/paddingTheme.dart';
@@ -150,7 +149,7 @@ class LevelPlayers extends ConsumerWidget {
                               )
                             ],
                           ),
-                          if (index == 0)
+                          /*    if (index == 0)
                             Positioned(
                               right: -5,
                               top: -5,
@@ -163,7 +162,7 @@ class LevelPlayers extends ConsumerWidget {
                                   fit: BoxFit.fill,
                                 ),
                               ),
-                            ),
+                            ),*/
                         ],
                       ),
                     ),
@@ -172,8 +171,8 @@ class LevelPlayers extends ConsumerWidget {
               ),
         loading: () => Center(child: CircularProgressTheme.pinkIndicator),
         error: (error, stackTrace) {
-          print(error);
-          print(stackTrace);
+          //print(error);
+          //print(stackTrace);
           return CircularProgressIndicator();
         },
       );

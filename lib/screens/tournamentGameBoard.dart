@@ -54,7 +54,7 @@ class TournamentBoard extends StatelessWidget {
                           : me.duration,
                       gamesPlayed: me.gamesPlayed + 1,
                     );
-                    print(participant.gamesPlayed);
+                    //print(participant.gamesPlayed);
                   }
                   await context
                       .read(updateParticipantProvider(participant).future);

@@ -119,13 +119,20 @@ final AutoDisposeFutureProvider updateMetaDataProvider =
   (ref) async {
     final firebaseUser = ref.read(firebaseUserProvider!);
     final playerDatabase = ref.read(playerDatabaseProvider!(firebaseUser.uid));
-    await playerDatabase.updateMetaData;
-    final now = DateTime.now();
+    bool newSeason = await playerDatabase.updateMetaData(user: firebaseUser);
+    if (newSeason) {
+      final levels = ['easy', 'medium', 'hard'];
+      levels.forEach((element) {
+        playerDatabase.updatePrevStats(element);
+      });
+    }
+
+    /*final now = DateTime.now();
     print("Day is ${now.day}");
     final remoteConfig = ref.read(remoteConfigProvider);
     await remoteConfig.fetchAndActivate();
     final updateDate = remoteConfig.getInt('update_stats_date');
-    print("update_stats_date $updateDate");
+    print("update_stats_date $updateDate");*/
     //Text('Welcome ${remoteConfig.getString('welcome_message')}')
   },
 );

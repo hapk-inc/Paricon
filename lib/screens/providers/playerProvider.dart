@@ -24,12 +24,19 @@ final AutoDisposeFutureProviderFamily<Profile, String>? otherProfileProvider =
 final AutoDisposeFutureProviderFamily<List<Profile>?, String>
     allPlayerProvider =
     FutureProvider.autoDispose.family<List<Profile>?, String>(
-  (ref, level) {
+  (ref, level) async {
     final playerDatabase = ref.read(playerDatabaseProvider!(""));
     return playerDatabase.allPlayers(level);
   },
 );
 
+final allUsersProvider =
+    StreamProvider.autoDispose.family<List<Profile>, String>(
+  (ref, level) {
+    final playerDatabase = ref.read(playerDatabaseProvider!(""));
+    return playerDatabase.allUsers(level);
+  },
+);
 final AutoDisposeFutureProviderFamily<void, String>? updateNameProvider =
     FutureProvider.autoDispose.family<void, String>(
   (ref, playerName) async {

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:paricon/models/profile.dart';
 
 import 'common/circularProgressTheme.dart';
 import 'common/paddingTheme.dart';
@@ -29,7 +30,6 @@ class AllPlayers extends StatelessWidget {
         backgroundColor: Colors.white70,
         body: SafeArea(
           child: Container(
-            //color: Colors.green[50],
             child: Column(
               children: [
                 Flexible(
@@ -89,8 +89,8 @@ class LevelPlayers extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ScopedReader watch) =>
-      watch(allPlayerProvider(level)).when(
-        data: (value) => value == null
+      watch(allUsersProvider(level)).when(
+        data: (value) => value.isEmpty
             ? Container(
                 alignment: Alignment.center,
                 child: Text(
@@ -98,58 +98,73 @@ class LevelPlayers extends ConsumerWidget {
                   style: TextStyleFontTheme.bangers.copyWith(fontSize: 24),
                 ),
               )
-            : ListView.builder(
-                itemCount: value.length,
-                itemBuilder: (context, index) {
-                  final profile = value[index];
-                  final stats = value[index].stats![levels.indexOf(level)];
-                  final tileColor = Colors
-                      .primaries[Random().nextInt(Colors.primaries.length)];
-                  return LimitedBox(
-                    maxHeight: MediaQuery.of(context).size.height *
-                        (index == 0 ? 0.2 : 0.125),
-                    child: Card(
-                      elevation: 8,
-                      color:
-                          index == 0 ? tileColor.shade50 : tileColor.shade400,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0)),
-                      child: Stack(
-                        children: [
-                          Row(
-                            children: [
-                              Flexible(
-                                child: TitleSubTitle(
-                                  strTitle: profile.name,
-                                  strSubTitle: "${profile.userID}",
-                                ),
-                                flex: 7,
+            : UserList(users: value, level: level),
+        loading: () => Center(child: CircularProgressTheme.pinkIndicator),
+        error: (error, stackTrace) {
+          return CircularProgressIndicator();
+        },
+      );
+}
+
+class UserList extends StatelessWidget {
+  final List<Profile> users;
+  final String level;
+  const UserList({Key? key, required this.users, required this.level})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => ListView.builder(
+        itemCount: users.length,
+        itemBuilder: (context, index) {
+          final profile = users[index];
+          final stats = users[index].stats![levels.indexOf(level)];
+          final tileColor =
+              Colors.primaries[Random().nextInt(Colors.primaries.length)];
+          return LimitedBox(
+            maxHeight:
+                MediaQuery.of(context).size.height * (index == 0 ? 0.2 : 0.125),
+            child: Card(
+              elevation: 8,
+              color: index == 0 ? tileColor.shade50 : tileColor.shade400,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.0)),
+              child: Stack(
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: TitleSubTitle(
+                          strTitle: profile.name,
+                          strSubTitle: "${profile.userID}",
+                        ),
+                        flex: 7,
+                      ),
+                      Flexible(
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: TitleSubTitle(
+                                  strTitle: "${stats.played}",
+                                  strSubTitle: "Games"),
+                            ),
+                            Flexible(
+                              child: TitleSubTitle(
+                                strTitle: "${stats.win}",
+                                strSubTitle: "Wins",
                               ),
-                              Flexible(
-                                child: Row(
-                                  children: [
-                                    Flexible(
-                                      child: TitleSubTitle(
-                                          strTitle: "${stats.played}",
-                                          strSubTitle: "Games"),
-                                    ),
-                                    Flexible(
-                                      child: TitleSubTitle(
-                                          strTitle: "${stats.win}",
-                                          strSubTitle: "Wins"),
-                                    ),
-                                    Flexible(
-                                      child: TitleSubTitle(
-                                          strTitle: "${stats.avg}",
-                                          strSubTitle: "Avg. Score"),
-                                    ),
-                                  ],
-                                ),
-                                flex: 13,
-                              )
-                            ],
-                          ),
-                          /*    if (index == 0)
+                            ),
+                            Flexible(
+                              child: TitleSubTitle(
+                                  strTitle: "${stats.avg}",
+                                  strSubTitle: "Avg. Score"),
+                            ),
+                          ],
+                        ),
+                        flex: 13,
+                      )
+                    ],
+                  ),
+                  /*    if (index == 0)
                             Positioned(
                               right: -5,
                               top: -5,
@@ -163,17 +178,10 @@ class LevelPlayers extends ConsumerWidget {
                                 ),
                               ),
                             ),*/
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                ],
               ),
-        loading: () => Center(child: CircularProgressTheme.pinkIndicator),
-        error: (error, stackTrace) {
-          //print(error);
-          //print(stackTrace);
-          return CircularProgressIndicator();
+            ),
+          );
         },
       );
 }
@@ -187,19 +195,17 @@ class TitleSubTitle extends StatelessWidget {
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ListTile(
-        title: AutoSizeText(
-          strTitle,
-          style: TextStyleFontTheme.luckiestGuy.copyWith(fontSize: 24),
-          maxLines: 1,
+  Widget build(BuildContext context) => Center(
+        child: ListTile(
+          title: AutoSizeText(
+            strTitle,
+            style: TextStyleFontTheme.luckiestGuy.copyWith(fontSize: 24),
+            maxLines: 1,
+          ),
+          subtitle: AutoSizeText(
+            strSubTitle,
+            maxLines: 1,
+          ),
         ),
-        subtitle: AutoSizeText(
-          strSubTitle,
-          maxLines: 1,
-        ),
-      ),
-    );
-  }
+      );
 }

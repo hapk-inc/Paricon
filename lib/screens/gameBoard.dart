@@ -5,6 +5,7 @@ import 'package:confetti/confetti.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 //import 'package:google_mobile_ads/google_mobile_ads.dart';
 //import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:lottie/lottie.dart';
@@ -15,9 +16,8 @@ import '/models/localPlayer.dart';
 import 'common/durationCount.dart';
 import 'common/gameBoardWidgets.dart';
 import 'common/popup.dart';
-//import 'package:paricon/screens/providers/adStateProvider.dart';
 import 'common/textTheme.dart';
-//import 'providers/adStateProvider.dart';
+import 'providers/adStateProvider.dart';
 import 'providers/authProvider.dart';
 import 'providers/boardProvider.dart';
 import 'providers/gameIconProvider.dart';
@@ -56,32 +56,8 @@ class GameBoard extends ConsumerWidget {
   }
 }
 
-class InitBoard extends StatefulWidget {
+class InitBoard extends StatelessWidget {
   const InitBoard({Key? key}) : super(key: key);
-
-  @override
-  _InitBoardState createState() => _InitBoardState();
-}
-
-class _InitBoardState extends State<InitBoard> {
-  /* BannerAd? _bannerAd;
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final adState = context.read(adStateProvider);
-    adState.initialization.then(
-      (status) => setState(
-        () {
-          _bannerAd = BannerAd(
-            size: AdSize.banner,
-            adUnitId: adState.bannerAdUnitId,
-            listener: adState.bannerAdListener,
-            request: AdRequest(),
-          )..load();
-        },
-      ),
-    );
-  }*/
 
   @override
   Widget build(BuildContext context) => SafeArea(
@@ -142,17 +118,6 @@ class _InitBoardState extends State<InitBoard> {
                               PlayerList(players: _board.players),
                               //PlayerListWheel(players: _board.players),
                               Spacer()
-                              /*Flexible(
-                                child: FractionallySizedBox(
-                                  heightFactor: 0.5,
-                                  child: AnimatedSwitcher(
-                                    duration: DurationCount.m500,
-                                    child: _bannerAd == null
-                                        ? Container()
-                                        : AdWidget(ad: _bannerAd!),
-                                  ),
-                                ),
-                              ),*/
                             ],
                           ),
                         ],
@@ -179,12 +144,6 @@ class _InitBoardState extends State<InitBoard> {
           ),
         ),
       );
-
-  @override
-  void dispose() {
-    super.dispose();
-    // _bannerAd?.dispose();
-  }
 }
 
 class BoardLoading extends StatelessWidget {
@@ -205,66 +164,51 @@ class ErrorGameBoard extends StatelessWidget {
   const ErrorGameBoard({Key? key, required this.error}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Flexible(
-            child: Lottie.asset(
-              'assets/lottie/sad.json',
-              height: MediaQuery.of(context).size.height * 0.4,
-              width: MediaQuery.of(context).size.width * 0.4,
-              fit: BoxFit.contain,
+  Widget build(BuildContext context) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Lottie.asset(
+                'assets/lottie/sad.json',
+                height: MediaQuery.of(context).size.height * 0.4,
+                width: MediaQuery.of(context).size.width * 0.4,
+                fit: BoxFit.contain,
+              ),
             ),
-          ),
-          Flexible(
-            child: AutoSizeText.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: "Sorry",
-                    style: TextStyleFontTheme.poppins.copyWith(
-                      color: Colors.black54,
-                      fontSize: 20,
+            Flexible(
+              child: AutoSizeText.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "Sorry",
+                      style: TextStyleFontTheme.poppins.copyWith(
+                        color: Colors.black54,
+                        fontSize: 20,
+                      ),
                     ),
-                  ),
-                  TextSpan(
-                    text: "..seems we have some issue\n",
-                  ),
-                  TextSpan(
-                    text: "Kindly reopen the app\n",
-                  ),
-                  TextSpan(
-                    text: "Re-enter",
-                    style: TextStyleFontTheme.poppins.copyWith(
-                        color: Colors.black54,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600),
-                  ),
-                  TextSpan(
-                    text: " the same Room code",
-                  ),
-                  /*TextSpan(
-                    text: "try again",
-                    style: TextStyleFontTheme.poppins.copyWith(
-                        color: Colors.black54,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600),
-                  ),*/
-                ],
+                    TextSpan(text: "..seems we have some issue\n"),
+                    TextSpan(text: "Kindly reopen the app\n"),
+                    TextSpan(
+                      text: "Re-enter",
+                      style: TextStyleFontTheme.poppins.copyWith(
+                          color: Colors.black54,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600),
+                    ),
+                    TextSpan(text: " the same Room code"),
+                  ],
+                ),
+                style: TextStyleFontTheme.poppins.copyWith(
+                  color: Colors.black38,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
               ),
-              style: TextStyleFontTheme.poppins.copyWith(
-                color: Colors.black38,
-                fontSize: 16,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          )
-        ],
-      ),
-    );
-  }
+            )
+          ],
+        ),
+      );
 }
 
 class OnlinePlayer extends StatelessWidget {
@@ -320,32 +264,56 @@ class CardIcon extends StatelessWidget {
       onChange: (BuildContext context, AsyncValue<LocalIcon> async) {
         async.whenData(
           (_icon) async {
+            final player = AudioCache(
+              fixedPlayer: AudioPlayer(
+                mode: PlayerMode.LOW_LATENCY,
+              ),
+              respectSilence: true,
+              duckAudio: true,
+            );
             if (!notifier.icons.contains(_icon)) {
-              //print("Loading ${_icon.audio}");
-              // AudioCache().load('audios/${_icon.audio}.wav');
+              player.load('audios/${_icon.audio}.wav');
             }
             notifier.replaceIcon(_icon);
-            /*if (!_icon.checkFound() && notifier.type == GameType.orderWise)
-              context.refresh(currentIconProvider);*/
+
             if (_icon.isCheck) {
-              AudioCache().play('audios/${_icon.audio}.wav');
+              player.play('audios/${_icon.audio}.wav');
             }
             if (_icon.isFound) {
-              /*if (notifier.type == GameType.orderWise)
-                context.refresh(currentIconProvider);*/
               notifier.confettiColors = _icon.color;
-              //context.refresh(confettiProvider);
-              // context.read(confettiProvider).play();
-
               notifier.confettiController.play();
 
               final bool allFound =
                   notifier.icons.every((element) => element.isFound);
               if (allFound) {
-                //final analytics = context.read(firebaseAnalyticsProvider);
-                await context.read(updateStatsProvider.future);
-                //analytics.setCurrentScreen(screenName: "game_results_screen");
-                context.read(pageProvider).replace(GameResults.toMaterialPage);
+                context.read(updateStatsProvider.future);
+                final adState = context.read(adStateProvider);
+                await adState.initialization.then(
+                  (status) {
+                    InterstitialAd.load(
+                      adUnitId: adState.interstitialAdUnitId,
+                      request: AdRequest(),
+                      adLoadCallback: InterstitialAdLoadCallback(
+                        onAdLoaded: (_ad) {
+                          _ad
+                            ..show()
+                            ..fullScreenContentCallback =
+                                FullScreenContentCallback(
+                              onAdDismissedFullScreenContent: (ad) {
+                                context
+                                    .read(pageProvider)
+                                    .replace(GameResults.toMaterialPage);
+                              },
+                            );
+                        },
+                        onAdFailedToLoad: (error) {
+                          print(
+                              'Failed to load an interstitial ad: ${error.message}');
+                        },
+                      ),
+                    );
+                  },
+                );
               }
             }
           },

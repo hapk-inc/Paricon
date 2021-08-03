@@ -98,6 +98,14 @@ final AutoDisposeFutureProvider<Null>? googleSignInProvider =
   },
 );
 
+final AutoDisposeFutureProvider reSignInProvider =
+    FutureProvider.autoDispose<dynamic>(
+  (ref) async {
+    final auth = ref.read(authProvider);
+    return await auth.reSignIn;
+  },
+);
+
 final AutoDisposeProvider<User>? firebaseUserProvider =
     Provider.autoDispose<User>(
   (ref) {
@@ -126,7 +134,6 @@ final AutoDisposeFutureProvider updateMetaDataProvider =
         playerDatabase.updatePrevStats(element);
       });
     }
-
     /*final now = DateTime.now();
     print("Day is ${now.day}");
     final remoteConfig = ref.read(remoteConfigProvider);

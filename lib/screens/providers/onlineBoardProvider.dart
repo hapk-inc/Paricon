@@ -148,16 +148,16 @@ class OnlineBoardNotifier extends ChangeNotifier {
   List<LocalIcon> get icons => _icons;
 
   List<LocalIcon> coloredIcons(String color) {
-    List<LocalIcon> mlist = [];
+    List<LocalIcon> _list = [];
     final a = icons.where((element) => element.color == color).toList();
     a.forEach(
       (element) {
-        if (!mlist.any((_list) => _list.iconCode == element.iconCode))
-          mlist.add(element);
+        if (!_list.any((_list) => _list.iconCode == element.iconCode))
+          _list.add(element);
       },
     );
 
-    return mlist;
+    return _list;
   }
 
   LocalPlayer? get myPlayer => _myPlayer;
@@ -183,7 +183,7 @@ class OnlineBoardNotifier extends ChangeNotifier {
   }
 }
 
-final wheelListProvider =
+final wheelRotationProvider =
     ChangeNotifierProvider.autoDispose((ref) => WheelListNotifier());
 
 class WheelListNotifier extends ChangeNotifier {
@@ -206,4 +206,21 @@ class WheelListNotifier extends ChangeNotifier {
   }
 
   ScrollController get controller => _controller;
+}
+
+class ConfettiNotifier extends ChangeNotifier {
+  ConfettiController _confettiController =
+      ConfettiController(duration: Duration(milliseconds: 500));
+
+  ConfettiController get confettiController => _confettiController;
+
+  String _confettiColors = "";
+
+  String get confettiColors => _confettiColors;
+
+  set confettiColors(String value) {
+    if (_confettiColors == value) return;
+    _confettiColors = value;
+    notifyListeners();
+  }
 }

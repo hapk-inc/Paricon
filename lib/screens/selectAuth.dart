@@ -93,7 +93,7 @@ class AuthTextButton extends StatelessWidget {
   }
 }
 
-class AuthButtons extends StatelessWidget {
+/*class AuthButtons extends StatelessWidget {
   final String btn;
 
   const AuthButtons(this.btn, {Key? key}) : super(key: key);
@@ -154,4 +154,4 @@ class AuthButtons extends StatelessWidget {
 
   Color? _btnColors(String value) =>
       value.contains("Guest") ? Colors.brown[700] : Colors.red[900];
-}
+}*/

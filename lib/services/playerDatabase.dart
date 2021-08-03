@@ -36,7 +36,7 @@ class PlayerDatabase extends MyDatabase {
   Future get deleteUser => playerRef.remove();
 
   Future createPlayer(User user) async {
-    final num playerID =
+    /*final num playerID =
         10000000 + Random.secure().nextInt(99999999 - 10000000);
     await playerRef.child(user.uid).child("profile").set(
       {
@@ -47,6 +47,24 @@ class PlayerDatabase extends MyDatabase {
           "medium": Stats.toZero(),
           "hard": Stats.toZero(),
         }
+      },
+    );*/
+    final ref = playerRef.child(user.uid).child('profile');
+    await ref.runTransaction(
+      (mutableData) async {
+        if (mutableData.value == null) {
+          final random = Random.secure();
+          final num id = 10000000 + random.nextInt(99999999 - 10000000);
+          final map = Map.fromIterable(<String>['easy', 'medium', 'hard'],
+              key: (e) => e, value: (_) => Stats.toZero());
+          //print(map);
+          mutableData.value = <String, dynamic>{
+            "name": user.displayName,
+            "userID": id,
+            "stats": map,
+          };
+        }
+        return mutableData;
       },
     );
   }
@@ -78,28 +96,33 @@ class PlayerDatabase extends MyDatabase {
       ).onError((error, _) => "");
 
   Future<List<Profile>?> allPlayers(String level) async => playerRef
-          .orderByChild("profile/stats/$level/played")
-          .startAt(kDebugMode
-              ? 0
-              : level == "easy"
-                  ? 2
-                  : 5)
+          /* .orderByChild("profile/stats/$level/played")
+          .startAt(
+            kDebugMode
+                ? 0
+                : level == "easy"
+                    ? 2
+                    : 5,
+          )
+          .reference()*/
           //.limitToLast(10)
           .once()
           .then(
         (snapshot) {
           if (snapshot.value == null) return null;
+
           final Map map = snapshot.value;
-          //print('PD-96 $map');
+
           map.removeWhere(
             (key, value) {
               if (value['metadata'] == null) return true;
               PlayerMetaData metaData =
                   PlayerMetaData.fromMap(value['metadata']);
-              //print(' PD-182 ${metaData.currentTime}');
+
               return metaData.currentTime.month != DateTime.now().month;
             },
           );
+
           List<Profile> _list = map.values
               .map(
                 (e) => Profile.fromMap(e['profile']),
@@ -110,6 +133,34 @@ class PlayerDatabase extends MyDatabase {
         },
       );
 
+  Stream<List<Profile>> allUsers(String level) => playerRef
+          .orderByChild("profile/stats/$level/played")
+          .startAt(
+            kDebugMode ? 1 : 2,
+          )
+          .onValue
+          .map(
+        (event) {
+          if (event.snapshot.value == null) return List.empty();
+          final Map map = event.snapshot.value;
+          map.removeWhere(
+            (key, value) {
+              if (value['metadata'] == null) return true;
+              PlayerMetaData metaData =
+                  PlayerMetaData.fromMap(value['metadata']);
+              return metaData.currentTime.month != DateTime.now().month;
+            },
+          );
+
+          List<Profile> _list = map.values
+              .map(
+                (e) => Profile.fromMap(e['profile']),
+              )
+              .toList(growable: false);
+
+          return _list.reversed.toList();
+        },
+      );
   Future<bool> updateMetaData({User? user}) async {
     late bool _a;
 
@@ -140,27 +191,6 @@ class PlayerDatabase extends MyDatabase {
     else
       return false;
   }
-
-  /*Future<bool> get tournamentPlayed async {
-    final DatabaseReference _ref = metadataRef.child("lastTournamentPlayed");
-    final TransactionResult result = await _ref.runTransaction(
-      (mutableData) async {
-        if (mutableData.value == null) {
-          mutableData.value = DateTime.now().toIso8601String();
-          return mutableData;
-        } else {
-          final DateTime prevDateTime = DateTime.parse(mutableData.value);
-          final DateTime now = DateTime.now();
-          Duration diff = now.difference(prevDateTime);
-          if (diff.inMinutes < 30) {
-            mutableData.value = DateTime.now().toIso8601String();
-          }
-          return mutableData;
-        }
-      },
-    );
-    return result.committed;
-  }*/
 
   Future get updateTournamentPlayed => metadataRef
       .child("lastTournamentPlayed")

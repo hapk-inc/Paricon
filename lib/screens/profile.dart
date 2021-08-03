@@ -1,7 +1,9 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/stats.dart';
+import 'package:paricon/screens/providers/pageProvider.dart';
 
 import 'common/durationCount.dart';
 import 'common/paddingTheme.dart';
@@ -306,15 +308,107 @@ class AnonymousUserWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      child: FittedBox(
-        child: Text(
-          "Anonymous User",
-          style: TextStyleFontTheme.poppins.copyWith(
-            color: Colors.black38,
+    void showSnackBar({String message = "", Color bgColor = Colors.black87}) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          elevation: 8,
+          content: AutoSizeText(
+            message,
+            style: TextStyleFontTheme.poppins,
+            maxLines: 1,
           ),
-          textScaleFactor: 1.5,
+          backgroundColor: bgColor,
         ),
+      );
+    }
+
+    return Flexible(
+      flex: 2,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: AutoSizeText(
+                "Will clear your data once you've signed out",
+                style: TextStyleFontTheme.poppins.copyWith(color: Colors.pink),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+              ),
+            ),
+          ),
+          Flexible(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Flexible(
+                  child: AutoSizeText(
+                    "Anonymous User",
+                    style: TextStyleFontTheme.poppins
+                        .copyWith(color: Colors.black38, fontSize: 16),
+                    maxLines: 1,
+                  ),
+                ),
+                Flexible(
+                  //flex: 2,
+                  child: ElevatedButton(
+                    onPressed: () => context.read(reSignInProvider.future).then(
+                      (dynamic x) {
+                        context.read(pageProvider).remove();
+                        if (x is FirebaseAuthException) {
+                          switch (x.code) {
+                            case "credential-already-in-use":
+                              showSnackBar(message: x.message!);
+                              break;
+                            default:
+                              showSnackBar(message: x.message!);
+                          }
+                        } else
+                          showSnackBar(
+                            message: "Successfully linked Gmail Account",
+                            bgColor: Colors.lightGreen,
+                          );
+                      },
+                    ),
+                    child: AutoSizeText.rich(
+                      //"Want to Sign in Google?",
+                      TextSpan(
+                        text: "sign in with ",
+                        children: [
+                          TextSpan(
+                            text: "Google",
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      style: TextStyleFontTheme.poppins.copyWith(
+                        color: Colors.white60,
+                        fontWeight: FontWeight.w200,
+                      ),
+                      maxLines: 1,
+                    ),
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.pink[600]),
+                      elevation: MaterialStateProperty.all(8),
+                      //padding: MaterialStateProperty.all(PaddingTheme.all16),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

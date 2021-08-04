@@ -18,25 +18,6 @@ class Auth {
         (event) => event != null,
       );
 
-  /*Stream<bool> get userCheck {
-    late BehaviorSubject<bool> behaviorSubject;
-    behaviorSubject = BehaviorSubject(
-      onListen: () => _auth.authStateChanges().listen(
-        (event) {
-          if (event == null) behaviorSubject.add(false);
-          final user = event;
-          /*print("User Available");
-          print(user);
-          //UserInfo userInfo = user!.providerData[0];
-          print(DateTime.now());*/
-          //user!.providerData.add(UserInfo());
-          behaviorSubject.add(true);
-        },
-      ),
-    );
-    return behaviorSubject.stream;
-  }*/
-
   User? get currentUser => _auth.currentUser;
 
   Future signInAnonymous({String name = ""}) async {
@@ -44,8 +25,6 @@ class Auth {
       await _auth.signInAnonymously();
       await _auth.currentUser!.updateDisplayName(name);
       await PlayerDatabase(app).createPlayer(_auth.currentUser!);
-
-      //return _auth.currentUser;
     } on FirebaseAuthException {
       return null;
     }
@@ -83,7 +62,7 @@ class Auth {
         idToken: googleAuth.idToken,
       );
       return credential;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       //print(e);
       return null;
     }

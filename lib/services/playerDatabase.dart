@@ -165,36 +165,35 @@ class PlayerDatabase extends MyDatabase {
     late bool _a;
 
     final TransactionResult transactionResult =
-        await metadataRef.runTransaction((mutableData) async {
-      if (mutableData.value == null) {
-        mutableData.value = PlayerMetaData(currentTime: DateTime.now()).toMap();
+        await metadataRef.runTransaction(
+      (mutableData) async {
+        if (mutableData.value == null) {
+          mutableData.value =
+              PlayerMetaData(currentTime: DateTime.now()).toMap();
 
-        _a = user!.metadata.creationTime!.month != DateTime.now().month;
-        //if()
-      } else {
-        final Map map = mutableData.value;
-        final PlayerMetaData metaData = PlayerMetaData.fromMap(map);
-        final newMetaData = metaData.updateNow();
-
-        if (kDebugMode) {
-          _a = newMetaData.currentTime.month != DateTime.august;
+          _a = user!.metadata.creationTime!.month != DateTime.now().month;
         } else {
-          _a = newMetaData.currentTime.month != newMetaData.lastOpened!.month;
-        }
+          final Map map = mutableData.value;
+          final PlayerMetaData metaData = PlayerMetaData.fromMap(map);
+          final newMetaData = metaData.updateNow();
 
-        mutableData.value = newMetaData.toMap();
-      }
-      return mutableData;
-    });
+          _a = newMetaData.currentTime.month != newMetaData.lastOpened!.month;
+
+          mutableData.value = newMetaData.toMap();
+        }
+        return mutableData;
+      },
+    );
     if (transactionResult.committed)
       return _a;
     else
       return false;
   }
 
-  Future get updateTournamentPlayed => metadataRef
-      .child("lastTournamentPlayed")
-      .set(DateTime.now().toIso8601String());
+  Future get updateTournamentPlayed =>
+      metadataRef.child("lastTournamentPlayed").set(
+            DateTime.now().toIso8601String(),
+          );
 
   Future<Duration?> get checkTournamentPlayed =>
       metadataRef.child("lastTournamentPlayed").once().then(
@@ -222,7 +221,6 @@ class PlayerDatabase extends MyDatabase {
               'prevStats': {_today: "${stats.played}-${stats.win}-${stats.avg}"}
             }
           };
-          //print('PD-185, $f');
           mutableData.value = f;
         } else {
           stats.prevStats![_today] =
@@ -236,25 +234,5 @@ class PlayerDatabase extends MyDatabase {
         return mutableData;
       },
     );
-/* final Map map = {
-      ...{"players": players},
-      ...{"icons": icons},
-      ...currentPlayer,
-      ...{"type": details.type},
-      if (_currentIcon.isNotEmpty) ...{"currentIcon": _currentIcon},
-      //...{"iconsFound": 0},
-    };*/
-    /*   final DatabaseReference _ref =
-        playerRef.child('profile').child("stats").child(level);
-    final TransactionResult transactionResult = await _ref.runTransaction(
-      (MutableData mutableData) async {
-        Map map = mutableData.value ?? null;
-        Stats oldStats = Stats.fromMap(map);
-        Stats newStats = oldStats + stats;
-        mutableData.value = newStats.toMap();
-
-        return mutableData;
-      },
-    );*/
   }
 }

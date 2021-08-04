@@ -2,7 +2,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
+//import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,7 +53,7 @@ final authProvider = Provider<Auth>(
   },
 );
 
-final remoteConfigProvider = Provider<RemoteConfig>(
+/*final remoteConfigProvider = Provider<RemoteConfig>(
   (ref) {
     final app = ref.read(firebaseAppProvider).data!.value;
     final RemoteConfig remoteConfig = RemoteConfig.instanceFor(app: app);
@@ -70,7 +70,7 @@ final remoteConfigProvider = Provider<RemoteConfig>(
     //RemoteConfigValue(null, ValueSource.valueStatic);
     return remoteConfig;
   },
-);
+);*/
 
 final userCheckProvider = StreamProvider<bool>(
   (ref) {

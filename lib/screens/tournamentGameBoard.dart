@@ -275,7 +275,7 @@ class TournamentFoundIcon extends StatelessWidget {
       child: Center(
         child: FittedBox(
           child: Icon(
-            gameIcon.tournamentGameIcons(icon.iconCode),
+            gameIcon.gameIcon(icon.iconCode),
             color: gameIcon.iconColor(icon.color),
             size: 72,
           ),
@@ -304,7 +304,7 @@ class TournamentCheckIcon extends StatelessWidget {
       child: Center(
         child: FittedBox(
           child: Icon(
-            gameIcon.tournamentGameIcons(iconCode),
+            gameIcon.gameIcon(iconCode),
             color: Colors.white70,
             size: 72,
           ),

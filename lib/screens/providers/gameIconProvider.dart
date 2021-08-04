@@ -7,24 +7,17 @@ import 'package:paricon/models/localIcon.dart';
 
 final AutoDisposeProvider<GameIconProvider> gameIconProvider =
     Provider.autoDispose<GameIconProvider>((_) => GameIconProvider());
+const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 
 class GameIconProvider {
-  String get generateRandomID {
-    const _chars =
-        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-    return List.generate(
-        12, (index) => _chars[Random.secure().nextInt(_chars.length)]).join();
-  }
+  String get generateRandomID => List.generate(
+      12, (index) => _chars[Random.secure().nextInt(_chars.length)]).join();
 
-  int iconCount(String level) {
-    //16 or 30 for easy
-    final String _level = level.toLowerCase();
-    return _level == "easy"
-        ? 16
-        : _level == "medium"
-            ? 42
-            : 72;
-  }
+  int iconCount(String level) => level.toLowerCase() == "easy"
+      ? 16
+      : level == "medium"
+          ? 42
+          : 72;
 
   int crossAxisCount(int icons) {
     switch (icons) {
@@ -43,10 +36,8 @@ class GameIconProvider {
     final int count = iconCount(level ?? "hard") ~/ 2;
 
     final icons = level == null
-        ? List.from([
-            ...actionIcons.keys, /*...alertIcons.keys*/
-          ])
-        : List.from(GameIcons.values)
+        ? List.from([...actionIcons.keys])
+        : List.from([...basicIcons.keys, ...actionIcons.keys])
       ..shuffle();
 
     final sounds = List.from(iconSounds)..shuffle();
@@ -54,7 +45,7 @@ class GameIconProvider {
     List<InitIcon> initIcons = List.generate(
       count,
       (index) => InitIcon(
-        level == null ? icons[index] : GameIconExt(icons[index]).name,
+        level == null ? icons[index] : icons[index],
         sounds[index],
       ),
     );
@@ -80,13 +71,14 @@ class GameIconProvider {
     );
   }
 
-  IconData? gameIcon(String? _gameIcon) => GameIconExt.displayIcon(_gameIcon);
+  IconData? gameIcon(String? icon) =>
+      <String, IconData>{...basicIcons, ...actionIcons}[icon];
 
-  IconData? tournamentGameIcons(String gameIcon) {
+  /*IconData? tournamentGameIcons(String gameIcon) {
     final Map<String, IconData> map = actionIcons;
     final a = map[gameIcon];
     return a;
-  }
+  }*/
 
   Color iconColor(String color) {
     switch (color) {

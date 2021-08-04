@@ -17,6 +17,7 @@ final AutoDisposeFutureProviderFamily<Profile, String>? otherProfileProvider =
     FutureProvider.autoDispose.family<Profile, String>(
   (ref, uid) async {
     final playerDatabase = ref.read(playerDatabaseProvider!(uid));
+    ref.maintainState = false;
     return playerDatabase.profile;
   },
 );

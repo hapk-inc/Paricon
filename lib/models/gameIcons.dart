@@ -1,7 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-enum GameIcons {
+/*enum GameIcons {
   accessibility,
   accessible,
   accessible_forward,
@@ -42,7 +41,7 @@ enum GameIcons {
   grade,
 }
 
-enum TournamentIcons { home, Settings }
+enum TournamentIcons { home, Settings }*/
 
 const List<String> iconSounds = [
   "anklung",
@@ -93,7 +92,7 @@ const List<String> iconSounds = [
   "woodblock_pitched_ti"
 ];
 
-extension GameIconExt on GameIcons {
+/*extension GameIconExt on GameIcons {
   String get name => describeEnum(this);
 
   static IconData? displayIcon(String? icon) {
@@ -178,7 +177,7 @@ extension GameIconExt on GameIcons {
         return Icons.cancel;
     }
   }
-}
+}*/
 
 /*extension TournamentIconsExt on TournamentIcons{
   String get name => describeEnum(this);
@@ -196,6 +195,46 @@ extension GameIconExt on GameIcons {
   }
 }*/
 
+const Map<String, IconData> basicIcons = <String, IconData>{
+  "accessibility": Icons.accessibility,
+  "accessible": Icons.accessible,
+  "accessible_forward": Icons.accessible_forward,
+  "account_balance": Icons.account_balance,
+  "account_balance_wallet": Icons.account_balance_wallet,
+  "account_box": Icons.account_box,
+  "account_circle": Icons.account_circle,
+  "add_shopping_cart": Icons.add_shopping_cart,
+  "alarm": Icons.alarm,
+  "anchor": Icons.anchor,
+  "android": Icons.android,
+  "aspect_ratio": Icons.aspect_ratio,
+  "assignment": Icons.assignment,
+  "autorenew": Icons.autorenew,
+  "backup": Icons.backup,
+  "book": Icons.book,
+  "bookmark": Icons.bookmark,
+  "bug_report": Icons.bug_report,
+  "build": Icons.build,
+  "cached": Icons.cached,
+  "code": Icons.code,
+  "commute": Icons.commute,
+  "dashboard": Icons.dashboard,
+  "delete": Icons.delete,
+  "donut_small": Icons.donut_small,
+  "drag_indicator": Icons.drag_indicator,
+  "eco": Icons.eco,
+  "eject": Icons.eject,
+  "euro_symbol": Icons.euro_symbol,
+  "event_seat": Icons.event_seat,
+  "extension": Icons.extension,
+  "favorite": Icons.favorite,
+  "filter_alt": Icons.filter_alt,
+  "fingerprint": Icons.fingerprint,
+  "g_translate": Icons.g_translate,
+  "gavel": Icons.gavel,
+  "gif": Icons.gif,
+  "grade": Icons.grade,
+};
 const Map<String, IconData> actionIcons = <String, IconData>{
   "home": Icons.home,
   "done": Icons.done,
@@ -243,5 +282,3 @@ const Map<String, IconData> actionIcons = <String, IconData>{
   "warning": Icons.warning,
   "notification important": Icons.notification_important
 };*/
-
-const Map<String, IconData> audioVideoIcons = <String, IconData>{};

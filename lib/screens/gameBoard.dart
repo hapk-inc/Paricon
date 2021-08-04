@@ -306,9 +306,16 @@ class CardIcon extends StatelessWidget {
                               },
                             );
                         },
-                        onAdFailedToLoad: (error) {
-                          print(
-                              'Failed to load an interstitial ad: ${error.message}');
+                        onAdFailedToLoad: (LoadAdError error) {
+                          FirebaseCrashlytics.instance.recordError(
+                            error.message,
+                            null,
+                            reason: 'Interstitial Ad Error',
+                            fatal: false,
+                          );
+                          context
+                              .read(pageProvider)
+                              .replace(GameResults.toMaterialPage);
                         },
                       ),
                     );

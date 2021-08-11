@@ -10,7 +10,6 @@ import 'common/durationCount.dart';
 import 'common/paddingTheme.dart';
 import 'common/popup.dart';
 import 'common/snackBarTheme.dart';
-import 'common/statsValue.dart';
 import 'common/textTheme.dart';
 import 'gameBoard.dart';
 import 'providers/authProvider.dart';
@@ -28,7 +27,11 @@ class GameRoom extends ConsumerWidget {
         arguments: id,
       );
 
-  static List<Widget> get roomWidgetList => [DetailsWidget(), PlayersWidget()];
+  static List<Widget> get roomWidgetList => [
+        DetailsWidget(),
+        // PlayersWidget(),
+        RoomPlayers(),
+      ];
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
@@ -73,12 +76,15 @@ class GameRoom extends ConsumerWidget {
         child: _isCreatorIsYou
             ? FloatingActionButton(
                 elevation: 8,
-                child: FittedBox(
-                  child: Text(
-                    "Start",
-                    style: TextStyleFontTheme.poppins.copyWith(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: AutoSizeText(
+                    "Go",
+                    style: TextStyleFontTheme.luckiestGuy.copyWith(
                       color: Colors.white70,
+                      fontSize: 32,
                     ),
+                    maxLines: 1,
                   ),
                 ),
                 backgroundColor: Colors.brown,
@@ -253,30 +259,32 @@ class CreatorTitleWidget extends StatelessWidget {
       );
 }
 
-class PlayersWidget extends ConsumerWidget {
-  const PlayersWidget({Key? key}) : super(key: key);
+const List levels = ['easy', 'medium', 'hard'];
+
+class RoomPlayers extends StatelessWidget {
+  const RoomPlayers({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader watch) => Flexible(
+  Widget build(BuildContext context) => Flexible(
         flex: 7,
         child: FirebaseAnimatedList(
-          query: watch(playersQueryProvider!),
-          itemBuilder: (BuildContext context, DataSnapshot snapshot,
-              Animation<double> animation, int index) {
-            final room = watch(roomProvider).data?.value;
-            final List levels = ['easy', 'medium', 'hard'];
-            if (room == null) return Center(child: CircularProgressIndicator());
-            final String? roomLevel = room.details.level;
-            final int maxCount =
-                room.details.maxCount > 4 ? room.details.maxCount : 4;
+          query: context.read(playersQueryProvider),
+          itemBuilder:
+              (_, DataSnapshot snapshot, Animation<double> animation, __) {
+            final room = context.read(roomProvider).data!.value;
+            final details = room.details;
+            final String level = details.level;
+            final int maxCount = details.maxCount > 4 ? details.maxCount : 4;
 
-            Profile init = Profile.onlyName(snapshot.value);
-            AsyncValue<Profile> profile =
-                watch(otherProfileProvider!(snapshot.key!));
+            final Profile init = Profile.onlyName(snapshot.value);
+            /*final otherProfile =
+                context.read(otherProfileProvider!(snapshot.key!)).data;*/
+            final maxHeight =
+                MediaQuery.of(context).size.height * 0.7 / maxCount;
             return FadeTransition(
               opacity: animation,
               child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.7 / maxCount,
+                height: maxHeight,
                 child: Card(
                   elevation: 4,
                   color: Colors.brown[200],
@@ -285,92 +293,14 @@ class PlayersWidget extends ConsumerWidget {
                   ),
                   child: AnimatedSwitcher(
                     duration: DurationCount.m500,
-                    child: profile.when(
-                      data: (value) {
-                        final stats = value
-                            .stats![levels.indexOf(roomLevel!.toLowerCase())];
-                        return Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Flexible(
-                                flex: 4,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Flexible(
-                                      flex: 2,
-                                      child: FittedBox(
-                                        child: Text(
-                                          value.name,
-                                          style: TextStyleFontTheme.luckiestGuy
-                                              .copyWith(
-                                                  fontSize:
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .height *
-                                                          0.7 *
-                                                          0.1,
-                                                  color: Colors.brown),
-                                        ),
-                                      ),
-                                    ),
-                                    Flexible(
-                                      child: FittedBox(
-                                        child: Text(
-                                          value.userID.toString(),
-                                          style: TextStyleFontTheme.poppins
-                                              .copyWith(
-                                                  fontSize:
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .height *
-                                                          0.7 *
-                                                          0.05,
-                                                  color: Colors.brown[400]),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Flexible(
-                                flex: 6,
-                                child: stats.played == 0
-                                    ? NeverPlayedWidget()
-                                    : Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            StatsValue(
-                                                value: stats.played,
-                                                header: "GAMES"),
-                                            StatsValue(
-                                                value: stats.win,
-                                                header: "WINS"),
-                                            StatsValue(
-                                                value: stats.avg,
-                                                header: "AVG. SCORE"),
-                                          ],
-                                        ),
-                                      ),
-                              )
-                            ],
-                          ),
-                        );
-                      },
-                      loading: () => ListTile(title: Text(init.name)),
-                      error: (error, stackTrace) {
-                        error.toString();
-                        stackTrace.toString();
-                        return Container();
-                      },
+                    child: Consumer(
+                      builder: (_, watch, __) =>
+                          watch(otherProfileProvider!(snapshot.key!)).when(
+                        data: (value) =>
+                            PlayerTile(level: level, profile: value),
+                        loading: () => Container(),
+                        error: (error, stackTrace) => Container(),
+                      ),
                     ),
                   ),
                 ),
@@ -381,8 +311,87 @@ class PlayersWidget extends ConsumerWidget {
       );
 }
 
-class NeverPlayedWidget extends StatelessWidget {
-  const NeverPlayedWidget({Key? key}) : super(key: key);
+class PlayerTile extends StatelessWidget {
+  final String level;
+  final Profile profile;
+  const PlayerTile({required this.level, required this.profile, Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final stats = profile.stats![levels.indexOf(level.toLowerCase())];
+
+    return Container(
+      padding: PaddingTheme.all8,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Flexible(
+            flex: 4,
+            child: ListTile(
+              title: AutoSizeText(
+                profile.name,
+                style: TextStyleFontTheme.luckiestGuy
+                    .copyWith(color: Colors.brown, fontSize: 48),
+                maxLines: 1,
+              ),
+              subtitle: AutoSizeText(
+                "${profile.userID}",
+                style: TextStyleFontTheme.poppins
+                    .copyWith(color: Colors.brown[400]),
+                maxLines: 1,
+              ),
+            ),
+          ),
+          Flexible(
+            flex: 6,
+            child: stats.played == 0
+                ? NeverPlayed()
+                : Container(
+                    padding: PaddingTheme.all8,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        ProfileStats(value: stats.played, header: "GAMES"),
+                        ProfileStats(value: stats.win, header: "WINS"),
+                        ProfileStats(value: stats.avg, header: "AVG. SCORE"),
+                      ],
+                    ),
+                  ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class ProfileStats extends StatelessWidget {
+  final dynamic value;
+  final String header;
+  const ProfileStats({Key? key, required this.value, required this.header})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => Flexible(
+        child: ListTile(
+          title: AutoSizeText(
+            value.toString(),
+            style: TextStyleFontTheme.luckiestGuy
+                .copyWith(color: Colors.brown, fontSize: 24),
+            maxLines: 1,
+          ),
+          subtitle: AutoSizeText(
+            header,
+            style:
+                TextStyleFontTheme.poppins.copyWith(color: Colors.brown[400]),
+            maxLines: 1,
+          ),
+        ),
+      );
+}
+
+class NeverPlayed extends StatelessWidget {
+  const NeverPlayed({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Center(

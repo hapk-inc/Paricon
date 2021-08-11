@@ -188,8 +188,9 @@ final wheelRotationProvider =
 
 class WheelListNotifier extends ChangeNotifier {
   ScrollController _controller = ScrollController();
-  late double _rotationSize = 0.0;
-  late num _rotationPosition = 0;
+  double _rotationSize = 0.0;
+  num _position = 0;
+  //num _rotationPosition = 0;
 
   double get rotationSize => _rotationSize;
 
@@ -198,14 +199,23 @@ class WheelListNotifier extends ChangeNotifier {
     _rotationSize = value;
   }
 
-  num get rotationPosition => _rotationPosition;
+  //num get rotationPosition => _rotationPosition;
 
-  set rotationPosition(num value) {
+  /*set rotationPosition(num value) {
     if (_rotationPosition == value) return;
     _rotationPosition = value;
-  }
+  }*/
 
   ScrollController get controller => _controller;
+
+  rotate() {
+    _position++;
+    controller.animateTo(
+      rotationSize * _position,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeIn,
+    );
+  }
 }
 
 class ConfettiNotifier extends ChangeNotifier {

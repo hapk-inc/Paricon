@@ -1,4 +1,3 @@
-//import 'package:confetti/confetti.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:confetti/confetti.dart';
@@ -6,8 +5,6 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-//import 'package:google_mobile_ads/google_mobile_ads.dart';
-//import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:lottie/lottie.dart';
 
 import '/models/enumFiles.dart';
@@ -115,8 +112,10 @@ class InitBoard extends StatelessWidget {
                             children: [
                               BoardHeader(level: notifier.level),
                               GridIcons(icons: _board.icons),
-                              PlayerList(players: _board.players),
-                              //PlayerListWheel(players: _board.players),
+                              if (_board.players.length > 4)
+                                OnlinePlayerWheel(players: _board.players)
+                              else
+                                PlayerList(players: _board.players),
                               Spacer()
                             ],
                           ),
@@ -299,10 +298,15 @@ class CardIcon extends StatelessWidget {
                             ..show()
                             ..fullScreenContentCallback =
                                 FullScreenContentCallback(
-                              onAdDismissedFullScreenContent: (ad) {
-                                context
-                                    .read(pageProvider)
-                                    .replace(GameResults.toMaterialPage);
+                              onAdDismissedFullScreenContent: (ad) {},
+                              onAdFailedToShowFullScreenContent:
+                                  (InterstitialAd ad, AdError error) {
+                                FirebaseCrashlytics.instance.recordError(
+                                  error.message,
+                                  null,
+                                  reason: 'Interstitial Ad Error',
+                                  fatal: false,
+                                );
                               },
                             );
                         },
@@ -313,13 +317,14 @@ class CardIcon extends StatelessWidget {
                             reason: 'Interstitial Ad Error',
                             fatal: false,
                           );
-                          context
-                              .read(pageProvider)
-                              .replace(GameResults.toMaterialPage);
                         },
                       ),
                     );
                   },
+                ).whenComplete(
+                  () => context
+                      .read(pageProvider)
+                      .replace(GameResults.toMaterialPage),
                 );
               }
             }
@@ -475,6 +480,8 @@ class PlayerName extends ConsumerWidget {
               final board = await context.read(boardProvider.future);
               final int currentIndex = board.players.indexOf(_id);
               context.read(onlineBoardNotifier).currentIndex = currentIndex;
+              if (board.players.length > 4)
+                context.read(wheelRotationProvider).rotate();
             },
           );
         },

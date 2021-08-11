@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/board.dart';
 import 'package:paricon/models/enumFiles.dart';
@@ -169,12 +170,34 @@ final btnClickProvider = FutureProvider.family.autoDispose<bool, String>(
           }
           await ref.read(nextPlayerProvider.future);
         }
+      } else if (selectedIcons.length > 2) {
+        FirebaseCrashlytics.instance.recordError(
+          "Exceeded Selected Icons",
+          null,
+          reason: 'BtnCLick Provider issue',
+          fatal: false,
+        );
+        /*FirebaseCrashlytics.instance
+            .log("Selected icons are more than ${selectedIcons.length}");*/
+        final List<int> iconOrder = selectedIcons.map(
+          (e) {
+            final int i = e.iconNo! - 1;
+            return i;
+          },
+        ).toList(growable: false);
+
+        Future.wait(
+          [
+            ...iconOrder.map(
+              (e) => boardDatabase.setIconCheck(iconsID[e], false),
+            ),
+            ref.read(nextPlayerProvider.future)
+          ],
+        );
       }
       return true;
     } else
       return false;
-
-    //if(!boar)
   },
 );
 

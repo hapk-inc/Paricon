@@ -20,25 +20,30 @@ import 'updateProvider.dart';
 final AutoDisposeFutureProvider<String>? createRoomProvider =
     FutureProvider.autoDispose<String>(
   (ref) async {
-    if (!kDebugMode) {
-      final package = await ref.read(packageInfoProvider!.future);
-      if (!package.appName.contains("Dev")) {
-        final appUpdate = await ref.read(inAppUpdateProvider.future);
-        if (appUpdate.updateAvailability ==
-                UpdateAvailability.updateAvailable &&
-            appUpdate.immediateUpdateAllowed) return "UPDATE";
+    try {
+      if (!kDebugMode) {
+        final package = await ref.read(packageInfoProvider!.future);
+        if (!package.appName.contains("Dev")) {
+          final appUpdate = await ref.read(inAppUpdateProvider.future);
+          if (appUpdate.updateAvailability ==
+                  UpdateAvailability.updateAvailable &&
+              appUpdate.immediateUpdateAllowed) return "UPDATE";
+        }
       }
+
+      final setGame = ref.read(setGameProvider);
+      final roomDatabase = ref.read(roomDatabaseProvider!);
+      final User user = ref.read(firebaseUserProvider!);
+
+      final room = Room.createRoom(
+          setGame.level, setGame.playerCount, user.uid, setGame.type);
+      String key = await roomDatabase.createRoom(room);
+      ref.read(idNotifier.notifier).state = key;
+      return key;
+    } catch (e) {
+      print(e);
+      return "";
     }
-
-    final setGame = ref.read(setGameProvider);
-    final roomDatabase = ref.read(roomDatabaseProvider!);
-    final User user = ref.read(firebaseUserProvider!);
-
-    final room = Room.createRoom(
-        setGame.level, setGame.playerCount, user.uid, setGame.type);
-    String key = await roomDatabase.createRoom(room);
-    ref.read(idNotifier.notifier).state = key;
-    return key;
   },
 );
 
@@ -95,7 +100,7 @@ final AutoDisposeFutureProviderFamily<String, String>? creatorNameProvider =
   },
 );
 
-final AutoDisposeProvider<Query>? playersQueryProvider =
+final AutoDisposeProvider<Query> playersQueryProvider =
     Provider.autoDispose<Query>(
   (ref) {
     final roomDatabase = ref.read(roomDatabaseProvider!);

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/models/localPlayer.dart';
+import 'package:paricon/screens/providers/onlineBoardProvider.dart';
 import 'package:paricon/screens/providers/practiceProvider.dart';
 
 import '/models/enumFiles.dart';
@@ -51,6 +52,40 @@ class GridIcons extends StatelessWidget {
                   : null,
             );
           },
+        ),
+      );
+}
+
+class OnlinePlayerWheel extends StatelessWidget {
+  final List players;
+  const OnlinePlayerWheel({Key? key, required this.players}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => Flexible(
+        flex: 2,
+        child: RotatedBox(
+          quarterTurns: -1,
+          child: Consumer(
+            builder: (context, watch, child) {
+              final positionWidth = MediaQuery.of(context).size.width / 3.5;
+              context.read(wheelRotationProvider).rotationSize = positionWidth;
+              return ListWheelScrollView.useDelegate(
+                itemExtent: positionWidth,
+                physics: NeverScrollableScrollPhysics(),
+                controller: watch(wheelRotationProvider).controller,
+                childDelegate: ListWheelChildLoopingListDelegate(
+                  children: List.from(
+                    players.map(
+                      (e) => RotatedBox(
+                        quarterTurns: 1,
+                        child: OnlinePlayer(id: e),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       );
 }

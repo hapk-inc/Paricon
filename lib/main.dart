@@ -3,15 +3,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_update/in_app_update.dart';
+
 import 'screens/appUpdate.dart';
 import 'screens/common/circularProgressTheme.dart';
 import 'screens/common/durationCount.dart';
-
-import 'screens/providers/updateProvider.dart';
-
 import 'screens/dashboard.dart';
 import 'screens/providers/authProvider.dart';
 import 'screens/providers/pageProvider.dart';
+import 'screens/providers/updateProvider.dart';
 import 'screens/splash.dart';
 import 'screens/welcome.dart';
 

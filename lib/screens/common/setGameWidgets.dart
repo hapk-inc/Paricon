@@ -1,6 +1,6 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paricon/screens/providers/practiceProvider.dart';
 import 'package:paricon/screens/providers/setGameProvider.dart';
 
@@ -103,10 +103,10 @@ class GameTypeButtons extends StatelessWidget {
                         ? () => context.read(setGameProvider).type = _type
                         : () => context.read(practiceProvider).type = _type,
                     child: AnimatedDefaultTextStyle(
-                      duration: DurationCount.m250,
+                      duration: DurationCount.m500,
                       style: TextStyleFontTheme.luckiestGuy.copyWith(
                         color: selectedType == _type
-                            ? Colors.black87
+                            ? Colors.white60
                             : Colors.black45,
                         fontSize: selectedType == _type ? 48 : 24,
                       ),
@@ -163,10 +163,10 @@ class SetGameLevel extends StatelessWidget {
                           ? context.read(practiceProvider).level = _level
                           : context.read(setGameProvider).level = _level,
                       child: AnimatedDefaultTextStyle(
-                        duration: DurationCount.m250,
+                        duration: DurationCount.m500,
                         style: TextStyleFontTheme.luckiestGuy.copyWith(
                             color: level == _level
-                                ? Colors.black87
+                                ? Colors.white54
                                 : Colors.black45,
                             fontSize: level == _level ? 48 : 24),
                         child: FittedBox(

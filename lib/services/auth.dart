@@ -20,15 +20,10 @@ class Auth {
 
   User? get currentUser => _auth.currentUser;
 
-  Future signInAnonymous({String name = ""}) async {
-    try {
-      await _auth.signInAnonymously();
-      await _auth.currentUser!.updateDisplayName(name);
-      await PlayerDatabase(app).createPlayer(_auth.currentUser!);
-    } on FirebaseAuthException {
-      return null;
-    }
-  }
+  Future signInAnonymous({String name = ""}) async =>
+      await _auth.signInAnonymously().then(
+            (value) async => await _auth.currentUser!.updateDisplayName(name),
+          );
 
   Future get signOut async {
     final User deleteUser = _auth.currentUser!;
@@ -44,8 +39,6 @@ class Auth {
     final credential = await googleCredentials;
     if (credential == null) return;
     await _auth.signInWithCredential(credential);
-
-    await PlayerDatabase(app).createPlayer(_auth.currentUser!);
   }
 
   Future<AuthCredential?> get googleCredentials async {
@@ -62,9 +55,8 @@ class Auth {
         idToken: googleAuth.idToken,
       );
       return credential;
-    } on PlatformException {
-      //print(e);
-      return null;
+    } on PlatformException catch (e) {
+      throw e;
     }
   }
 
@@ -73,14 +65,9 @@ class Auth {
     await PlayerDatabase(app, uid: _auth.currentUser?.uid).updateName(newName);
   }
 
-  Future<dynamic> get reSignIn async {
-    try {
-      final cred = await googleCredentials;
+  Future get reSignIn async {
+    final cred = await googleCredentials;
 
-      await _auth.currentUser!.linkWithCredential(cred!);
-      return "SUCCESS";
-    } on FirebaseAuthException catch (e) {
-      return e;
-    }
+    await _auth.currentUser!.linkWithCredential(cred!);
   }
 }

@@ -16,7 +16,7 @@ class AdState {
 
   String get bannerAdUnitId => kDebugMode
       ? "ca-app-pub-3940256099942544/6300978111"
-      : "ca-app-pub-8428447228116277/6734831834";
+      : "ca-app-pub-9914451988705540/8545570510";
 
   String get interstitialAdUnitId => kDebugMode
       ? "ca-app-pub-3940256099942544/1033173712"
@@ -32,7 +32,6 @@ class AdState {
 
   InterstitialAdLoadCallback get interstitialAdLoadCallback =>
       _interstitialAdLoadCallback;
-
 
   BannerAdListener _bannerAdListener = BannerAdListener(
     onAdLoaded: (ad) => print("Ad Loaded"),

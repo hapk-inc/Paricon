@@ -40,9 +40,9 @@ class TournamentBoard extends StatelessWidget {
 
                   if (me == null) {
                     _newScore = true;
-                    final pro = await context.read(profileProvider!.future);
+                    final pro = await context.read(profileProvider.future);
                     participant = Participant(
-                      name: pro.name,
+                      name: pro!.name,
                       id: "${pro.userID}",
                       duration: notifier.timeDoubleConversion,
                     );

@@ -4,37 +4,36 @@ import 'package:paricon/models/profile.dart';
 import 'authProvider.dart';
 import 'databaseProvider.dart';
 
-final AutoDisposeFutureProvider<Profile>? profileProvider =
-    FutureProvider.autoDispose<Profile>(
+final AutoDisposeFutureProvider<Profile?> profileProvider =
+    FutureProvider.autoDispose<Profile?>(
   (ref) async {
     final auth = ref.read(firebaseUserProvider!);
-    final playerDatabase = ref.read(playerDatabaseProvider!(auth.uid));
+    final playerDatabase = ref.read(playerDatabaseProvider(auth.uid));
     return playerDatabase.profile;
   },
 );
 
-final AutoDisposeFutureProviderFamily<Profile, String>? otherProfileProvider =
-    FutureProvider.autoDispose.family<Profile, String>(
+final AutoDisposeFutureProviderFamily<Profile?, String>? otherProfileProvider =
+    FutureProvider.autoDispose.family<Profile?, String>(
   (ref, uid) async {
-    final playerDatabase = ref.read(playerDatabaseProvider!(uid));
+    final playerDatabase = ref.read(playerDatabaseProvider(uid));
     ref.maintainState = false;
     return playerDatabase.profile;
   },
 );
 
-final AutoDisposeFutureProviderFamily<List<Profile>?, String>
-    allPlayerProvider =
-    FutureProvider.autoDispose.family<List<Profile>?, String>(
-  (ref, level) async {
-    final playerDatabase = ref.read(playerDatabaseProvider!(""));
-    return playerDatabase.allPlayers(level);
+final createProfileProvider = FutureProvider.autoDispose(
+  (ref) async {
+    final auth = ref.read(firebaseUserProvider!);
+    final playerDatabase = ref.read(playerDatabaseProvider(auth.uid));
+    await playerDatabase.createProfile(auth);
   },
 );
 
 final allUsersProvider =
     StreamProvider.autoDispose.family<List<Profile>, String>(
   (ref, level) {
-    final playerDatabase = ref.read(playerDatabaseProvider!(""));
+    final playerDatabase = ref.read(playerDatabaseProvider(""));
     return playerDatabase.allUsers(level);
   },
 );

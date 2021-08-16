@@ -197,7 +197,7 @@ extension DoubleTimeConversion on double {
 final tournamentPlayedProvider = FutureProvider.autoDispose<Duration?>(
   (ref) async {
     final firebaseUser = ref.read(firebaseUserProvider!);
-    final playerDatabase = ref.read(playerDatabaseProvider!(firebaseUser.uid));
+    final playerDatabase = ref.read(playerDatabaseProvider(firebaseUser.uid));
     final Duration? duration = await playerDatabase.checkTournamentPlayed;
     if (duration == null)
       await playerDatabase.updateTournamentPlayed;

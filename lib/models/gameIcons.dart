@@ -1,48 +1,5 @@
 import 'package:flutter/material.dart';
 
-/*enum GameIcons {
-  accessibility,
-  accessible,
-  accessible_forward,
-  account_balance,
-  account_balance_wallet,
-  account_box,
-  account_circle,
-  add_shopping_cart,
-  alarm,
-  anchor,
-  android,
-  aspect_ratio,
-  assignment,
-  autorenew,
-  backup,
-  book,
-  bookmark,
-  bug_report,
-  build,
-  cached,
-  code,
-  commute,
-  dashboard,
-  delete,
-  donut_small,
-  drag_indicator,
-  eco,
-  eject,
-  euro_symbol,
-  event_seat,
-  extension,
-  favorite,
-  filter_alt,
-  fingerprint,
-  g_translate,
-  gavel,
-  gif,
-  grade,
-}
-
-enum TournamentIcons { home, Settings }*/
-
 const List<String> iconSounds = [
   "anklung",
   "boltJingle",
@@ -91,109 +48,6 @@ const List<String> iconSounds = [
   "woodblock_pitched_sol",
   "woodblock_pitched_ti"
 ];
-
-/*extension GameIconExt on GameIcons {
-  String get name => describeEnum(this);
-
-  static IconData? displayIcon(String? icon) {
-    switch (icon) {
-      case "accessibility":
-        return Icons.accessibility;
-      case "accessible":
-        return Icons.accessible;
-      case "accessible_forward":
-        return Icons.accessible_forward;
-      case "account_balance":
-        return Icons.account_balance;
-      case "account_balance_wallet":
-        return Icons.account_balance_wallet;
-      case "account_box":
-        return Icons.account_box;
-      case "account_circle":
-        return Icons.account_circle;
-      case "add_shopping_cart":
-        return Icons.add_shopping_cart;
-      case "alarm":
-        return Icons.alarm;
-      case "anchor":
-        return Icons.anchor;
-      case "android":
-        return Icons.android;
-      case "aspect_ratio":
-        return Icons.aspect_ratio;
-      case "assignment":
-        return Icons.assignment;
-      case "autorenew":
-        return Icons.autorenew;
-      case "backup":
-        return Icons.backup;
-      case "book":
-        return Icons.book;
-      case "bookmark":
-        return Icons.bookmark;
-      case "bug_report":
-        return Icons.bug_report;
-      case "build":
-        return Icons.build;
-      case "cached":
-        return Icons.cached;
-      case "code":
-        return Icons.code;
-      case "commute":
-        return Icons.commute;
-      case "dashboard":
-        return Icons.dashboard;
-      case "delete":
-        return Icons.delete;
-      case "donut_small":
-        return Icons.donut_small;
-      case "drag_indicator":
-        return Icons.drag_indicator;
-      case "eco":
-        return Icons.eco;
-      case "eject":
-        return Icons.eject;
-      case "euro_symbol":
-        return Icons.euro_symbol;
-      case "event_seat":
-        return Icons.event_seat;
-      case "extension":
-        return Icons.extension;
-      case "favorite":
-        return Icons.favorite;
-      case "filter_alt":
-        return Icons.filter_alt;
-      case "fingerprint":
-        return Icons.fingerprint;
-      case "g_translate":
-        return Icons.g_translate;
-      case "gavel":
-        return Icons.gavel;
-      case "gif":
-        return Icons.gif;
-      case "grade":
-        return Icons.grade;
-      default:
-        return Icons.cancel;
-    }
-  }
-}*/
-
-/*extension TournamentIconsExt on TournamentIcons{
-  String get name => describeEnum(this);
-
-  static IconData? displayIcon(String? icon) {
-    switch (icon) {
-      case "accessibility":
-        return Icons.accessibility;
-      case "home":
-        return Icons.home;
-        case ""
-      default:
-        return Icons.cancel;
-    }
-  }
-}*/
 
 const Map<String, IconData> basicIcons = <String, IconData>{
   "accessibility": Icons.accessibility,
@@ -276,6 +130,50 @@ const Map<String, IconData> actionIcons = <String, IconData>{
   "http": Icons.http,
   "wifi protected setup": Icons.wifi_protected_setup,
   "polymer": Icons.polymer
+};
+
+const Map<String, IconData> searchIcons = <String, IconData>{
+  "chair": Icons.chair,
+  "podcasts": Icons.podcasts,
+  "shower": Icons.shower,
+  "yard": Icons.coffee,
+  "flatware": Icons.flatware,
+  "coffee maker": Icons.coffee_maker,
+  "blender": Icons.blender,
+  "bedroom baby": Icons.bedroom_baby,
+};
+
+const Map<String, IconData> placesIcons = <String, IconData>{
+  "storefront": Icons.storefront,
+  "fitness center": Icons.fitness_center,
+  "spa": Icons.spa,
+  "ac unit": Icons.ac_unit,
+  "checkroom": Icons.checkroom,
+  "family restroom": Icons.family_restroom,
+  "grass": Icons.grass,
+  "all inclusive": Icons.all_inclusive,
+  "airport shuttle": Icons.airport_shuttle,
+  "child care": Icons.child_care,
+  "beach access": Icons.beach_access,
+  "pool": Icons.pool,
+  "casino": Icons.casino,
+  "roofing": Icons.roofing,
+  "sports bar": Icons.sports_bar,
+  "child friendly": Icons.child_friendly,
+  "bathtub": Icons.bathtub,
+  "golf course": Icons.golf_course,
+  "stairs": Icons.stairs,
+  "wash": Icons.wash,
+  "smoking rooms": Icons.smoking_rooms,
+  "fire extinguisher": Icons.fire_extinguisher,
+  "charging station": Icons.charging_station,
+  "carpenter": Icons.carpenter,
+  "baby changing station": Icons.baby_changing_station,
+  "umbrella": Icons.umbrella,
+  "smoke free": Icons.smoke_free,
+  "houseboat": Icons.houseboat,
+  "iron": Icons.iron,
+  "escalator": Icons.escalator,
 };
 
 /*const Map<String, IconData> alertIcons = <String, IconData>{

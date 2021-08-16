@@ -1,7 +1,10 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lottie/lottie.dart';
 import 'package:paricon/models/stats.dart';
 import 'package:paricon/screens/providers/pageProvider.dart';
 
@@ -119,60 +122,65 @@ class ProfileScreen extends ConsumerWidget {
               fit: FlexFit.tight,
               child: AnimatedSwitcher(
                   duration: DurationCount.m500,
-                  child: watch(profileProvider!).when(
+                  child: watch(profileProvider).when(
                     data: (value) => orientation == Orientation.portrait
-                        ? Column(
-                            children: [
-                              Flexible(
-                                flex: 4,
-                                child: Row(
-                                  children: profileNameIdList(
-                                    name: value.name,
-                                    id: value.userID.toString(),
+                        ? value == null
+                            ? NotCreated(key: ValueKey("noProfile"))
+                            : Column(
+                                key: ValueKey(value),
+                                children: [
+                                  Flexible(
+                                    flex: 4,
+                                    child: Row(
+                                      children: profileNameIdList(
+                                        name: value.name,
+                                        id: value.userID.toString(),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              LevelTabs(),
-                              Flexible(
-                                flex: 4,
-                                child: TabBarView(
-                                  children: value.stats!
-                                      .map(
-                                        (e) => Card(
-                                          color: Colors.pink[100],
-                                          elevation: 4,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            children: [
-                                              Flexible(
-                                                  child: e.played == 0
-                                                      ? NotYetPlayedWidget()
-                                                      : MyLevelStats(stats: e)),
-                                              if (e.prevStats != null)
-                                                PrevStatsList(
-                                                  prevStats: e.prevStats!,
-                                                )
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                      .toList(growable: false),
-                                  physics: NeverScrollableScrollPhysics(),
-                                  controller: _tabController,
-                                ),
-                              ),
-                              Spacer(),
-                              if (watch(firebaseUserProvider!).isAnonymous)
-                                AnonymousUserWidget()
-                            ],
-                          )
+                                  LevelTabs(),
+                                  Flexible(
+                                    flex: 4,
+                                    child: TabBarView(
+                                      children: value.stats!
+                                          .map(
+                                            (e) => Card(
+                                              color: Colors.pink[100],
+                                              elevation: 4,
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                children: [
+                                                  Flexible(
+                                                      child: e.played == 0
+                                                          ? NotYetPlayedWidget()
+                                                          : MyLevelStats(
+                                                              stats: e)),
+                                                  if (e.prevStats != null)
+                                                    PrevStatsList(
+                                                      prevStats: e.prevStats!,
+                                                    )
+                                                ],
+                                              ),
+                                            ),
+                                          )
+                                          .toList(growable: false),
+                                      physics: NeverScrollableScrollPhysics(),
+                                      controller: _tabController,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  if (watch(firebaseUserProvider!).isAnonymous)
+                                    AnonymousUserWidget()
+                                ],
+                              )
                         : Row(
                             children: [
                               Flexible(
                                 child: Column(
                                   children: profileNameIdList(
-                                      name: value.name,
+                                      name: value!.name,
                                       id: value.userID.toString()),
                                 ),
                               ),
@@ -264,6 +272,56 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
+class NotCreated extends StatelessWidget {
+  const NotCreated({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Flexible(
+            child: AutoSizeText(
+              "Your profile is not created",
+              style: TextStyleFontTheme.poppins.copyWith(
+                color: Colors.black45,
+              ),
+            ),
+          ),
+          Flexible(
+            flex: 2,
+            child: Lottie.asset(
+              'assets/lottie/createProfile.json',
+              fit: BoxFit.cover,
+            ),
+          ),
+          Flexible(
+            child: FractionallySizedBox(
+              widthFactor: 0.75,
+              heightFactor: 0.25,
+              child: ElevatedButton(
+                onPressed: () => context
+                    .read(createProfileProvider.future)
+                    .whenComplete(() => context.refresh(profileProvider)),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.pink[600]),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  padding: MaterialStateProperty.all(PaddingTheme.all8),
+                ),
+                child: AutoSizeText(
+                  "Click to create your profile",
+                  style: TextStyleFontTheme.poppins.copyWith(fontSize: 16),
+                ),
+              ),
+            ),
+          )
+        ],
+      );
+}
+
 class PrevStatsList extends StatelessWidget {
   final Map prevStats;
   const PrevStatsList({Key? key, required this.prevStats}) : super(key: key);
@@ -317,6 +375,7 @@ class AnonymousUserWidget extends StatelessWidget {
             style: TextStyleFontTheme.poppins,
             maxLines: 1,
           ),
+          duration: DurationCount.sec1,
           backgroundColor: bgColor,
         ),
       );
@@ -353,7 +412,7 @@ class AnonymousUserWidget extends StatelessWidget {
                 Flexible(
                   //flex: 2,
                   child: ElevatedButton(
-                    onPressed: () => context.read(reSignInProvider.future).then(
+                    /* onPressed: () => context.read(reSignInProvider.future).then(
                       (dynamic x) {
                         context.read(pageProvider).remove();
                         if (x is FirebaseAuthException) {
@@ -369,6 +428,50 @@ class AnonymousUserWidget extends StatelessWidget {
                             message: "Successfully linked Gmail Account",
                             bgColor: Colors.lightGreen,
                           );
+                      },
+                    ).catchError(
+                      (error, stacktrace) {
+                        showSnackBar(
+                          message: "Sign-In Error",
+                          bgColor: Colors.indigo,
+                        );
+                      },
+                    ),*/
+                    onPressed: () => context.read(reSignInProvider.future).then(
+                      (value) {
+                        context.read(pageProvider).remove();
+                        showSnackBar(
+                          message: "Successfully linked Gmail Account",
+                          bgColor: Colors.lightGreen,
+                        );
+                      },
+                    ).catchError(
+                      (error, StackTrace? stackTrace) {
+                        if (error is FirebaseAuthException) {
+                          switch (error.code) {
+                            case "credential-already-in-use":
+                              showSnackBar(message: error.message!);
+                              break;
+                            default:
+                              {
+                                FirebaseCrashlytics.instance.recordError(
+                                  error,
+                                  stackTrace,
+                                  reason: 'Google ReSign Error',
+                                  fatal: false,
+                                );
+                                showSnackBar(message: error.message!);
+                              }
+                          }
+                        } else if (error is PlatformException) {
+                          FirebaseCrashlytics.instance.recordError(
+                            error,
+                            stackTrace,
+                            reason: 'Google ReSign Error',
+                            fatal: false,
+                          );
+                          showSnackBar(message: error.message!);
+                        }
                       },
                     ),
                     child: AutoSizeText.rich(

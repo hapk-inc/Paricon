@@ -245,7 +245,7 @@ class ShowCheckIcon extends StatelessWidget {
     final gameIcon = context.read(gameIconProvider);
 
     return Container(
-      padding: PaddingTheme.all4,
+      padding: PaddingTheme.all3,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(4.0),
@@ -274,7 +274,7 @@ class ShowFoundIcon extends StatelessWidget {
     return Container(
       color: Colors.white70,
       constraints: BoxConstraints.expand(),
-      padding: PaddingTheme.all4,
+      padding: PaddingTheme.all3,
       child: Center(
         child: FittedBox(
           child: Icon(

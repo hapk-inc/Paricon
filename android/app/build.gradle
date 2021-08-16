@@ -116,5 +116,4 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:20.2.0'
 
 
-    implementation 'com.google.firebase:firebase-appcheck-debug:16.0.0-beta02'
 }

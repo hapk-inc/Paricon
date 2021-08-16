@@ -1,14 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '/services/boardDatabase.dart';
 import '/services/playerDatabase.dart';
 import '/services/roomDatabase.dart';
 import '/services/tournamentDatabase.dart';
-
 import 'authProvider.dart';
 import 'roomIDProvider.dart';
 
-final ProviderFamily<PlayerDatabase, String>? playerDatabaseProvider =
-    Provider.family<PlayerDatabase, String>(
+final playerDatabaseProvider =
+    Provider.family.autoDispose<PlayerDatabase, String>(
   (ref, id) {
     final app = ref.read(firebaseAppProvider).data!.value;
     return PlayerDatabase(app, uid: id);

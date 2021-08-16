@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
+import 'package:paricon/screens/providers/authProvider.dart';
 
 import '/models/localPlayer.dart';
 import '/screens/dashboard.dart';
-import '/screens/providers/authProvider.dart';
 import '/screens/providers/gameIconProvider.dart';
 import '/screens/providers/pageProvider.dart';
 import '/screens/providers/playerProvider.dart';
@@ -30,10 +30,41 @@ class ExitPopup extends StatelessWidget {
         titleTextStyle: TextStyleFontTheme.poppins
             .copyWith(color: Colors.white70, fontSize: 24),
         title:
-            Text("Really ${context.read(firebaseUserProvider!).displayName}.."),
+            //Text("Really ${context.read(firebaseUserProvider!).displayName}?"),
+            Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Flexible(
+              child: RichText(
+                text: TextSpan(
+                  text: "Really  ",
+                  children: [
+                    TextSpan(
+                      text: context.read(firebaseUserProvider!).displayName,
+                      style: TextStyleFontTheme.luckiestGuy.copyWith(
+                        fontSize: 36,
+                        letterSpacing: 2,
+                      ),
+                    )
+                  ],
+                  style: TextStyleFontTheme.poppins.copyWith(
+                    fontSize: 16,
+                  ),
+                ),
+                maxLines: 1,
+              ),
+            ),
+            Flexible(
+              child: Lottie.asset(
+                'assets/lottie/leavingEmoji.json',
+                fit: BoxFit.fill,
+                height: MediaQuery.of(context).size.height * 0.05,
+              ),
+            ),
+          ],
+        ),
         content: FractionallySizedBox(
             //constraints: BoxConstraints.expand(),
-
             heightFactor: 0.1,
             child: FittedBox(
               fit: BoxFit.scaleDown,
@@ -226,7 +257,7 @@ class EditNamePopUp extends StatelessWidget {
                 if (e.contains("update")) {
                   await context
                       .read(updateNameProvider!(controller.text).future);
-                  await context.refresh(profileProvider!);
+                  await context.refresh(profileProvider);
                 }
                 Navigator.pop(context);
               },

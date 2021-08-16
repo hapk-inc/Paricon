@@ -36,8 +36,15 @@ class GameIconProvider {
     final int count = iconCount(level ?? "hard") ~/ 2;
 
     final icons = level == null
-        ? List.from([...actionIcons.keys])
-        : List.from([...basicIcons.keys, ...actionIcons.keys])
+        ? List.from([...searchIcons.keys, ...placesIcons.keys])
+        : List.from(
+            [
+              ...basicIcons.keys,
+              ...actionIcons.keys,
+              ...searchIcons.keys,
+              ...placesIcons.keys
+            ],
+          )
       ..shuffle();
 
     final sounds = List.from(iconSounds)..shuffle();
@@ -71,14 +78,12 @@ class GameIconProvider {
     );
   }
 
-  IconData? gameIcon(String? icon) =>
-      <String, IconData>{...basicIcons, ...actionIcons}[icon];
-
-  /*IconData? tournamentGameIcons(String gameIcon) {
-    final Map<String, IconData> map = actionIcons;
-    final a = map[gameIcon];
-    return a;
-  }*/
+  IconData? gameIcon(String? icon) => <String, IconData>{
+        ...basicIcons,
+        ...actionIcons,
+        ...searchIcons,
+        ...placesIcons
+      }[icon];
 
   Color iconColor(String color) {
     switch (color) {
@@ -129,7 +134,6 @@ class GameIconProvider {
   }
 
   List<Color>? confettiColors(String color) {
-    // print("confetti colors $color");
     switch (color) {
       case 'red':
         return const [

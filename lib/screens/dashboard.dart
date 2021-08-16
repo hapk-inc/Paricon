@@ -8,6 +8,7 @@ import 'common/snackBarTheme.dart';
 import 'common/textTheme.dart';
 import 'profile.dart';
 import 'providers/pageProvider.dart';
+import 'providers/playerProvider.dart';
 import 'setPractice.dart';
 import 'startGame.dart';
 import 'tournamentLeaderBoard.dart';
@@ -145,36 +146,39 @@ class DashButtons extends StatelessWidget {
                   ],
                 ),
               ),
-              onPressed: () {
-                //final analytics = context.read(firebaseAnalyticsProvider);
-                switch (title) {
-                  case "Play Online":
-                    {
-                      //analytics.setCurrentScreen(screenName: "play_online_screen");
+              onPressed: () async {
+                final profile = await context.read(profileProvider.future);
+                if (profile == null)
+                  context
+                      .read(pageProvider)
+                      .addNext(ProfileScreen.toMaterialPage);
+                else
+                  switch (title) {
+                    case "Play Online":
                       context
                           .read(pageProvider)
                           .addNext(StartGame.toMaterialPage);
                       break;
-                    }
-                  case "Play Local Game":
-                    context
-                        .read(pageProvider)
-                        .addNext(SetPractice.toMaterialPage);
-                    break;
-                  case "Friends and Strangers":
-                    context
-                        .read(pageProvider)
-                        .addNext(AllPlayers.toMaterialPage);
-                    break;
-                  case "Play competitive":
-                    context
-                        .read(pageProvider)
-                        .addNext(TournamentLeaderBoard.toMaterialPage);
-                    break;
-                  default:
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBarThemeStyle.comingSoon);
-                }
+
+                    case "Play Local Game":
+                      context
+                          .read(pageProvider)
+                          .addNext(SetPractice.toMaterialPage);
+                      break;
+                    case "Friends and Strangers":
+                      context
+                          .read(pageProvider)
+                          .addNext(AllPlayers.toMaterialPage);
+                      break;
+                    case "Play competitive":
+                      context
+                          .read(pageProvider)
+                          .addNext(TournamentLeaderBoard.toMaterialPage);
+                      break;
+                    default:
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBarThemeStyle.comingSoon);
+                  }
               },
             ),
           ),

@@ -1,5 +1,4 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -24,7 +23,7 @@ final firebaseAppProvider = FutureProvider<FirebaseApp>(
         minimumFetchInterval: const Duration(seconds: 1),
       ));*/
 
-      await FirebaseAppCheck.instance.activate();
+      //await FirebaseAppCheck.instance.activate();
       FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
       return app;
@@ -101,8 +100,7 @@ final AutoDisposeFutureProvider<Null>? googleSignInProvider =
   },
 );
 
-final AutoDisposeFutureProvider reSignInProvider =
-    FutureProvider.autoDispose<dynamic>(
+final AutoDisposeFutureProvider reSignInProvider = FutureProvider.autoDispose(
   (ref) async {
     final auth = ref.read(authProvider);
     return await auth.reSignIn;
@@ -129,7 +127,7 @@ final AutoDisposeFutureProvider updateMetaDataProvider =
     FutureProvider.autoDispose(
   (ref) async {
     final firebaseUser = ref.read(firebaseUserProvider!);
-    final playerDatabase = ref.read(playerDatabaseProvider!(firebaseUser.uid));
+    final playerDatabase = ref.read(playerDatabaseProvider(firebaseUser.uid));
     bool newSeason = await playerDatabase.updateMetaData(user: firebaseUser);
     if (newSeason) {
       final levels = ['easy', 'medium', 'hard'];

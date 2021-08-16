@@ -226,7 +226,7 @@ final AutoDisposeFutureProvider updateStatsProvider =
     FutureProvider.autoDispose(
   (ref) async {
     final firebaseUser = ref.read(firebaseUserProvider!);
-    final playerDatabase = ref.read(playerDatabaseProvider!(firebaseUser.uid));
+    final playerDatabase = ref.read(playerDatabaseProvider(firebaseUser.uid));
 
     final notifier = ref.read(onlineBoardNotifier);
 

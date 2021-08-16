@@ -29,27 +29,33 @@ class PlayerDatabase extends MyDatabase {
 
   DatabaseReference get metadataRef => playerRef.child('metadata');
 
-  Future<Profile> get profile => profileRef.once().then(
-        (snapshot) => Profile.fromMap(snapshot.value),
+  Future<Profile?> get profile => profileRef.once().then(
+        (snapshot) {
+          final map = snapshot.value;
+          if (map == null) return null;
+          return Profile.fromMap(snapshot.value);
+        },
       );
 
   Future get deleteUser => playerRef.remove();
 
-  Future createPlayer(User user) async {
-    /*final num playerID =
-        10000000 + Random.secure().nextInt(99999999 - 10000000);
-    await playerRef.child(user.uid).child("profile").set(
-      {
-        "name": user.displayName,
-        "userID": playerID,
-        "stats": {
-          "easy": Stats.toZero(),
-          "medium": Stats.toZero(),
-          "hard": Stats.toZero(),
-        }
+  Future createProfile(User user) async {
+    final random = Random.secure();
+    final num id = 10000000 + random.nextInt(99999999 - 10000000);
+    final map = Map.fromIterable(<String>['easy', 'medium', 'hard'],
+        key: (e) => e, value: (_) => Stats.toZero());
+    return playerRef.child('profile').set(
+      <String, dynamic>{
+        "name": user.displayName ?? "SomeOne",
+        "userID": id,
+        "stats": map,
       },
-    );*/
+    );
+  }
+
+/*  Future createPlayer(User user) async {
     final ref = playerRef.child(user.uid).child('profile');
+    if (user.isAnonymous) createProfile(user);
     await ref.runTransaction(
       (mutableData) async {
         if (mutableData.value == null) {
@@ -67,7 +73,7 @@ class PlayerDatabase extends MyDatabase {
         return mutableData;
       },
     );
-  }
+  }*/
 
   Future<bool> updateStats(String level, Stats stats) async {
     final DatabaseReference _ref =
@@ -94,44 +100,6 @@ class PlayerDatabase extends MyDatabase {
           return value.value as String;
         },
       ).onError((error, _) => "");
-
-  Future<List<Profile>?> allPlayers(String level) async => playerRef
-          /* .orderByChild("profile/stats/$level/played")
-          .startAt(
-            kDebugMode
-                ? 0
-                : level == "easy"
-                    ? 2
-                    : 5,
-          )
-          .reference()*/
-          //.limitToLast(10)
-          .once()
-          .then(
-        (snapshot) {
-          if (snapshot.value == null) return null;
-
-          final Map map = snapshot.value;
-
-          map.removeWhere(
-            (key, value) {
-              if (value['metadata'] == null) return true;
-              PlayerMetaData metaData =
-                  PlayerMetaData.fromMap(value['metadata']);
-
-              return metaData.currentTime.month != DateTime.now().month;
-            },
-          );
-
-          List<Profile> _list = map.values
-              .map(
-                (e) => Profile.fromMap(e['profile']),
-              )
-              .toList(growable: false);
-
-          return _list.reversed.toList();
-        },
-      );
 
   Stream<List<Profile>> allUsers(String level) => playerRef
           .orderByChild("profile/stats/$level/played")

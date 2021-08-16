@@ -291,14 +291,21 @@ class RoomPlayers extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: AnimatedSwitcher(
-                    duration: DurationCount.m500,
-                    child: Consumer(
-                      builder: (_, watch, __) =>
-                          watch(otherProfileProvider!(snapshot.key!)).when(
-                        data: (value) =>
-                            PlayerTile(level: level, profile: value),
-                        loading: () => Container(),
+                  child: Consumer(
+                    builder: (_, watch, __) => AnimatedSwitcher(
+                      duration: DurationCount.m500,
+                      child: watch(otherProfileProvider!(snapshot.key!)).when(
+                        data: (value) => PlayerTile(
+                          level: level,
+                          profile: value!,
+                          key: ValueKey(value),
+                        ),
+                        loading: () => AutoSizeText(
+                          "Welcome ${init.name}",
+                          key: ValueKey(init),
+                          style: TextStyleFontTheme.poppins
+                              .copyWith(fontSize: 20, color: Colors.brown[800]),
+                        ),
                         error: (error, stackTrace) => Container(),
                       ),
                     ),

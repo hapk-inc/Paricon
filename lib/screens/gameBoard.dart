@@ -116,7 +116,8 @@ class InitBoard extends StatelessWidget {
                                 OnlinePlayerWheel(players: _board.players)
                               else
                                 PlayerList(players: _board.players),
-                              Spacer()
+                              //Spacer()
+                              FooterAd(),
                             ],
                           ),
                         ],
@@ -141,6 +142,52 @@ class InitBoard extends StatelessWidget {
               );
             },
           ),
+        ),
+      );
+}
+
+class FooterAd extends StatefulWidget {
+  const FooterAd({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _FooterAdState createState() => _FooterAdState();
+}
+
+class _FooterAdState extends State<FooterAd> {
+  BannerAd? _bannerAd;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final adState = context.read(adStateProvider);
+    adState.initialization.then(
+      (status) => setState(
+        () {
+          _bannerAd = BannerAd(
+            size: AdSize.banner,
+            adUnitId: adState.bannerAdUnitId,
+            listener: adState.bannerAdListener,
+            request: AdRequest(),
+          )..load();
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Flexible(
+        child: AnimatedSwitcher(
+          duration: DurationCount.m500,
+          child: _bannerAd == null
+              ? Container(
+                  key: ValueKey(false),
+                )
+              : AdWidget(
+                  ad: _bannerAd!,
+                  key: ValueKey(true),
+                ),
         ),
       );
 }

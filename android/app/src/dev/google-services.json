@@ -15,19 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "118238046593-ku7c0bveik1n2d7vm8blrstcmui3tpeh.apps.googleusercontent.com",
+          "client_id": "118238046593-t0fcrn6tmjhtbu6u0dsnqmeqlfhctp9s.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.hapk.pariconDemo",
-            "certificate_hash": "5dc9732b5228c40d739fa08a1d256b3805443ada"
-          }
-        },
-        {
-          "client_id": "118238046593-samsp6iebohcdpt1uvqejssnuni9kg0d.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.hapk.pariconDemo",
-            "certificate_hash": "03c6a6da89979045997a97dd488b26128afbdfa5"
+            "certificate_hash": "d9b3c246b58c27cd01dd4a73ca9289a1fcc1beb6"
           }
         },
         {

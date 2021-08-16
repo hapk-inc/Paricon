@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "294396273385-s7551b2b41jp5uvn5p9sjr4p1rmn5upr.apps.googleusercontent.com",
+          "client_id": "294396273385-j8b8iq91l45qmb1mei9ohefms47fto6d.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.hapk.paricon",
-            "certificate_hash": "674f0ad8747d0788aae4f3e81f5e0c359dc16e87"
+            "certificate_hash": "5dc9732b5228c40d739fa08a1d256b3805443ada"
           }
         },
         {

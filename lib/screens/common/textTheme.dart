@@ -6,21 +6,9 @@ class TextStyleFontTheme {
     color: Colors.white70,
   );
 
-  static const luckiestGuy = TextStyle(
-    fontFamily: 'LuckiestGuy',
-  );
+  static const luckiestGuy = TextStyle(fontFamily: 'LuckiestGuy');
 
-  static const bangers = TextStyle(
-    fontFamily: 'Bangers',
-  );
+  static const bangers = TextStyle(fontFamily: 'Bangers');
 
-  /*static const originalSurfer = TextStyle(
-    fontFamily: 'OriginalSurfer',
-  );*/
-
-  static const meriendaOne = TextStyle(
-    fontFamily: 'MeriendaOne',
-  );
-
-  //static const reggaeOne = TextStyle(fontFamily: 'ReggaeOne');
+  static const meriendaOne = TextStyle(fontFamily: 'MeriendaOne');
 }

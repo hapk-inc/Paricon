@@ -116,8 +116,8 @@ class InitBoard extends StatelessWidget {
                                 OnlinePlayerWheel(players: _board.players)
                               else
                                 PlayerList(players: _board.players),
-                              //Spacer()
-                              FooterAd(),
+                              Spacer()
+                              //FooterAd(),
                             ],
                           ),
                         ],

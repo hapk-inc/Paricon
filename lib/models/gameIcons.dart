@@ -175,8 +175,3 @@ const Map<String, IconData> placesIcons = <String, IconData>{
   "iron": Icons.iron,
   "escalator": Icons.escalator,
 };
-
-/*const Map<String, IconData> alertIcons = <String, IconData>{
-  "warning": Icons.warning,
-  "notification important": Icons.notification_important
-};*/

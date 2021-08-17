@@ -54,13 +54,13 @@ class ExitPopup extends StatelessWidget {
                 maxLines: 1,
               ),
             ),
-            Flexible(
+            /*Flexible(
               child: Lottie.asset(
                 'assets/lottie/leavingEmoji.json',
                 fit: BoxFit.fill,
                 height: MediaQuery.of(context).size.height * 0.05,
               ),
-            ),
+            ),*/
           ],
         ),
         content: FractionallySizedBox(

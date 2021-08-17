@@ -31,8 +31,7 @@ class SelectAuth extends StatelessWidget {
                         child: RichText(
                           text: TextSpan(
                             text: "Hi ",
-                            style: TextStyle(
-                              fontFamily: 'LuckiestGuy',
+                            style: TextStyleFontTheme.luckiestGuy.copyWith(
                               color: Colors.white60,
                               fontSize: 36,
                             ),
@@ -50,10 +49,9 @@ class SelectAuth extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           howLogin,
-                          style: TextStyle(
-                            fontFamily: 'LuckiestGuy',
+                          style: TextStyleFontTheme.poppins.copyWith(
                             color: Colors.white60,
-                            fontSize: 24,
+                            fontSize: 20,
                           ),
                         ),
                       ),

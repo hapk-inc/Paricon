@@ -33,7 +33,8 @@ final createProfileProvider = FutureProvider.autoDispose(
 final allUsersProvider =
     StreamProvider.autoDispose.family<List<Profile>, String>(
   (ref, level) {
-    final playerDatabase = ref.read(playerDatabaseProvider(""));
+    final firebaseUser = ref.read(firebaseUserProvider!);
+    final playerDatabase = ref.read(playerDatabaseProvider(firebaseUser.uid));
     return playerDatabase.allUsers(level);
   },
 );

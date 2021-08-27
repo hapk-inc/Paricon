@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:paricon/models/playerMeta.dart';
 
@@ -15,8 +14,6 @@ class PlayerDatabase extends MyDatabase {
   final String? uid;
 
   PlayerDatabase(FirebaseApp app, {this.uid}) : super(app);
-
-  //final String _today = DateFormat.yMMMd().format(DateTime.now());
   final String _today = DateFormat.yMMMd().format(DateTime.now());
 
   @override
@@ -53,28 +50,6 @@ class PlayerDatabase extends MyDatabase {
     );
   }
 
-/*  Future createPlayer(User user) async {
-    final ref = playerRef.child(user.uid).child('profile');
-    if (user.isAnonymous) createProfile(user);
-    await ref.runTransaction(
-      (mutableData) async {
-        if (mutableData.value == null) {
-          final random = Random.secure();
-          final num id = 10000000 + random.nextInt(99999999 - 10000000);
-          final map = Map.fromIterable(<String>['easy', 'medium', 'hard'],
-              key: (e) => e, value: (_) => Stats.toZero());
-          //print(map);
-          mutableData.value = <String, dynamic>{
-            "name": user.displayName,
-            "userID": id,
-            "stats": map,
-          };
-        }
-        return mutableData;
-      },
-    );
-  }*/
-
   Future<bool> updateStats(String level, Stats stats) async {
     final DatabaseReference _ref =
         playerRef.child('profile').child("stats").child(level);
@@ -101,22 +76,34 @@ class PlayerDatabase extends MyDatabase {
         },
       ).onError((error, _) => "");
 
-  Stream<List<Profile>> allUsers(String level) => playerRef
-          .orderByChild("profile/stats/$level/played")
-          .startAt(
-            kDebugMode ? 1 : 2,
-          )
+  final List<String> _levels = ["easy", "medium", "hard"];
+
+  final String yearMonth = "${DateTime.now().year}-"
+      "${DateTime.now().month.toString().padLeft(2, '0')}";
+
+  Stream<List<Profile>> allUsers(String level) => super
+          .playerRef
+          .orderByChild("metadata/currentTime")
+          .startAt(yearMonth)
           .onValue
           .map(
         (event) {
           if (event.snapshot.value == null) return List.empty();
           final Map map = event.snapshot.value;
+          final int levelIndex = _levels.indexOf(level);
           map.removeWhere(
             (key, value) {
-              if (value['metadata'] == null) return true;
-              PlayerMetaData metaData =
-                  PlayerMetaData.fromMap(value['metadata']);
-              return metaData.currentTime.month != DateTime.now().month;
+              /*if (value['metadata'] == null) return true;
+            PlayerMetaData metaData = PlayerMetaData.fromMap(value['metadata']);
+            return metaData.currentTime.month != DateTime.now().month;*/
+              if (value['profile'] == null) return true;
+
+              final Profile profile = Profile.fromMap(value['profile']);
+              final Stats stats = profile.stats![levelIndex];
+
+              return stats.played == 0 || DateTime.now().day > 14
+                  ? stats.played! < 5
+                  : stats.played == 1;
             },
           );
 
@@ -125,10 +112,18 @@ class PlayerDatabase extends MyDatabase {
                 (e) => Profile.fromMap(e['profile']),
               )
               .toList(growable: false);
-
+          _list.sort((a, b) {
+            final Stats s1 = a.stats![levelIndex];
+            final Stats s2 = b.stats![levelIndex];
+            if (s1.win == s2.win) {
+              return s1.avg!.compareTo(num.parse(s2.avg.toString()));
+            }
+            return s1.win!.compareTo(num.parse(s2.win.toString()));
+          });
           return _list.reversed.toList();
         },
       );
+
   Future<bool> updateMetaData({User? user}) async {
     late bool _a;
 

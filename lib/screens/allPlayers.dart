@@ -26,38 +26,29 @@ class AllPlayers extends StatelessWidget {
     TabController? _controller;
     return DefaultTabController(
       length: 3,
+      initialIndex: 2,
       child: Scaffold(
-        backgroundColor: Colors.white70,
+        backgroundColor: Colors.white,
         body: SafeArea(
           child: Container(
+            color: Colors.white70,
             child: Column(
               children: [
                 Flexible(
                   flex: 1,
                   fit: FlexFit.tight,
                   child: TabBar(
+                    labelColor: Colors.black87,
+                    unselectedLabelColor: Colors.black26,
+                    unselectedLabelStyle:
+                        TextStyleFontTheme.poppins.copyWith(fontSize: 16),
+                    labelStyle:
+                        TextStyleFontTheme.poppins.copyWith(fontSize: 24),
                     tabs: levels
                         .map(
-                          (e) => Tab(
-                            child: Container(
-                              padding: PaddingTheme.all4,
-                              constraints: BoxConstraints.expand(),
-                              child: FittedBox(
-                                child: Text(
-                                  e.toUpperCase(),
-                                  style: TextStyleFontTheme.poppins,
-                                ),
-                              ),
-                            ),
-                          ),
+                          (e) => Tab(text: e.toUpperCase()),
                         )
                         .toList(growable: false),
-                    indicator: UnderlineTabIndicator(
-                      borderSide: BorderSide(
-                        color: Colors.indigo[50]!,
-                        width: 2.5,
-                      ),
-                    ),
                     onTap: (value) => FocusScope.of(context).unfocus(),
                   ),
                 ),
@@ -117,17 +108,20 @@ class UserList extends StatelessWidget {
         itemCount: users.length,
         itemBuilder: (context, index) {
           final profile = users[index];
+
           final stats = users[index].stats![levels.indexOf(level)];
-          final tileColor =
-              Colors.primaries[Random().nextInt(Colors.primaries.length)];
+          int randomColor = Random().nextInt(Colors.primaries.length);
+          final tileColor = Colors.primaries[randomColor];
           return LimitedBox(
-            maxHeight:
-                MediaQuery.of(context).size.height * (index == 0 ? 0.2 : 0.125),
+            maxHeight: MediaQuery.of(context).size.height *
+                (index == 0 ? 0.15 : 0.125),
             child: Card(
               elevation: 8,
-              color: index == 0 ? tileColor.shade50 : tileColor.shade400,
+              //color: index == 0 ? tileColor.shade50 : tileColor.shade400,
+              color: tileColor.shade300,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.0)),
+                  borderRadius: BorderRadius.circular(4.0),
+                  side: BorderSide(color: tileColor.shade600, width: 4)),
               child: Stack(
                 children: [
                   Row(

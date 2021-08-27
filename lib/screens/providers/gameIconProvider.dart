@@ -36,13 +36,15 @@ class GameIconProvider {
     final int count = iconCount(level ?? "hard") ~/ 2;
 
     final icons = level == null
-        ? List.from([...searchIcons.keys, ...placesIcons.keys])
+        ? List.from([...deviceIcons.keys, ...hardwareIcons.keys])
         : List.from(
             [
               ...basicIcons.keys,
               ...actionIcons.keys,
               ...searchIcons.keys,
-              ...placesIcons.keys
+              ...placesIcons.keys,
+              ...deviceIcons.keys,
+              ...hardwareIcons.keys
             ],
           )
       ..shuffle();
@@ -82,7 +84,9 @@ class GameIconProvider {
         ...basicIcons,
         ...actionIcons,
         ...searchIcons,
-        ...placesIcons
+        ...placesIcons,
+        ...deviceIcons,
+        ...hardwareIcons
       }[icon];
 
   Color iconColor(String color) {

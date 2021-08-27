@@ -332,11 +332,11 @@ class CardIcon extends StatelessWidget {
               final bool allFound =
                   notifier.icons.every((element) => element.isFound);
               if (allFound) {
-                context.read(updateStatsProvider.future);
+                await context.read(updateStatsProvider.future);
                 final adState = context.read(adStateProvider);
                 await adState.initialization.then(
                   (status) {
-                    InterstitialAd.load(
+                    /*InterstitialAd.load(
                       adUnitId: adState.interstitialAdUnitId,
                       request: AdRequest(),
                       adLoadCallback: InterstitialAdLoadCallback(
@@ -366,7 +366,7 @@ class CardIcon extends StatelessWidget {
                           );
                         },
                       ),
-                    );
+                    );*/
                   },
                 ).whenComplete(
                   () => context

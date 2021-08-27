@@ -68,7 +68,7 @@ class SelectAuth extends StatelessWidget {
       );
 }
 
-const String googleSignInError =
+const String GOOGLESIGNINERROR =
     "There is some issue while using google sign-in";
 const String netIssue = "Please Check your internet connection";
 
@@ -95,9 +95,9 @@ class AuthTextButton extends StatelessWidget {
                 context.read(anonymousProvider!);
               else
                 context.read(googleSignInProvider!.future).onError(
-                  (err, stackTrace) {
+                  (Error err, stackTrace) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBarThemeStyle.roomCodeError(googleSignInError),
+                      SnackBarThemeStyle.roomCodeError(GOOGLESIGNINERROR),
                     );
                   },
                 );
